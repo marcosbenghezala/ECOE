@@ -1,0 +1,54 @@
+{
+  "id": "demo_case_golden",
+  "autor_profesor": "test@umh.es",
+  "titulo": "Dolor torácico en varón de 55 años",
+  "especialidad": "Cardiología",
+  "dificultad": "Intermedio",
+  "duracion_estimada": 15,
+  "motivo_consulta": "Paciente de 55 años que acude a urgencias por dolor torácico opresivo de 2 horas de evolución",
+  "informacion_paciente": {
+    "nombre": "Juan García",
+    "edad": 55,
+    "genero": "male",
+    "ocupacion": "Comercial"
+  },
+  "sintomas_principales": [
+    "dolor torácico",
+    "dolor opresivo",
+    "sudoración"
+  ],
+  "diagnostico_principal": "Infarto agudo de miocardio",
+  "antecedentes": {
+    "personales": ["HTA", "Tabaquismo"],
+    "familiares": ["Padre IAM a los 60 años"]
+  },
+  "multimedia": [],
+  "preguntas_reflexion": [
+    {
+      "id": 1,
+      "pregunta": "Resume el motivo de consulta y los síntomas más importantes del paciente.",
+      "criterio": "Debe mencionar: dolor torácico opresivo, duración 2h, irradiación si preguntó, factores desencadenantes",
+      "max_score": 2
+    },
+    {
+      "id": 2,
+      "pregunta": "¿Cuál es tu diagnóstico más probable para este caso? Justifícalo usando al menos dos datos concretos de la anamnesis.",
+      "criterio": "Debe identificar IAM o SCA y justificar con: edad, sexo, factores de riesgo (HTA, tabaco), características del dolor",
+      "max_score": 2
+    },
+    {
+      "id": 3,
+      "pregunta": "Indica dos diagnósticos diferenciales razonables y explica brevemente por qué los consideras.",
+      "criterio": "Debe mencionar al menos 2 de: angina inestable, pericarditis, disección aórtica, TEP, GERD. Justificación razonable.",
+      "max_score": 2
+    },
+    {
+      "id": 4,
+      "pregunta": "¿Qué pruebas complementarias solicitarías para confirmar tu diagnóstico? Justifica tu elección.",
+      "criterio": "Debe incluir: ECG (urgente), troponinas, analítica básica. Justificación: confirmar isquemia, daño miocárdico.",
+      "max_score": 2
+    }
+  ],
+  "created_at": "2025-12-17T12:00:00Z",
+  "updated_at": "2025-12-17T12:00:00Z"
+}
