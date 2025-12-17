@@ -84,6 +84,7 @@ except Exception as e:
     openai_client = None
 
 # Inicializar componentes con parámetros correctos
+# EvaluatorV2 es legacy - solo se usa si no falla, pero no es crítico
 try:
     evaluator = EvaluatorV2(
         api_key=os.getenv('OPENAI_API_KEY'),
@@ -94,7 +95,8 @@ try:
     )
     print("✅ EvaluatorV2 inicializado")
 except Exception as e:
-    print(f"⚠️  Error inicializando evaluador V2: {e}")
+    # EvaluatorV2 no es crítico - solo log warning
+    print(f"⚠️  EvaluatorV2 no disponible (legacy): {e}")
     evaluator = None
 
 # Inicializar EvaluatorV3 (nuevo sistema con checklist v2)
