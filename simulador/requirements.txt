@@ -1,0 +1,25 @@
+# ECOE Backend Requirements
+
+# Core
+flask==3.0.0
+flask-cors==4.0.0
+flask-sock==0.7.0
+
+# OpenAI
+openai==1.54.0
+
+# WebSockets
+websockets>=15.0.1
+
+# Google Sheets
+google-auth==2.34.0
+google-auth-oauthlib==1.2.0
+google-api-python-client==2.144.0
+
+# Embeddings & ML
+numpy==1.26.4
+scikit-learn==1.5.0
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0

@@ -1,0 +1,65 @@
+{
+  "id": "caso_prueba_001",
+  "titulo": "Dolor Torácico Agudo - Caso de Prueba",
+  "especialidad": "Cardiología",
+  "dificultad": "Intermedio",
+  "duracion_estimada": 15,
+  "motivo_consulta": "Dolor torácico de 2 horas de evolución",
+  "informacion_paciente": {
+    "nombre": "Juan Pérez García",
+    "edad": 55,
+    "genero": "masculino",
+    "ocupacion": "Profesor"
+  },
+  "contexto_generado": "El paciente es un hombre de 55 años que acude a urgencias refiriendo dolor torácico de 2 horas de evolución.\n\nHISTORIA CLÍNICA:\n- Dolor retroesternal opresivo, con irradiación a brazo izquierdo y mandíbula\n- Intensidad 8/10\n- Asociado a sudoración profusa y náuseas\n- Sin alivio con reposo\n\nANTECEDENTES:\n- Hipertensión arterial en tratamiento\n- Dislipidemia\n- Fumador activo (20 cigarrillos/día desde hace 30 años)\n- Padre fallecido por infarto agudo de miocardio a los 58 años\n\nEXPLORACIÓN FÍSICA:\n- TA: 160/95 mmHg\n- FC: 105 lpm\n- SatO2: 96% basal\n- Sudoroso, ansioso\n- Auscultación cardíaca: rítmico, sin soplos\n- Auscultación pulmonar: murmullo vesicular conservado\n\nSITUACIÓN ACTUAL:\nEl paciente está preocupado porque el dolor no cede. Refiere que \"siente que le aprietan el pecho\" y tiene miedo de que sea un infarto como el de su padre.",
+  "personalidad_generada": "Eres un paciente colaborador pero ansioso por la situación.\n\nACTITUD:\n- Respondes las preguntas de forma clara pero breve debido al malestar\n- Muestras preocupación evidente\n- Haces preguntas sobre si es grave\n- Mencionas espontáneamente el antecedente familiar de tu padre\n\nFORMA DE HABLAR:\n- Frases cortas debido a la incomodidad\n- Expresas el dolor con palabras como \"me aprieta\", \"me pesa\"\n- Interrumpes ocasionalmente para decir que el dolor continúa\n\nEXPECTATIVAS (ICE):\n- Ideas: Crees que puede ser un infarto\n- Concerns: Miedo a morir como tu padre\n- Expectations: Que te hagan pruebas urgentes (ECG, analítica)",
+  "sintomas_principales": [
+    "dolor torácico",
+    "dolor retroesternal",
+    "dolor opresivo",
+    "irradiación a brazo",
+    "sudoración",
+    "náuseas",
+    "disnea"
+  ],
+  "items_activos": [
+    "presentacion",
+    "motivo_consulta",
+    "caracteristicas_dolor",
+    "localizacion_dolor",
+    "irradiacion",
+    "intensidad_dolor",
+    "factores_alivio",
+    "factores_empeoramiento",
+    "sintomas_asociados",
+    "tiempo_evolucion",
+    "antecedentes_personales",
+    "antecedentes_familiares",
+    "medicacion_actual",
+    "alergias",
+    "habitos_toxicos",
+    "ice_ideas",
+    "ice_concerns",
+    "ice_expectations",
+    "empatia",
+    "comunicacion_clara",
+    "factores_riesgo_cardiovascular",
+    "claudicacion",
+    "ortopnea",
+    "disnea_paroxistica_nocturna",
+    "palpitaciones",
+    "sincope",
+    "edemas"
+  ],
+  "multimedia": [
+    {
+      "tipo": "ECG",
+      "descripcion": "ECG de 12 derivaciones",
+      "url": "#",
+      "hallazgos": "Elevación del segmento ST en derivaciones precordiales"
+    }
+  ],
+  "instrucciones": "Este es un caso de simulación de anamnesis completa.\n\nOBJETIVOS:\n1. Realizar anamnesis completa siguiendo el método SOCRATES para el dolor\n2. Explorar Ideas, Concerns y Expectations (ICE) del paciente\n3. Identificar factores de riesgo cardiovascular\n4. Mantener comunicación empática\n\nDURACIÓN: 15 minutos\n\nEVALUACIÓN:\nSerás evaluado en base al checklist maestro con activación por síntomas.",
+  "created_at": "2025-12-02T13:33:26.942622",
+  "version": "2.0"
+}

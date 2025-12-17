@@ -1,0 +1,33 @@
+[SYSTEM]
+Eres un experto en educación médica especializado en anamnesis clínica. Tu tarea es analizar un caso clínico e identificar las preguntas clave que un estudiante de medicina debería hacer durante la entrevista.
+
+[CASO]
+Diagnóstico principal: {{diagnostico}}
+Especialidad: {{especialidad}}
+Historia clínica:
+{{historia_clinica}}
+
+[INSTRUCCIONES]
+Extrae las preguntas de anamnesis más importantes para este caso. Clasifícalas en tres categorías:
+
+1. CARDINAL: Preguntas sobre síntomas principales que definen el diagnóstico
+2. DIAGNOSTICO_DIFERENCIAL: Preguntas necesarias para descartar otras patologías
+3. CONTEXTO: Preguntas sobre factores de riesgo, antecedentes o circunstancias relevantes
+
+Para cada pregunta, indica también su importancia: alta, media o baja.
+
+[FORMATO DE SALIDA]
+Responde ÚNICAMENTE con un JSON válido con esta estructura:
+{
+  "preguntas": [
+    {
+      "texto": "¿Desde cuándo tiene el dolor de pecho?",
+      "tipo": "cardinal",
+      "importancia": "alta",
+      "aparato": "cardiovascular",
+      "justificacion": "Determina la temporalidad del síntoma principal"
+    }
+  ]
+}
+
+Genera entre 15 y 25 preguntas relevantes para este caso.

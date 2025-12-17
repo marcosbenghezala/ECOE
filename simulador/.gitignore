@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# Secrets y configuración sensible
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+credentials.json
+google_credentials.json
+*_credentials.json
+
+# Datos sensibles
+sessions/
+*.bin
+*.pickle
+*.pkl
+
+# Node/Frontend
+node_modules/
+frontend/dist/
+frontend/build/
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Casos (NO commitear casos reales de producción)
+casos_procesados/*.bin
+casos_procesados/*.pickle
+
+# SÍ commitear casos demo en JSON
+!casos_procesados/demo_*.json
+!casos_procesados/example_*.json

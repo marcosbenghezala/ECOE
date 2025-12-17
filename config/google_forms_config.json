@@ -1,0 +1,27 @@
+{
+    "results_form": {
+        "url": "CONFIGURAR_URL_AQUI",
+        "comment": "URL debe ser: https://docs.google.com/forms/d/e/{FORM_ID}/formResponse",
+        "fields": {
+            "correo": "entry.000000001",
+            "nombre": "entry.000000002",
+            "matricula": "entry.000000003",
+            "caso": "entry.000000004",
+            "puntuacion": "entry.000000005",
+            "porcentaje_items": "entry.000000006",
+            "items_detalle": "entry.000000007",
+            "tiempo": "entry.000000008",
+            "diagnostico": "entry.000000009",
+            "diagnostico_diff": "entry.000000010",
+            "justificacion": "entry.000000011",
+            "transcripcion": "entry.000000012",
+            "feedback": "entry.000000013"
+        }
+    },
+    "cases_sheet": {
+        "spreadsheet_id": "CONFIGURAR_SPREADSHEET_ID",
+        "comment": "ID de la hoja de cálculo vinculada al formulario de profesores",
+        "sheet_name": "Respuestas de formulario 1",
+        "processed_column": "AA"
+    }
+}

@@ -1,0 +1,1607 @@
+{
+  "version": "1.0.0",
+  "fecha_creacion": "2024-12-01",
+  "ultima_actualizacion": "2024-12-01",
+  "total_items": 130,
+  "metadata": {
+    "descripcion": "Checklist maestro ECOE para anamnesis clínica",
+    "autor": "Universidad Miguel Hernández",
+    "referencias": [
+      "Geeky Medics - Clinical History Taking",
+      "Calgary-Cambridge Guide",
+      "NHS/NICE Clinical Guidelines"
+    ],
+    "permite_aprendizaje": true,
+    "umbral_similitud_nuevo_item": 0.85
+  },
+
+  "bloques_universales": {
+    "IDENTIFICACION": {
+      "nombre": "Identificación y contexto",
+      "descripcion": "Saludo inicial, presentación y establecimiento de rapport",
+      "peso_bloque": 5,
+      "puntuacion_minima_porcentaje": 67,
+      "items": [
+        {
+          "id": "ID_01",
+          "texto": "Saluda al paciente cordialmente",
+          "descripcion": "Establece contacto inicial amigable con el paciente",
+          "keywords": ["hola", "buenos días", "buenas tardes", "buenas noches"],
+          "frases_ejemplo": [
+            "Buenos días, ¿cómo está?",
+            "Hola, bienvenido"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "comunicacion"
+        },
+        {
+          "id": "ID_02",
+          "texto": "Se presenta con nombre y rol",
+          "descripcion": "Informa al paciente quién es y cuál es su función",
+          "keywords": ["soy", "me llamo", "estudiante", "médico", "nombre"],
+          "frases_ejemplo": [
+            "Soy María, estudiante de medicina",
+            "Me llamo Juan y soy el médico que le va a atender"
+          ],
+          "peso": 1,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "comunicacion"
+        },
+        {
+          "id": "ID_03",
+          "texto": "Confirma identidad del paciente (nombre, edad)",
+          "descripcion": "Verifica que está atendiendo al paciente correcto",
+          "keywords": ["nombre", "apellidos", "edad", "confirmar", "fecha nacimiento"],
+          "frases_ejemplo": [
+            "¿Me puede confirmar su nombre completo?",
+            "¿Cuál es su fecha de nacimiento?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "seguridad"
+        }
+      ]
+    },
+
+    "MOTIVO_CONSULTA": {
+      "nombre": "Motivo de consulta",
+      "descripcion": "Identificación del motivo principal por el que consulta el paciente",
+      "peso_bloque": 8,
+      "puntuacion_minima_porcentaje": 60,
+      "items": [
+        {
+          "id": "MC_01",
+          "texto": "Realiza pregunta abierta inicial",
+          "descripcion": "Permite al paciente explicar libremente su motivo de consulta",
+          "keywords": ["qué le trae", "qué le ocurre", "en qué puedo ayudarle", "cuénteme"],
+          "frases_ejemplo": [
+            "¿Qué le trae por aquí hoy?",
+            "Cuénteme, ¿qué le pasa?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "comunicacion"
+        },
+        {
+          "id": "MC_02",
+          "texto": "Recoge motivo principal con palabras del paciente",
+          "descripcion": "Escucha y registra exactamente cómo el paciente describe su problema",
+          "keywords": ["desde cuándo", "hace cuánto", "cuándo empezó"],
+          "frases_ejemplo": [
+            "¿Desde cuándo tiene este problema?",
+            "¿Cuándo empezó a notarlo?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "anamnesis"
+        },
+        {
+          "id": "MC_03",
+          "texto": "Permite relato libre sin interrumpir",
+          "descripcion": "Da espacio al paciente para contar su historia sin cortar",
+          "keywords": [],
+          "frases_ejemplo": [],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "comunicacion",
+          "nota": "Item observable, no requiere palabras clave específicas"
+        },
+        {
+          "id": "MC_04",
+          "texto": "Indaga sobre otros motivos de consulta",
+          "descripcion": "Pregunta si hay otras preocupaciones además de la principal",
+          "keywords": ["algo más", "otra cosa", "algún otro problema", "además"],
+          "frases_ejemplo": [
+            "¿Hay algo más que le preocupe?",
+            "¿Algún otro síntoma que quiera comentarme?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "anamnesis"
+        },
+        {
+          "id": "MC_05",
+          "texto": "Resume y verifica comprensión del motivo",
+          "descripcion": "Repite lo entendido para confirmar con el paciente",
+          "keywords": ["entiendo que", "o sea que", "si he comprendido bien", "resumiendo"],
+          "frases_ejemplo": [
+            "Si he entendido bien, usted tiene...",
+            "Déjeme ver si lo he comprendido correctamente..."
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "comunicacion"
+        }
+      ]
+    },
+
+    "HEA_SOCRATES": {
+      "nombre": "Historia Enfermedad Actual - SOCRATES",
+      "descripcion": "Exploración detallada del síntoma principal usando SOCRATES",
+      "peso_bloque": 20,
+      "puntuacion_minima_porcentaje": 55,
+      "items": [
+        {
+          "id": "SOCR_01",
+          "texto": "Localización exacta del síntoma",
+          "descripcion": "Identifica dónde se localiza precisamente el síntoma",
+          "keywords": ["dónde", "en qué parte", "localización", "zona", "señale"],
+          "frases_ejemplo": [
+            "¿Dónde exactamente siente el dolor?",
+            "¿Puede señalarme dónde le molesta?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_02",
+          "texto": "Cronología e inicio del síntoma",
+          "descripcion": "Determina cuándo empezó y cómo comenzó (súbito/gradual)",
+          "keywords": ["cuándo empezó", "desde cuándo", "hace cuánto", "inicio", "comenzó"],
+          "frases_ejemplo": [
+            "¿Cuándo comenzó este síntoma?",
+            "¿Fue de golpe o poco a poco?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_03",
+          "texto": "Características y cualidad del síntoma",
+          "descripcion": "Describe cómo es el síntoma (agudo, sordo, opresivo, etc.)",
+          "keywords": ["cómo es", "tipo de", "qué tipo", "describa", "punzante", "opresivo", "quemazón"],
+          "frases_ejemplo": [
+            "¿Cómo es el dolor? ¿Punzante, opresivo?",
+            "¿Puede describir cómo lo siente?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "intermedio",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_04",
+          "texto": "Irradiación del síntoma",
+          "descripcion": "Investiga si el síntoma se extiende a otras zonas",
+          "keywords": ["se extiende", "irradia", "va hacia", "se corre", "brazo", "espalda"],
+          "frases_ejemplo": [
+            "¿El dolor se va a alguna otra parte?",
+            "¿Nota que se extienda hacia algún lado?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_05",
+          "texto": "Intensidad del síntoma",
+          "descripcion": "Cuantifica la severidad usando escala o descriptores",
+          "keywords": ["intensidad", "escala", "del 1 al 10", "cuánto", "grave", "leve"],
+          "frases_ejemplo": [
+            "Del 1 al 10, ¿qué intensidad tiene?",
+            "¿Es un dolor leve, moderado o severo?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_06",
+          "texto": "Factores agravantes",
+          "descripcion": "Identifica qué empeora el síntoma",
+          "keywords": ["empeora", "agrava", "aumenta", "con qué", "al hacer"],
+          "frases_ejemplo": [
+            "¿Algo que empeore el dolor?",
+            "¿Con qué actividades aumenta?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "SOCR_07",
+          "texto": "Factores atenuantes",
+          "descripcion": "Identifica qué mejora o alivia el síntoma",
+          "keywords": ["alivia", "mejora", "disminuye", "calma", "con qué"],
+          "frases_ejemplo": [
+            "¿Algo que le alivie?",
+            "¿Ha tomado algo que le quite el dolor?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "SOCR_08",
+          "texto": "Evolución temporal y patrón",
+          "descripcion": "Determina si es constante, intermitente, progresivo",
+          "keywords": ["constante", "va y viene", "intermitente", "todo el tiempo", "episodios"],
+          "frases_ejemplo": [
+            "¿Es constante o va y viene?",
+            "¿Ha empeorado, mejorado o sigue igual?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "SOCR_09",
+          "texto": "Duración de episodios",
+          "descripcion": "Cuánto dura cada episodio del síntoma",
+          "keywords": ["cuánto dura", "duración", "minutos", "horas", "cuánto tiempo"],
+          "frases_ejemplo": [
+            "Cuando le viene, ¿cuánto le dura?",
+            "¿Los episodios son de minutos u horas?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "SOCR_10",
+          "texto": "Síntomas acompañantes",
+          "descripcion": "Identifica otros síntomas que aparecen junto al principal",
+          "keywords": ["además", "acompañado", "junto con", "también", "otros síntomas"],
+          "frases_ejemplo": [
+            "¿Tiene algún otro síntoma además del dolor?",
+            "¿Nota algo más cuando le pasa?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "SOCR_11",
+          "texto": "Frecuencia o periodicidad",
+          "descripcion": "Con qué frecuencia ocurre el síntoma",
+          "keywords": ["frecuencia", "cuántas veces", "cada cuánto", "diario", "semanal"],
+          "frases_ejemplo": [
+            "¿Con qué frecuencia le pasa?",
+            "¿Cuántas veces le ha ocurrido?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        }
+      ]
+    },
+
+    "HEA_ICE": {
+      "nombre": "Ideas, Concerns, Expectations (ICE)",
+      "descripcion": "Exploración de perspectiva del paciente sobre su enfermedad",
+      "peso_bloque": 5,
+      "puntuacion_minima_porcentaje": 67,
+      "items": [
+        {
+          "id": "ICE_01",
+          "texto": "Indaga ideas del paciente sobre la causa",
+          "descripcion": "Pregunta qué cree el paciente que causa sus síntomas",
+          "keywords": ["qué cree que", "por qué piensa", "idea", "causa"],
+          "frases_ejemplo": [
+            "¿Qué cree usted que puede estar causando esto?",
+            "¿Tiene alguna idea de por qué le pasa?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "comunicacion"
+        },
+        {
+          "id": "ICE_02",
+          "texto": "Explora preocupaciones específicas",
+          "descripcion": "Identifica miedos o preocupaciones concretas del paciente",
+          "keywords": ["preocupa", "preocupación", "miedo", "teme", "inquieta"],
+          "frases_ejemplo": [
+            "¿Hay algo que le preocupe especialmente?",
+            "¿Tiene algún miedo sobre lo que pueda ser?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "comunicacion"
+        },
+        {
+          "id": "ICE_03",
+          "texto": "Revisa expectativas de la consulta",
+          "descripcion": "Pregunta qué espera el paciente de esta visita",
+          "keywords": ["espera", "expectativa", "qué necesita", "qué busca"],
+          "frases_ejemplo": [
+            "¿Qué esperaba de esta consulta?",
+            "¿En qué puedo ayudarle hoy?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "comunicacion"
+        }
+      ]
+    },
+
+    "ANTECEDENTES_PERSONALES": {
+      "nombre": "Antecedentes Personales",
+      "descripcion": "Historia médica personal previa",
+      "peso_bloque": 10,
+      "puntuacion_minima_porcentaje": 50,
+      "items": [
+        {
+          "id": "AP_01",
+          "texto": "Pregunta por enfermedades crónicas",
+          "descripcion": "Investiga patologías crónicas (diabetes, HTA, etc.)",
+          "keywords": ["enfermedades", "crónico", "diabetes", "hipertensión", "asma", "patología"],
+          "frases_ejemplo": [
+            "¿Tiene alguna enfermedad crónica?",
+            "¿Padece diabetes, hipertensión o alguna otra enfermedad?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "AP_02",
+          "texto": "Pregunta por cirugías previas",
+          "descripcion": "Identifica operaciones anteriores",
+          "keywords": ["cirugía", "operado", "operación", "intervención"],
+          "frases_ejemplo": [
+            "¿Le han operado alguna vez?",
+            "¿Tiene alguna cirugía previa?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_03",
+          "texto": "Pregunta por hospitalizaciones previas",
+          "descripcion": "Investiga ingresos hospitalarios anteriores",
+          "keywords": ["hospitalizado", "ingresado", "ingreso", "hospital"],
+          "frases_ejemplo": [
+            "¿Ha estado ingresado en el hospital antes?",
+            "¿Lo han hospitalizado alguna vez?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_04",
+          "texto": "Pregunta por alergias medicamentosas",
+          "descripcion": "Identifica alergias a medicamentos",
+          "keywords": ["alergia", "alérgico", "medicamento", "fármaco", "reacción"],
+          "frases_ejemplo": [
+            "¿Es alérgico a algún medicamento?",
+            "¿Tiene alguna alergia conocida?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "AP_05",
+          "texto": "Pregunta por alergias no medicamentosas",
+          "descripcion": "Investiga alergias alimentarias, ambientales, etc.",
+          "keywords": ["alergia", "alimentos", "polen", "polvo", "látex"],
+          "frases_ejemplo": [
+            "¿Alguna alergia a alimentos o al ambiente?",
+            "¿Es alérgico al polen, polvo o algún alimento?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_06",
+          "texto": "Pregunta por historia transfusional",
+          "descripcion": "Investiga transfusiones de sangre previas",
+          "keywords": ["transfusión", "sangre", "transfundido"],
+          "frases_ejemplo": [
+            "¿Le han puesto alguna transfusión de sangre?",
+            "¿Ha recibido transfusiones?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_07",
+          "texto": "Pregunta por inmunizaciones/vacunas",
+          "descripcion": "Verifica estado de vacunación",
+          "keywords": ["vacuna", "inmunización", "vacunado"],
+          "frases_ejemplo": [
+            "¿Tiene las vacunas al día?",
+            "¿Cuándo fue la última vez que se vacunó?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_08",
+          "texto": "Pregunta por historia gineco-obstétrica (si procede)",
+          "descripcion": "En mujeres: menstruación, embarazos, partos",
+          "keywords": ["menstruación", "regla", "embarazo", "parto", "menopausia"],
+          "frases_ejemplo": [
+            "¿Cuándo fue su última menstruación?",
+            "¿Ha tenido embarazos o partos?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto",
+          "aplicable_si": "sexo == 'Femenino'"
+        },
+        {
+          "id": "AP_09",
+          "texto": "Pregunta por accidentes traumáticos relevantes",
+          "descripcion": "Investiga traumatismos importantes previos",
+          "keywords": ["accidente", "trauma", "golpe", "caída"],
+          "frases_ejemplo": [
+            "¿Ha tenido algún accidente o traumatismo importante?",
+            "¿Alguna caída o golpe fuerte en el pasado?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_10",
+          "texto": "Pregunta por discapacidad o uso de prótesis",
+          "descripcion": "Identifica limitaciones funcionales o dispositivos",
+          "keywords": ["discapacidad", "prótesis", "marcapasos", "silla ruedas", "bastón"],
+          "frases_ejemplo": [
+            "¿Usa alguna prótesis o ayuda técnica?",
+            "¿Tiene alguna discapacidad o limitación?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AP_11",
+          "texto": "Pregunta por tratamientos actuales",
+          "descripcion": "Identifica medicación que toma actualmente",
+          "keywords": ["medicación", "tratamiento", "toma", "pastillas", "medicamento actual"],
+          "frases_ejemplo": [
+            "¿Qué medicamentos toma actualmente?",
+            "¿Está en tratamiento con algo?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "AP_12",
+          "texto": "Pregunta por historia psiquiátrica relevante",
+          "descripcion": "Investiga antecedentes de salud mental",
+          "keywords": ["depresión", "ansiedad", "psiquiatra", "psicológico", "salud mental"],
+          "frases_ejemplo": [
+            "¿Ha tenido problemas de depresión o ansiedad?",
+            "¿Ha consultado alguna vez con psiquiatría?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        }
+      ]
+    },
+
+    "ANTECEDENTES_FAMILIARES": {
+      "nombre": "Antecedentes Familiares",
+      "descripcion": "Historia médica de familiares de primer grado",
+      "peso_bloque": 5,
+      "puntuacion_minima_porcentaje": 50,
+      "items": [
+        {
+          "id": "AF_01",
+          "texto": "Pregunta por patología en familiares de primer grado",
+          "descripcion": "Investiga enfermedades en padres, hermanos, hijos",
+          "keywords": ["familia", "padre", "madre", "hermano", "hijo", "familiar"],
+          "frases_ejemplo": [
+            "¿Algún familiar cercano tiene alguna enfermedad importante?",
+            "¿Sus padres o hermanos tienen algún problema de salud?"
+          ],
+          "peso": 2,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "AF_02",
+          "texto": "Pregunta por causa de fallecimiento de familiares",
+          "descripcion": "Identifica causas de muerte en familia cercana",
+          "keywords": ["fallecido", "murió", "muerte", "causa"],
+          "frases_ejemplo": [
+            "Si han fallecido, ¿de qué murieron?",
+            "¿Algún familiar ha muerto por enfermedad del corazón?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "AF_03",
+          "texto": "Pregunta por muerte súbita o eventos cardiovasculares precoces",
+          "descripcion": "Investiga muerte súbita o IAM/ACV antes de 50 años",
+          "keywords": ["muerte súbita", "infarto", "ictus", "joven", "antes de"],
+          "frases_ejemplo": [
+            "¿Algún familiar ha tenido infarto o ictus siendo joven?",
+            "¿Ha habido casos de muerte súbita en la familia?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "AF_04",
+          "texto": "Pregunta por cáncer hereditario relevante",
+          "descripcion": "Investiga antecedentes de cáncer familiar",
+          "keywords": ["cáncer", "tumor", "oncológico"],
+          "frases_ejemplo": [
+            "¿Hay antecedentes de cáncer en la familia?",
+            "¿Algún familiar ha tenido tumores?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        }
+      ]
+    },
+
+    "PSICOSOCIALES": {
+      "nombre": "Contexto Psicosocial",
+      "descripcion": "Situación social, laboral y contexto de vida del paciente",
+      "peso_bloque": 5,
+      "puntuacion_minima_porcentaje": 40,
+      "items": [
+        {
+          "id": "PS_01",
+          "texto": "Pregunta por situación familiar y convivencia",
+          "descripcion": "Identifica con quién vive y su entorno familiar",
+          "keywords": ["vive solo", "familia", "convive", "pareja", "hijos"],
+          "frases_ejemplo": [
+            "¿Vive solo o acompañado?",
+            "¿Con quién vive?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_02",
+          "texto": "Pregunta por estado civil y soporte social",
+          "descripcion": "Investiga red de apoyo social disponible",
+          "keywords": ["estado civil", "casado", "soltero", "apoyo", "cuidador"],
+          "frases_ejemplo": [
+            "¿Está casado/a?",
+            "¿Tiene a alguien que le ayude en casa?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_03",
+          "texto": "Pregunta por vivienda y entorno",
+          "descripcion": "Investiga condiciones de vivienda (escaleras, barreras, etc.)",
+          "keywords": ["vivienda", "casa", "piso", "escaleras", "ascensor"],
+          "frases_ejemplo": [
+            "¿Dónde vive? ¿Es un piso con escaleras?",
+            "¿Hay ascensor en su edificio?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_04",
+          "texto": "Pregunta por situación laboral y profesión",
+          "descripcion": "Identifica ocupación y exposiciones laborales",
+          "keywords": ["trabajo", "profesión", "ocupación", "laboral", "empleo"],
+          "frases_ejemplo": [
+            "¿A qué se dedica?",
+            "¿En qué trabaja?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_05",
+          "texto": "Pregunta por nivel educativo",
+          "descripcion": "Investiga escolaridad (para adaptar explicaciones)",
+          "keywords": ["estudios", "escuela", "educación", "primaria", "universidad"],
+          "frases_ejemplo": [
+            "¿Hasta qué nivel estudió?",
+            "¿Fue a la escuela?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_06",
+          "texto": "Pregunta por creencias religiosas si influyen en salud",
+          "descripcion": "Solo si relevante para decisiones clínicas",
+          "keywords": ["religión", "creencias", "transfusión", "restricción"],
+          "frases_ejemplo": [
+            "¿Hay alguna creencia o valor que debamos tener en cuenta?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto",
+          "aplicable_si": "contexto clínico lo requiera"
+        },
+        {
+          "id": "PS_07",
+          "texto": "Pregunta por estrés vital reciente",
+          "descripcion": "Investiga eventos estresantes recientes (duelos, cambios)",
+          "keywords": ["estrés", "preocupación", "problema", "duelo", "pérdida"],
+          "frases_ejemplo": [
+            "¿Ha tenido algún problema o preocupación últimamente?",
+            "¿Ha pasado por alguna situación difícil recientemente?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_08",
+          "texto": "Pregunta por cuidador primario si aplicable",
+          "descripcion": "Identifica quién cuida del paciente si lo necesita",
+          "keywords": ["cuida", "cuidador", "ayuda", "quien le atiende"],
+          "frases_ejemplo": [
+            "¿Quién le ayuda en el día a día?",
+            "¿Tiene a alguien que le cuide?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "PS_09",
+          "texto": "Pregunta sobre violencia o abuso (si procede y seguro)",
+          "descripcion": "Solo si contexto lo requiere y es seguro preguntar",
+          "keywords": ["seguro", "violencia", "maltrato", "abuso"],
+          "frases_ejemplo": [
+            "¿Se siente seguro/a en casa?",
+            "¿Alguna vez alguien le ha hecho daño?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto",
+          "aplicable_si": "contexto clínico lo sugiera y sea apropiado"
+        }
+      ]
+    },
+
+    "HABITOS": {
+      "nombre": "Hábitos de Vida",
+      "descripcion": "Estilos de vida y factores de riesgo conductuales",
+      "peso_bloque": 7,
+      "puntuacion_minima_porcentaje": 43,
+      "items": [
+        {
+          "id": "HAB_01",
+          "texto": "Pregunta por tabaquismo",
+          "descripcion": "Investiga consumo de tabaco (cantidad, años, tipo)",
+          "keywords": ["fuma", "tabaco", "cigarrillo", "paquete", "fumador"],
+          "frases_ejemplo": [
+            "¿Fuma?",
+            "¿Cuántos cigarrillos fuma al día?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "HAB_02",
+          "texto": "Pregunta por consumo de alcohol",
+          "descripcion": "Investiga tipo, cantidad y frecuencia de alcohol",
+          "keywords": ["alcohol", "bebe", "cerveza", "vino", "copa"],
+          "frases_ejemplo": [
+            "¿Bebe alcohol?",
+            "¿Con qué frecuencia y qué cantidad?"
+          ],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "HAB_03",
+          "texto": "Pregunta por consumo de otras drogas",
+          "descripcion": "Investiga uso de drogas recreativas",
+          "keywords": ["droga", "cannabis", "cocaína", "sustancia"],
+          "frases_ejemplo": [
+            "¿Consume alguna otra sustancia?",
+            "¿Ha consumido drogas recreativas?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "HAB_04",
+          "texto": "Pregunta por alimentación y tipo de dieta",
+          "descripcion": "Investiga patrón alimentario general",
+          "keywords": ["alimentación", "dieta", "come", "comida"],
+          "frases_ejemplo": [
+            "¿Cómo es su alimentación habitualmente?",
+            "¿Sigue alguna dieta especial?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "HAB_05",
+          "texto": "Pregunta por actividad física regular",
+          "descripcion": "Investiga ejercicio y sedentarismo",
+          "keywords": ["ejercicio", "deporte", "actividad física", "camina", "gimnasio"],
+          "frases_ejemplo": [
+            "¿Hace ejercicio regularmente?",
+            "¿Cuánto camina al día?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "HAB_06",
+          "texto": "Pregunta por sueño (duración y calidad)",
+          "descripcion": "Investiga patrón de sueño y descanso",
+          "keywords": ["sueño", "duerme", "horas", "descanso", "insomnio"],
+          "frases_ejemplo": [
+            "¿Cuántas horas duerme?",
+            "¿Descansa bien por la noche?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "HAB_07",
+          "texto": "Pregunta por sexualidad y conductas de riesgo",
+          "descripcion": "Si procede: parejas, protección, ETS",
+          "keywords": ["sexual", "pareja", "protección", "preservativo"],
+          "frases_ejemplo": [
+            "¿Está sexualmente activo/a?",
+            "¿Usa métodos de protección?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto",
+          "aplicable_si": "contexto lo requiera"
+        },
+        {
+          "id": "HAB_08",
+          "texto": "Pregunta por animales de compañía o exposiciones zoonóticas",
+          "descripcion": "Investiga mascotas o contacto con animales",
+          "keywords": ["mascota", "perro", "gato", "animal", "granja"],
+          "frases_ejemplo": [
+            "¿Tiene mascotas en casa?",
+            "¿Tiene contacto con animales?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        }
+      ]
+    },
+
+    "GENERALES": {
+      "nombre": "Síntomas Generales",
+      "descripcion": "Síntomas generales obligatorios (siempre preguntar)",
+      "peso_bloque": 5,
+      "puntuacion_minima_porcentaje": 60,
+      "items": [
+        {
+          "id": "GEN_01",
+          "texto": "Pregunta por fiebre",
+          "descripcion": "Investiga presencia de fiebre o febrícula",
+          "keywords": ["fiebre", "temperatura", "febrícula", "calentura"],
+          "sintomas_trigger": ["fiebre", "infección", "malestar"],
+          "frases_ejemplo": [
+            "¿Ha tenido fiebre?",
+            "¿Ha notado que tiene temperatura?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "GEN_02",
+          "texto": "Pregunta por pérdida de peso involuntaria",
+          "descripcion": "Investiga pérdida de peso no intencionada",
+          "keywords": ["peso", "adelgazado", "perdido", "bajo de peso"],
+          "sintomas_trigger": ["pérdida peso", "adelgazamiento", "caquexia"],
+          "frases_ejemplo": [
+            "¿Ha perdido peso sin querer?",
+            "¿Nota que ha adelgazado?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "GEN_03",
+          "texto": "Pregunta por sudoración nocturna",
+          "descripcion": "Investiga sudores nocturnos profusos",
+          "keywords": ["sudor", "sudoración", "noche", "empapado"],
+          "sintomas_trigger": ["sudores nocturnos", "diaforesis"],
+          "frases_ejemplo": [
+            "¿Suda mucho por la noche?",
+            "¿Se despierta empapado en sudor?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "GEN_04",
+          "texto": "Pregunta por astenia o cansancio",
+          "descripcion": "Investiga fatiga o cansancio generalizado",
+          "keywords": ["cansancio", "cansado", "astenia", "fatiga", "débil"],
+          "sintomas_trigger": ["cansancio", "fatiga", "astenia"],
+          "frases_ejemplo": [
+            "¿Se siente más cansado de lo normal?",
+            "¿Tiene sensación de falta de energía?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        },
+        {
+          "id": "GEN_05",
+          "texto": "Pregunta por anorexia o pérdida de apetito",
+          "descripcion": "Investiga cambios en el apetito",
+          "keywords": ["apetito", "ganas de comer", "anorexia", "hambre"],
+          "sintomas_trigger": ["pérdida apetito", "anorexia"],
+          "frases_ejemplo": [
+            "¿Tiene buen apetito?",
+            "¿Come con normalidad?"
+          ],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        }
+      ]
+    }
+  },
+
+  "items_por_sistemas": {
+    "RESPIRATORIO": {
+      "nombre": "Aparato Respiratorio",
+      "descripcion": "Síntomas y signos del sistema respiratorio",
+      "items": [
+        {
+          "id": "RESP_01",
+          "texto": "Pregunta por tos",
+          "descripcion": "Investiga presencia de tos",
+          "keywords": ["tos", "toser", "tusiendo"],
+          "sintomas_trigger": ["tos", "expectoración", "disnea", "dolor torácico", "hemoptisis"],
+          "frases_ejemplo": ["¿Tiene tos?", "¿Tose mucho?"],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "RESP_02",
+          "texto": "Pregunta por características de la tos",
+          "descripcion": "Seca vs productiva, horario, sonido",
+          "keywords": ["seca", "productiva", "moco", "flema", "expectoración", "nocturna"],
+          "sintomas_trigger": ["tos"],
+          "frases_ejemplo": ["¿La tos es seca o con mocos?", "¿Expulsa algo al toser?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_03",
+          "texto": "Pregunta por disnea",
+          "descripcion": "Investiga sensación de falta de aire",
+          "keywords": ["disnea", "falta aire", "ahogo", "dificultad respirar"],
+          "sintomas_trigger": ["disnea", "fatiga", "ahogo", "dolor torácico", "edemas"],
+          "frases_ejemplo": ["¿Tiene sensación de falta de aire?", "¿Le cuesta respirar?"],
+          "peso": 3,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "RESP_04",
+          "texto": "Pregunta por ortopnea",
+          "descripcion": "Dificultad respiratoria al estar tumbado",
+          "keywords": ["ortopnea", "almohadas", "tumbado", "acostado"],
+          "sintomas_trigger": ["disnea", "edemas", "insuficiencia cardíaca"],
+          "frases_ejemplo": ["¿Puede dormir tumbado o necesita almohadas?", "¿Cuántas almohadas usa?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_05",
+          "texto": "Pregunta por disnea paroxística nocturna",
+          "descripcion": "Despertares nocturnos por falta de aire",
+          "keywords": ["despierta", "noche", "falta aire", "paroxística"],
+          "sintomas_trigger": ["disnea", "ortopnea", "edemas"],
+          "frases_ejemplo": ["¿Se despierta por la noche con sensación de ahogo?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_06",
+          "texto": "Pregunta por dolor pleurítico",
+          "descripcion": "Dolor torácico que aumenta con inspiración",
+          "keywords": ["dolor", "pecho", "inspira", "respirar", "pleurítico"],
+          "sintomas_trigger": ["dolor torácico", "tos"],
+          "frases_ejemplo": ["¿El dolor aumenta al respirar profundo?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_07",
+          "texto": "Pregunta por hemoptisis",
+          "descripcion": "Expectoración de sangre",
+          "keywords": ["hemoptisis", "sangre", "esputo", "rojo"],
+          "sintomas_trigger": ["tos", "expectoración"],
+          "frases_ejemplo": ["¿Ha expulsado sangre al toser?", "¿El esputo tiene sangre?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_08",
+          "texto": "Pregunta por sibilancias",
+          "descripcion": "Sonidos silbantes al respirar",
+          "keywords": ["sibilancia", "pitidos", "silbidos", "pitos"],
+          "sintomas_trigger": ["disnea", "tos", "asma"],
+          "frases_ejemplo": ["¿Nota pitidos o silbidos al respirar?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "RESP_09",
+          "texto": "Pregunta por exposición laboral/polvo/tabaco",
+          "descripcion": "Factores de riesgo respiratorio",
+          "keywords": ["exposición", "laboral", "polvo", "humo", "trabajo"],
+          "sintomas_trigger": ["tos crónica", "disnea"],
+          "frases_ejemplo": ["¿Ha estado expuesto a polvo o humos en el trabajo?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "RESP_10",
+          "texto": "Pregunta por antecedentes de tuberculosis",
+          "descripcion": "Historia de TBC previa",
+          "keywords": ["tuberculosis", "TBC", "Koch"],
+          "sintomas_trigger": ["tos crónica", "pérdida peso", "sudores nocturnos"],
+          "frases_ejemplo": ["¿Ha tenido tuberculosis alguna vez?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "contexto"
+        }
+      ]
+    },
+
+    "CARDIOVASCULAR": {
+      "nombre": "Aparato Cardiovascular",
+      "descripcion": "Síntomas y signos del sistema cardiovascular",
+      "items": [
+        {
+          "id": "CARDIO_01",
+          "texto": "Pregunta por dolor torácico",
+          "descripcion": "Investiga presencia de dolor en el pecho",
+          "keywords": ["dolor", "pecho", "torácico", "opresión"],
+          "sintomas_trigger": ["dolor torácico", "dolor pecho", "opresión", "palpitaciones"],
+          "frases_ejemplo": ["¿Tiene dolor en el pecho?"],
+          "peso": 3,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "CARDIO_02",
+          "texto": "Caracteriza dolor torácico con SOCRATES",
+          "descripcion": "Si hay dolor torácico, aplicar SOCRATES completo",
+          "keywords": ["localización", "irradia", "tipo", "intensidad"],
+          "sintomas_trigger": ["dolor torácico"],
+          "frases_ejemplo": ["¿El dolor se va al brazo o mandíbula?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "CARDIO_03",
+          "texto": "Pregunta por relación con esfuerzo/reposo",
+          "descripcion": "Dolor con actividad vs en reposo",
+          "keywords": ["esfuerzo", "ejercicio", "reposo", "caminar"],
+          "sintomas_trigger": ["dolor torácico", "disnea"],
+          "frases_ejemplo": ["¿Le aparece el dolor al hacer esfuerzos?", "¿Mejora con el reposo?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "CARDIO_04",
+          "texto": "Pregunta por síntomas vegetativos asociados",
+          "descripcion": "Sudor, náuseas, palidez con el dolor",
+          "keywords": ["sudor", "náusea", "vómito", "palidez"],
+          "sintomas_trigger": ["dolor torácico"],
+          "frases_ejemplo": ["¿Ha tenido sudores o náuseas con el dolor?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "CARDIO_05",
+          "texto": "Pregunta por palpitaciones",
+          "descripcion": "Percepción de latidos irregulares o rápidos",
+          "keywords": ["palpitaciones", "latidos", "corazón", "pálpitos"],
+          "sintomas_trigger": ["palpitaciones", "mareo", "síncope"],
+          "frases_ejemplo": ["¿Nota palpitaciones o latidos irregulares?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "CARDIO_06",
+          "texto": "Pregunta por síncope o presíncope",
+          "descripcion": "Pérdida de conciencia o sensación de desmayo",
+          "keywords": ["síncope", "desmayo", "mareo", "pérdida conciencia"],
+          "sintomas_trigger": ["mareo", "palpitaciones"],
+          "frases_ejemplo": ["¿Se ha desmayado alguna vez?", "¿Ha tenido sensación de que se iba a desmayar?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "CARDIO_07",
+          "texto": "Pregunta por edemas en miembros inferiores",
+          "descripcion": "Hinchazón de tobillos/piernas",
+          "keywords": ["edema", "hinchazón", "piernas", "tobillos", "retención"],
+          "sintomas_trigger": ["edemas", "hinchazón", "disnea", "ortopnea"],
+          "frases_ejemplo": ["¿Se le hinchan las piernas o los tobillos?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "CARDIO_08",
+          "texto": "Pregunta por claudicación intermitente",
+          "descripcion": "Dolor en piernas al caminar que cede con reposo",
+          "keywords": ["claudicación", "dolor piernas", "caminar", "calambres"],
+          "sintomas_trigger": ["dolor piernas", "claudicación"],
+          "frases_ejemplo": ["¿Le duelen las piernas al caminar y mejora al parar?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "diagnostico_diferencial"
+        }
+      ]
+    },
+
+    "DIGESTIVO": {
+      "nombre": "Aparato Digestivo",
+      "descripcion": "Síntomas y signos del sistema digestivo",
+      "items": [
+        {
+          "id": "DIGEST_01",
+          "texto": "Pregunta por dolor abdominal",
+          "descripcion": "Investiga presencia de dolor en abdomen",
+          "keywords": ["dolor", "abdominal", "estómago", "barriga", "tripa"],
+          "sintomas_trigger": ["dolor abdominal", "náuseas", "vómitos"],
+          "frases_ejemplo": ["¿Tiene dolor de estómago?", "¿Le duele la barriga?"],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "DIGEST_02",
+          "texto": "Pregunta por náuseas o vómitos",
+          "descripcion": "Investiga presencia de náuseas/vómitos",
+          "keywords": ["náusea", "vómito", "devolver", "mareo"],
+          "sintomas_trigger": ["náuseas", "vómitos", "dolor abdominal", "mareo"],
+          "frases_ejemplo": ["¿Tiene náuseas o ha vomitado?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "DIGEST_03",
+          "texto": "Pregunta por cambios en el ritmo intestinal",
+          "descripcion": "Diarrea, estreñimiento, cambios recientes",
+          "keywords": ["diarrea", "estreñimiento", "ritmo", "deposiciones", "evacuar"],
+          "sintomas_trigger": ["dolor abdominal", "diarrea", "estreñimiento"],
+          "frases_ejemplo": ["¿Ha notado cambios en sus deposiciones?", "¿Tiene diarrea o estreñimiento?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "DIGEST_04",
+          "texto": "Pregunta por melenas, rectorragia o hematemesis",
+          "descripcion": "Sangrado digestivo alto o bajo",
+          "keywords": ["melena", "rectorragia", "sangre", "heces negras", "hematemesis", "vómito sangre"],
+          "sintomas_trigger": ["dolor abdominal", "anemia"],
+          "frases_ejemplo": ["¿Ha visto sangre en las heces?", "¿Las deposiciones son negras?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "DIGEST_05",
+          "texto": "Pregunta por disfagia",
+          "descripcion": "Dificultad para tragar",
+          "keywords": ["disfagia", "tragar", "atraganta", "pasa mal"],
+          "sintomas_trigger": ["disfagia", "pérdida peso"],
+          "frases_ejemplo": ["¿Tiene dificultad para tragar?", "¿Se atraganta al comer?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "DIGEST_06",
+          "texto": "Pregunta por pirosis o reflujo",
+          "descripcion": "Acidez, ardor retroesternal",
+          "keywords": ["pirosis", "ardor", "acidez", "reflujo", "quemazón"],
+          "sintomas_trigger": ["dolor torácico", "pirosis"],
+          "frases_ejemplo": ["¿Tiene acidez o ardor en el pecho?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "DIGEST_07",
+          "texto": "Pregunta por distensión abdominal",
+          "descripcion": "Hinchazón abdominal",
+          "keywords": ["distensión", "hinchazón", "hinchado", "inflado"],
+          "sintomas_trigger": ["dolor abdominal"],
+          "frases_ejemplo": ["¿Nota la barriga hinchada?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "DIGEST_08",
+          "texto": "Pregunta por ictericia",
+          "descripcion": "Coloración amarillenta de piel/ojos",
+          "keywords": ["ictericia", "amarillo", "ojos amarillos"],
+          "sintomas_trigger": ["dolor abdominal", "ictericia"],
+          "frases_ejemplo": ["¿Ha notado color amarillo en los ojos o la piel?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        }
+      ]
+    },
+
+    "GENITOURINARIO": {
+      "nombre": "Aparato Genitourinario",
+      "descripcion": "Síntomas y signos del sistema genitourinario",
+      "items": [
+        {
+          "id": "GU_01",
+          "texto": "Pregunta por disuria",
+          "descripcion": "Dolor o molestia al orinar",
+          "keywords": ["disuria", "dolor orinar", "escozor", "ardor"],
+          "sintomas_trigger": ["disuria", "dolor al orinar"],
+          "frases_ejemplo": ["¿Le duele al orinar?", "¿Tiene escozor al hacer pis?"],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "GU_02",
+          "texto": "Pregunta por polaquiuria o nicturia",
+          "descripcion": "Aumento de frecuencia urinaria diurna/nocturna",
+          "keywords": ["polaquiuria", "nicturia", "orinar mucho", "noche", "frecuencia"],
+          "sintomas_trigger": ["orinar frecuente", "nicturia", "edemas"],
+          "frases_ejemplo": ["¿Orina más veces de lo normal?", "¿Se levanta por la noche a orinar?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "GU_03",
+          "texto": "Pregunta por hematuria",
+          "descripcion": "Sangre en la orina",
+          "keywords": ["hematuria", "sangre", "orina", "roja"],
+          "sintomas_trigger": ["hematuria", "dolor lumbar"],
+          "frases_ejemplo": ["¿Ha visto sangre en la orina?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "GU_04",
+          "texto": "Pregunta por incontinencia urinaria",
+          "descripcion": "Pérdida involuntaria de orina",
+          "keywords": ["incontinencia", "escapa", "pérdida orina"],
+          "sintomas_trigger": ["incontinencia"],
+          "frases_ejemplo": ["¿Tiene pérdidas de orina?", "¿Se le escapa el pis?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "GU_05",
+          "texto": "Pregunta por urgencia miccional",
+          "descripcion": "Necesidad imperiosa de orinar",
+          "keywords": ["urgencia", "necesidad", "no aguanta"],
+          "sintomas_trigger": ["urgencia", "polaquiuria"],
+          "frases_ejemplo": ["¿Tiene necesidad urgente de orinar?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "GU_06",
+          "texto": "Pregunta por dolor lumbar o en flancos",
+          "descripcion": "Dolor en zona renal",
+          "keywords": ["dolor lumbar", "riñón", "flanco", "espalda baja"],
+          "sintomas_trigger": ["dolor lumbar", "hematuria"],
+          "frases_ejemplo": ["¿Le duele la zona de los riñones?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "GU_07",
+          "texto": "Pregunta por secreción genital",
+          "descripcion": "Flujo o secreción anormal",
+          "keywords": ["secreción", "flujo", "supuración"],
+          "sintomas_trigger": ["secreción genital"],
+          "frases_ejemplo": ["¿Ha notado alguna secreción o flujo?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "GU_08",
+          "texto": "Pregunta por síntomas prostáticos (si hombre)",
+          "descripcion": "Dificultad para iniciar micción, chorro débil",
+          "keywords": ["próstata", "chorro", "iniciar", "goteo"],
+          "sintomas_trigger": ["dificultad orinar"],
+          "frases_ejemplo": ["¿Tiene dificultad para empezar a orinar?", "¿El chorro es débil?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto",
+          "aplicable_si": "sexo == 'Masculino'"
+        }
+      ]
+    },
+
+    "NEUROLOGICO": {
+      "nombre": "Sistema Neurológico",
+      "descripcion": "Síntomas y signos del sistema nervioso",
+      "items": [
+        {
+          "id": "NEURO_01",
+          "texto": "Pregunta por cefalea",
+          "descripcion": "Presencia de dolor de cabeza",
+          "keywords": ["cefalea", "dolor cabeza", "cabeza"],
+          "sintomas_trigger": ["cefalea", "dolor cabeza"],
+          "frases_ejemplo": ["¿Tiene dolores de cabeza?"],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "NEURO_02",
+          "texto": "Caracteriza patrón de cefalea",
+          "descripcion": "Localización, intensidad, frecuencia de la cefalea",
+          "keywords": ["tipo", "dónde", "cuándo", "intensidad"],
+          "sintomas_trigger": ["cefalea"],
+          "frases_ejemplo": ["¿Dónde le duele la cabeza?", "¿Cómo es el dolor?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_03",
+          "texto": "Pregunta por focalidad neurológica",
+          "descripcion": "Debilidad, pérdida sensibilidad, parálisis",
+          "keywords": ["debilidad", "fuerza", "adormecimiento", "parálisis", "brazo", "pierna"],
+          "sintomas_trigger": ["debilidad", "parálisis", "adormecimiento"],
+          "frases_ejemplo": ["¿Ha notado debilidad en alguna parte del cuerpo?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_04",
+          "texto": "Pregunta por mareo o vértigo",
+          "descripcion": "Sensación de inestabilidad o giro",
+          "keywords": ["mareo", "vértigo", "inestable", "gira"],
+          "sintomas_trigger": ["mareo", "vértigo"],
+          "frases_ejemplo": ["¿Ha tenido mareos?", "¿Siente que todo le da vueltas?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "NEURO_05",
+          "texto": "Pregunta por alteración del nivel de conciencia",
+          "descripcion": "Episodios de pérdida de conciencia o confusión",
+          "keywords": ["conciencia", "confusión", "desorientado", "pérdida"],
+          "sintomas_trigger": ["confusión", "alteración conciencia"],
+          "frases_ejemplo": ["¿Ha tenido momentos de confusión?", "¿Ha perdido el conocimiento?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_06",
+          "texto": "Pregunta por signos meníngeos",
+          "descripcion": "Rigidez de nuca, fotofobia",
+          "keywords": ["rigidez", "nuca", "fotofobia", "luz"],
+          "sintomas_trigger": ["cefalea", "fiebre"],
+          "frases_ejemplo": ["¿Le molesta la luz?", "¿Tiene rigidez en el cuello?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "avanzado",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_07",
+          "texto": "Pregunta por alteración del lenguaje",
+          "descripcion": "Dificultad para hablar o entender",
+          "keywords": ["hablar", "lenguaje", "palabras", "entender"],
+          "sintomas_trigger": ["dificultad hablar"],
+          "frases_ejemplo": ["¿Ha tenido dificultad para hablar o encontrar las palabras?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_08",
+          "texto": "Pregunta por convulsiones",
+          "descripcion": "Episodios de convulsiones o crisis",
+          "keywords": ["convulsión", "crisis", "ataque", "epilepsia"],
+          "sintomas_trigger": ["convulsiones", "pérdida conciencia"],
+          "frases_ejemplo": ["¿Ha tenido convulsiones o ataques?"],
+          "peso": 2,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "NEURO_09",
+          "texto": "Pregunta por alteraciones de memoria",
+          "descripcion": "Problemas de memoria reciente o remota",
+          "keywords": ["memoria", "olvida", "recuerda"],
+          "sintomas_trigger": ["alteración memoria", "confusión"],
+          "frases_ejemplo": ["¿Ha notado problemas de memoria?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "NEURO_10",
+          "texto": "Pregunta por alteraciones visuales",
+          "descripcion": "Cambios en la visión, visión doble",
+          "keywords": ["visión", "ver", "doble", "borroso"],
+          "sintomas_trigger": ["alteración visual", "cefalea"],
+          "frases_ejemplo": ["¿Ha notado cambios en la visión?", "¿Ve doble?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        }
+      ]
+    },
+
+    "OSTEOMUSCULAR": {
+      "nombre": "Sistema Osteomuscular",
+      "descripcion": "Síntomas y signos del sistema músculo-esquelético",
+      "items": [
+        {
+          "id": "OSTEO_01",
+          "texto": "Pregunta por dolor articular",
+          "descripcion": "Investiga artralgia (mono/oligo/poliarticular)",
+          "keywords": ["dolor", "articulación", "rodilla", "codo", "muñeca", "articular"],
+          "sintomas_trigger": ["dolor articular", "artritis"],
+          "frases_ejemplo": ["¿Le duelen las articulaciones?", "¿Qué articulaciones le duelen?"],
+          "peso": 2,
+          "critico": true,
+          "nivel": "basico",
+          "tipo": "cardinal"
+        },
+        {
+          "id": "OSTEO_02",
+          "texto": "Pregunta por rigidez matutina",
+          "descripcion": "Rigidez articular por la mañana",
+          "keywords": ["rigidez", "matutina", "mañana", "despertar"],
+          "sintomas_trigger": ["dolor articular"],
+          "frases_ejemplo": ["¿Tiene rigidez por la mañana?", "¿Cuánto le dura?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "OSTEO_03",
+          "texto": "Pregunta por tumefacción articular",
+          "descripcion": "Hinchazón de articulaciones",
+          "keywords": ["hinchazón", "inflamación", "tumefacción", "hinchado"],
+          "sintomas_trigger": ["dolor articular"],
+          "frases_ejemplo": ["¿Las articulaciones están hinchadas?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "OSTEO_04",
+          "texto": "Pregunta por debilidad muscular",
+          "descripcion": "Pérdida de fuerza muscular",
+          "keywords": ["debilidad", "fuerza", "músculos", "cansancio muscular"],
+          "sintomas_trigger": ["debilidad", "fatiga"],
+          "frases_ejemplo": ["¿Ha notado pérdida de fuerza en los músculos?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "diagnostico_diferencial"
+        },
+        {
+          "id": "OSTEO_05",
+          "texto": "Pregunta por limitación de movilidad",
+          "descripcion": "Dificultad para mover articulaciones",
+          "keywords": ["movilidad", "mover", "limitación", "rango"],
+          "sintomas_trigger": ["dolor articular", "rigidez"],
+          "frases_ejemplo": ["¿Puede mover bien las articulaciones?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "intermedio",
+          "tipo": "contexto"
+        },
+        {
+          "id": "OSTEO_06",
+          "texto": "Pregunta por traumatismos recientes",
+          "descripcion": "Golpes, caídas o lesiones recientes",
+          "keywords": ["traumatismo", "golpe", "caída", "lesión"],
+          "sintomas_trigger": ["dolor articular", "dolor localizado"],
+          "frases_ejemplo": ["¿Se ha dado algún golpe o ha tenido una caída?"],
+          "peso": 1,
+          "critico": false,
+          "nivel": "basico",
+          "tipo": "contexto"
+        }
+      ]
+    }
+  },
+
+  "sistema_aprendizaje": {
+    "habilitado": true,
+    "version": "1.0",
+    "descripcion": "Sistema de aprendizaje automático del checklist",
+    "reglas": {
+      "umbral_similitud_minimo": 0.85,
+      "umbral_similitud_alto": 0.92,
+      "minimo_casos_para_aprender": 3,
+      "requiere_validacion_humana": true,
+      "auto_aprobar_alta_confianza": false
+    },
+    "items_aprendidos": [],
+    "items_pendientes_validacion": [],
+    "log_aprendizaje": []
+  }
+}

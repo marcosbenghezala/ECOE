@@ -1,0 +1,45 @@
+{
+    "Respiratorio": [
+        {
+            "id": "RESP_01",
+            "texto": "Preguntar por disnea (falta de aire)",
+            "aparato": "Respiratorio",
+            "tipo": "cardinal",
+            "nivel": "critico",
+            "peso": 3,
+            "keywords": [
+                "disnea",
+                "falta aire",
+                "ahogo",
+                "respirar mal"
+            ]
+        },
+        {
+            "id": "RESP_02",
+            "texto": "Preguntar por tos",
+            "aparato": "Respiratorio",
+            "tipo": "cardinal",
+            "nivel": "critico",
+            "peso": 3,
+            "keywords": [
+                "tos",
+                "tose"
+            ]
+        }
+    ],
+    "Cardiovascular": [
+        {
+            "id": "CARDIO_01",
+            "texto": "Preguntar por dolor torácico",
+            "aparato": "Cardiovascular",
+            "tipo": "cardinal",
+            "nivel": "critico",
+            "peso": 3,
+            "keywords": [
+                "dolor pecho",
+                "dolor torácico",
+                "opresión"
+            ]
+        }
+    ]
+}

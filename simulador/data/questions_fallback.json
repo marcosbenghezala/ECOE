@@ -1,0 +1,65 @@
+{
+  "_comment": "Preguntas de desarrollo por caso. Si no existe el caso, se usan las preguntas 'default'",
+
+  "default": [
+    {
+      "id": 1,
+      "question": "Resume el motivo de consulta y los síntomas más importantes del paciente que has entrevistado.",
+      "field_name": "resumen_caso",
+      "criteria": "Identifica correctamente síntomas principales y motivo de consulta",
+      "max_score": 100
+    },
+    {
+      "id": 2,
+      "question": "¿Cuál es tu diagnóstico más probable para este caso? Justifícalo usando al menos dos datos concretos de la anamnesis.",
+      "field_name": "diagnostico_principal",
+      "criteria": "Diagnóstico correcto y bien justificado con datos de anamnesis",
+      "max_score": 100
+    },
+    {
+      "id": 3,
+      "question": "Indica dos diagnósticos diferenciales razonables y explica brevemente por qué los consideras.",
+      "field_name": "diagnosticos_diferenciales",
+      "criteria": "Dos diagnósticos diferenciales válidos con razonamiento clínico",
+      "max_score": 100
+    },
+    {
+      "id": 4,
+      "question": "¿Qué pruebas complementarias solicitarías para confirmar tu diagnóstico? Justifica tu elección.",
+      "field_name": "pruebas_diagnosticas",
+      "criteria": "Pruebas apropiadas y bien justificadas",
+      "max_score": 100
+    }
+  ],
+
+  "caso_prueba_001": [
+    {
+      "id": 1,
+      "question": "Resume el motivo de consulta y los síntomas cardinales del paciente con dolor torácico que has entrevistado.",
+      "field_name": "resumen_caso",
+      "criteria": "Identifica dolor torácico, características (opresivo, retroesternal, irradiación), síntomas asociados (sudoración, náuseas)",
+      "max_score": 100
+    },
+    {
+      "id": 2,
+      "question": "¿Cuál es tu diagnóstico principal de este paciente con dolor torácico? Justifícalo con al menos 3 datos de la anamnesis.",
+      "field_name": "diagnostico_principal",
+      "criteria": "Diagnóstico: Síndrome Coronario Agudo (SCA) o Infarto Agudo de Miocardio (IAM). Justificación con: dolor opresivo retroesternal, irradiación a brazo/mandíbula, factores de riesgo (HTA, tabaquismo, antecedente familiar), sudoración profusa.",
+      "max_score": 100
+    },
+    {
+      "id": 3,
+      "question": "Menciona DOS diagnósticos diferenciales importantes en un paciente con dolor torácico y justifica por qué los consideras.",
+      "field_name": "diagnosticos_diferenciales",
+      "criteria": "Diagnósticos válidos: TEP (tromboembolismo pulmonar), Disección aórtica, Pericarditis, Neumotórax, ERGE. Justificación coherente basada en presentación clínica.",
+      "max_score": 100
+    },
+    {
+      "id": 4,
+      "question": "¿Qué pruebas complementarias URGENTES solicitarías para este paciente? Priorízalas y justifica.",
+      "field_name": "pruebas_diagnosticas",
+      "criteria": "Pruebas prioritarias: ECG (inmediato), Troponinas/marcadores cardíacos, Analítica completa, Radiografía de tórax. Justificación de urgencia y utilidad diagnóstica.",
+      "max_score": 100
+    }
+  ]
+}

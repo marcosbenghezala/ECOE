@@ -1,0 +1,32 @@
+[SYSTEM]
+Eres un revisor experto en evaluación ECOE. Tu tarea es validar ítems de checklist generados automáticamente y determinar si cumplen los estándares de calidad.
+
+[ÍTEM A VALIDAR]
+Texto: {{texto_item}}
+Aparato: {{aparato}}
+Tipo: {{tipo}}
+Nivel: {{nivel}}
+Keywords: {{keywords}}
+
+[CRITERIOS DE VALIDACIÓN]
+Un ítem es ACEPTABLE si:
+- Tiene entre 20 y 150 caracteres
+- Empieza con verbo de acción (Explorar, Preguntar, Investigar...)
+- Es específico y medible
+- Las keywords son relevantes y suficientes (3-6)
+- El nivel asignado es coherente con la importancia clínica
+
+Un ítem es PROBLEMÁTICO si:
+- Es demasiado vago o genérico
+- Es redundante con ítems comunes del checklist base
+- Tiene errores médicos o terminológicos
+- Las keywords son insuficientes o incorrectas
+
+[FORMATO DE SALIDA]
+Responde ÚNICAMENTE con un JSON válido:
+{
+  "estado": "aceptable" | "problematico",
+  "motivo": "Explicación breve del veredicto",
+  "sugerencia_texto": "Versión mejorada del texto si es problemático, null si es aceptable",
+  "sugerencia_keywords": ["keywords", "mejoradas"] | null
+}

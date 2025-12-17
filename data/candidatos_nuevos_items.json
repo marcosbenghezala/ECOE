@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "fecha_creacion": "2024-12-01",
+  "descripcion": "Registro de candidatos a nuevos ítems detectados automáticamente",
+  "candidatos": [],
+  "aprobados": [],
+  "rechazados": []
+}

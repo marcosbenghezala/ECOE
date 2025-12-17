@@ -1,0 +1,3376 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "name": "Checklist ECOE - Anamnesis Clínica",
+    "total_blocks": 10,
+    "total_items": 180,
+    "max_points": 180,
+    "min_points_required": 103,
+    "passing_percentage": 57.2,
+    "date_created": "2025-12-15",
+    "language": "es"
+  },
+  "blocks": [
+    {
+      "block_id": "B0_INTRODUCCION",
+      "title": "Introducción y acogida",
+      "max_points": 12,
+      "min_points_required": 7
+    },
+    {
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "title": "Motivo de consulta",
+      "max_points": 12,
+      "min_points_required": 7
+    },
+    {
+      "block_id": "B2_HEA",
+      "title": "Historia de la enfermedad actual (HEA)",
+      "max_points": 16,
+      "min_points_required": 10
+    },
+    {
+      "block_id": "B3_ANTECEDENTES",
+      "title": "Antecedentes personales",
+      "max_points": 14,
+      "min_points_required": 8
+    },
+    {
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "title": "Medicación y alergias",
+      "max_points": 12,
+      "min_points_required": 7
+    },
+    {
+      "block_id": "B5_SOCIAL",
+      "title": "Contexto social y habitos",
+      "max_points": 12,
+      "min_points_required": 7
+    },
+    {
+      "block_id": "B6_FAMILIAR",
+      "title": "Antecedentes familiares",
+      "max_points": 8,
+      "min_points_required": 5
+    },
+    {
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "title": "Anamnesis por aparatos",
+      "max_points": 75,
+      "min_points_required": 0
+    },
+    {
+      "block_id": "B8_CIERRE",
+      "title": "Cierre de la entrevista",
+      "max_points": 8,
+      "min_points_required": 6
+    },
+    {
+      "block_id": "B9_COMUNICACION",
+      "title": "Habilidades comunicativas transversales",
+      "max_points": 11,
+      "min_points_required": 8
+    }
+  ],
+  "items": [
+    {
+      "id": "B0_001",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Saluda de forma cordial al paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "hola",
+        "buenos dias",
+        "buenas tardes",
+        "buenas noches",
+        "que tal",
+        "encantado",
+        "encantada"
+      ],
+      "regex": [
+        "\\b(hola|buenos\\s+dias|buenas\\s+tardes|buenas\\s+noches|que\\s+tal)\\b"
+      ]
+    },
+    {
+      "id": "B0_002",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Se presenta con su nombre",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "me llamo",
+        "mi nombre es"
+      ],
+      "regex": [
+        "\\b(me\\s+llamo|mi\\s+nombre\\s+es)\\b"
+      ]
+    },
+    {
+      "id": "B0_003",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Indica su rol (estudiante de medicina / medico en formacion)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "soy estudiante",
+        "estudiante de medicina",
+        "medico en formacion",
+        "estoy en formacion"
+      ],
+      "regex": [
+        "\\b(estudiante\\s+de\\s+medicina|medico\\s+en\\s+formacion|estoy\\s+en\\s+formacion)\\b"
+      ]
+    },
+    {
+      "id": "B0_004",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Confirma el nombre o identidad del paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "como te llamas",
+        "como se llama",
+        "me confirma su nombre",
+        "me dices tu nombre",
+        "nombre y apellidos"
+      ],
+      "regex": [
+        "\\b(como\\s+te\\s+llamas|como\\s+se\\s+llama|me\\s+confirma\\s+su\\s+nombre|me\\s+dices\\s+tu\\s+nombre|nombre\\s+y\\s+apellidos)\\b"
+      ]
+    },
+    {
+      "id": "B0_005",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Comprueba que el paciente esta comodo / puede hablar ahora",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "estas comodo",
+        "esta comodo",
+        "podemos hablar",
+        "te viene bien",
+        "puedes hablar ahora"
+      ],
+      "regex": [
+        "\\b(estas\\s+comodo|esta\\s+comodo|podemos\\s+hablar|te\\s+viene\\s+bien|puedes\\s+hablar\\s+ahora)\\b"
+      ]
+    },
+    {
+      "id": "B0_006",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Pide permiso para hacer preguntas o comenzar la entrevista",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "te puedo hacer unas preguntas",
+        "le puedo hacer unas preguntas",
+        "puedo hacerte unas preguntas",
+        "si te parece bien empezamos",
+        "si le parece bien empezamos"
+      ],
+      "regex": [
+        "\\b(te\\s+puedo\\s+hacer\\s+unas\\s+preguntas|le\\s+puedo\\s+hacer\\s+unas\\s+preguntas|puedo\\s+hacerte\\s+unas\\s+preguntas|si\\s+te\\s+parece\\s+bien\\s+empezamos|si\\s+le\\s+parece\\s+bien\\s+empezamos)\\b"
+      ]
+    },
+    {
+      "id": "B0_007",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Explica brevemente el objetivo de la entrevista (recoger informacion para ayudar)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "para entender que te pasa",
+        "para ayudar",
+        "para saber que ocurre",
+        "para conocer mejor"
+      ],
+      "regex": [
+        "\\b(para\\s+entender\\s+que\\s+te\\s+pasa|para\\s+ayudar|para\\s+saber\\s+que\\s+ocurre|para\\s+conocer\\s+mejor)\\b"
+      ]
+    },
+    {
+      "id": "B0_008",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Asegura confidencialidad o privacidad de la informacion",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "confidencial",
+        "confidencialidad",
+        "privado",
+        "privacidad",
+        "lo que me cuentes"
+      ],
+      "regex": [
+        "\\b(confidencial|confidencialidad|privad[oa]s?|privacidad|lo\\s+que\\s+me\\s+cuentes)\\b"
+      ]
+    },
+    {
+      "id": "B0_009",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Pregunta si hay alguien acompanando y confirma si puede quedarse (si aplica)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "vienes acompanado",
+        "viene acompanado",
+        "hay alguien contigo",
+        "prefieres que se quede",
+        "prefiere que se quede"
+      ],
+      "regex": [
+        "\\b(vienes\\s+acompanad[oa]|viene\\s+acompanad[oa]|hay\\s+alguien\\s+contigo|prefieres\\s+que\\s+se\\s+quede|prefiere\\s+que\\s+se\\s+quede)\\b"
+      ]
+    },
+    {
+      "id": "B0_010",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Explica como se va a estructurar la entrevista (orden / bloques)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "voy a preguntarte por partes",
+        "iremos paso a paso",
+        "primero y despues"
+      ],
+      "regex": [
+        "\\b(voy\\s+a\\s+preguntarte\\s+por\\s+partes|iremos\\s+paso\\s+a\\s+paso|primero\\s+.*\\s+despues)\\b"
+      ]
+    },
+    {
+      "id": "B0_011",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Verifica consentimiento para continuar tras explicar (te parece bien)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "te parece bien",
+        "le parece bien",
+        "si te parece",
+        "si le parece"
+      ],
+      "regex": [
+        "\\b(te\\s+parece\\s+bien|le\\s+parece\\s+bien|si\\s+te\\s+parece|si\\s+le\\s+parece)\\b"
+      ]
+    },
+    {
+      "id": "B0_012",
+      "block_id": "B0_INTRODUCCION",
+      "label": "Hace una transicion ordenada al motivo de consulta (sin formular la pregunta principal completa)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "ahora cuenteme",
+        "ahora cuentame",
+        "cuando quiera",
+        "me gustaria que me cuente",
+        "me gustaria que me contaras"
+      ],
+      "regex": [
+        "\\b(ahora\\s+(?:cuenteme|cuentame)|cuando\\s+quiera|me\\s+gustaria\\s+que\\s+me\\s+cuente|me\\s+gustaria\\s+que\\s+me\\s+contaras)\\b"
+      ]
+    },
+    {
+      "id": "B1_001",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Formula una pregunta abierta inicial sobre el motivo de consulta",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "que le trae",
+        "que te trae",
+        "cual es el motivo",
+        "por que viene",
+        "por que vienes",
+        "que le pasa",
+        "que te pasa"
+      ],
+      "regex": [
+        "\\b(que\\s+le\\s+trae(\\s+por\\s+aqui)?(\\s+hoy)?|que\\s+te\\s+trae(\\s+por\\s+aqui)?(\\s+hoy)?|cual\\s+es\\s+el\\s+motivo(\\s+de\\s+consulta)?|por\\s+que\\s+viene(\\s+hoy)?|por\\s+que\\s+vienes(\\s+hoy)?|que\\s+le\\s+pasa|que\\s+te\\s+pasa)\\b"
+      ]
+    },
+    {
+      "id": "B1_002",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Invita a narracion libre inicial (cuenteme desde el principio)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "cuenteme desde el principio",
+        "cuentame desde el principio",
+        "cuenteme lo que ha pasado",
+        "cuentame lo que ha pasado",
+        "relateme"
+      ],
+      "regex": [
+        "\\b(cuenteme\\s+desde\\s+el\\s+principio|cuentame\\s+desde\\s+el\\s+principio|cuenteme\\s+lo\\s+que\\s+ha\\s+pasado|cuentame\\s+lo\\s+que\\s+ha\\s+pasado|relateme\\s+lo\\s+que\\s+ha\\s+pasado)\\b"
+      ]
+    },
+    {
+      "id": "B1_003",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Usa facilitadores claros para ampliar (cuenteme mas / dime mas)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cuenteme mas",
+        "cuentame mas",
+        "dime mas",
+        "digame mas",
+        "algo mas sobre eso",
+        "puede contarme mas"
+      ],
+      "regex": [
+        "\\b(cuenteme\\s+mas|cuentame\\s+mas|digame\\s+mas|dime\\s+mas|puede\\s+contarme\\s+mas|algo\\s+mas\\s+sobre\\s+eso)\\b"
+      ]
+    },
+    {
+      "id": "B1_004",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Explora si hay mas de un problema hoy (agenda inicial)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "algo mas",
+        "alguna otra cosa",
+        "otros motivos",
+        "ademas de esto",
+        "hay algo mas que le preocupe"
+      ],
+      "regex": [
+        "\\b(algo\\s+mas\\s+(?:que\\s+le\\s+preocupe|que\\s+te\\s+preocupe)?|alguna\\s+otra\\s+cosa|otros\\s+motivos|ademas\\s+de\\s+esto)\\b"
+      ]
+    },
+    {
+      "id": "B1_005",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Si hay varios problemas, ayuda a priorizar cual es el principal hoy",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que es lo que mas le preocupa",
+        "que es lo que mas te preocupa",
+        "que es lo mas importante",
+        "cual le preocupa mas",
+        "por donde empezamos"
+      ],
+      "regex": [
+        "\\b(que\\s+es\\s+lo\\s+que\\s+mas\\s+le\\s+preocupa|que\\s+es\\s+lo\\s+que\\s+mas\\s+te\\s+preocupa|que\\s+es\\s+lo\\s+mas\\s+importante|cual\\s+le\\s+preocupa\\s+mas|por\\s+donde\\s+empezamos)\\b"
+      ]
+    },
+    {
+      "id": "B1_006",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Clarifica el sintoma principal cuando la descripcion es vaga (en concreto que sintoma)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "en concreto",
+        "a que se refiere",
+        "cuando dice",
+        "que quiere decir con",
+        "cual es el sintoma principal"
+      ],
+      "regex": [
+        "\\b(en\\s+concreto\\s+que|a\\s+que\\s+se\\s+refiere|cuando\\s+dice|que\\s+quiere\\s+decir\\s+con|cual\\s+es\\s+el\\s+sintoma\\s+principal)\\b"
+      ]
+    },
+    {
+      "id": "B1_007",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Acota el motivo en una frase (de lo que me cuenta, lo principal es...)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "de lo que me cuenta",
+        "por lo que me dice",
+        "entonces lo principal",
+        "si le entiendo bien lo principal",
+        "lo mas importante es"
+      ],
+      "regex": [
+        "\\b(de\\s+lo\\s+que\\s+me\\s+cuenta|por\\s+lo\\s+que\\s+me\\s+dice|entonces\\s+lo\\s+principal\\s+es|si\\s+le\\s+entiendo\\s+bien\\s+lo\\s+principal|lo\\s+mas\\s+importante\\s+es)\\b"
+      ]
+    },
+    {
+      "id": "B1_008",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Resume y confirma el motivo con el paciente (correcto / es asi) en contexto de motivo",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "resumiendo",
+        "si entiendo bien",
+        "me confirma que",
+        "entonces vienes",
+        "motivo de consulta"
+      ],
+      "regex": [
+        "\\b(resumiendo|si\\s+entiendo\\s+bien|me\\s+confirma\\s+que|entonces\\s+vienes|motivo\\s+de\\s+consulta|lo\\s+principal|lo\\s+que\\s+me\\s+cuentas)\\b.*\\b(es\\s+correcto|es\\s+asi|correcto)\\b|\\b(es\\s+correcto|es\\s+asi|correcto)\\b.*\\b(vienes|consulta|motivo|lo\\s+principal|lo\\s+que\\s+me\\s+cuentas)\\b"
+      ]
+    },
+    {
+      "id": "B1_009",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Explora ideas del paciente sobre la causa (ICE: ideas)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "a que cree que se debe",
+        "que piensa que puede ser",
+        "que cree que es",
+        "que le parece que es"
+      ],
+      "regex": [
+        "\\b(a\\s+que\\s+cree\\s+que\\s+se\\s+debe|que\\s+piensa\\s+que\\s+puede\\s+ser|que\\s+cree\\s+que\\s+es|que\\s+le\\s+parece\\s+que\\s+es)\\b"
+      ]
+    },
+    {
+      "id": "B1_010",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Explora preocupaciones (ICE: worries) y que le preocupa mas",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que le preocupa",
+        "te preocupa",
+        "le da miedo",
+        "algo que le preocupe especialmente",
+        "le inquieta"
+      ],
+      "regex": [
+        "\\b(que\\s+le\\s+preocupa|que\\s+te\\s+preocupa|le\\s+da\\s+miedo|algo\\s+que\\s+le\\s+preocupe\\s+especialmente|le\\s+inquieta)\\b"
+      ]
+    },
+    {
+      "id": "B1_011",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Explora expectativas de la consulta (ICE: expectations)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que espera de la consulta",
+        "que te gustaria que hicieramos",
+        "en que puedo ayudar",
+        "que le gustaria conseguir",
+        "que espera hoy"
+      ],
+      "regex": [
+        "\\b(que\\s+espera\\s+de\\s+la\\s+consulta|que\\s+espera\\s+hoy|que\\s+te\\s+gustaria\\s+que\\s+hicieramos|en\\s+que\\s+puedo\\s+ayudar|que\\s+le\\s+gustaria\\s+conseguir)\\b"
+      ]
+    },
+    {
+      "id": "B1_012",
+      "block_id": "B1_MOTIVO_CONSULTA",
+      "label": "Descarta urgencia inmediata con una pregunta directa (ahora mismo: dolor fuerte, falta de aire, desmayo)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "ahora mismo",
+        "en este momento",
+        "dolor muy fuerte",
+        "falta de aire",
+        "dificultad para respirar",
+        "te has desmayado",
+        "se ha desmayado"
+      ],
+      "regex": [
+        "\\b(ahora\\s+mismo|en\\s+este\\s+momento)\\b.*\\b(dolor\\s+muy\\s+fuerte|falta\\s+de\\s+aire|dificultad\\s+para\\s+respirar|desmayo|desmayado|se\\s+ha\\s+desmayado|te\\s+has\\s+desmayado)\\b"
+      ]
+    },
+    {
+      "id": "B2_001",
+      "block_id": "B2_HEA",
+      "label": "Pregunta cuando empezo el sintoma o problema actual",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "cuando empezo",
+        "desde cuando",
+        "hace cuanto tiempo",
+        "cuanto tiempo lleva",
+        "cuando comenzo"
+      ],
+      "regex": [
+        "\\b(cuando\\s+empezo|cuando\\s+comenzo|desde\\s+cuando|hace\\s+cuanto\\s+tiempo|cuanto\\s+tiempo\\s+lleva)\\b"
+      ]
+    },
+    {
+      "id": "B2_002",
+      "block_id": "B2_HEA",
+      "label": "Pregunta por el modo de inicio (brusco vs progresivo) o como empezo",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "como empezo",
+        "de repente",
+        "poco a poco",
+        "brusco",
+        "progresivo"
+      ],
+      "regex": [
+        "\\b(como\\s+empezo|fue\\s+de\\s+repente|fue\\s+poco\\s+a\\s+poco|inicio\\s+brusco|inicio\\s+progresivo)\\b"
+      ]
+    },
+    {
+      "id": "B2_003",
+      "block_id": "B2_HEA",
+      "label": "Explora la evolucion o curso (mejora, empeora, igual)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "ha ido a mas",
+        "ha empeorado",
+        "ha mejorado",
+        "sigue igual",
+        "va a peor",
+        "evolucion"
+      ],
+      "regex": [
+        "\\b(ha\\s+ido\\s+a\\s+mas|ha\\s+empeorado|va\\s+a\\s+peor|ha\\s+mejorado|sigue\\s+igual|como\\s+ha\\s+evolucionado)\\b"
+      ]
+    },
+    {
+      "id": "B2_004",
+      "block_id": "B2_HEA",
+      "label": "Pregunta la localizacion exacta (donde) y en que parte",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "donde exactamente",
+        "en que sitio",
+        "en que parte",
+        "en que zona",
+        "donde te duele",
+        "donde le duele"
+      ],
+      "regex": [
+        "\\b(donde\\s+exactamente|en\\s+que\\s+sitio|en\\s+que\\s+parte|en\\s+que\\s+zona|donde\\s+te\\s+duele|donde\\s+le\\s+duele)\\b"
+      ]
+    },
+    {
+      "id": "B2_005",
+      "block_id": "B2_HEA",
+      "label": "Pregunta las caracteristicas o calidad del sintoma (como es)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "como es",
+        "que tipo de",
+        "que sensacion",
+        "opresivo",
+        "punzante",
+        "quemazon"
+      ],
+      "regex": [
+        "\\b(como\\s+es|que\\s+tipo\\s+de|que\\s+sensacion|es\\s+opresivo|es\\s+punzante|es\\s+una\\s+quemazon)\\b"
+      ]
+    },
+    {
+      "id": "B2_006",
+      "block_id": "B2_HEA",
+      "label": "Pregunta si se irradia o se extiende a otra zona",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "se irradia",
+        "se extiende",
+        "corre hacia",
+        "baja a",
+        "sube a",
+        "hacia donde"
+      ],
+      "regex": [
+        "\\b(se\\s+irradia|se\\s+extiende|hacia\\s+donde\\s+se\\s+irradia|hacia\\s+donde\\s+se\\s+extiende|corre\\s+hacia|baja\\s+a|sube\\s+a)\\b"
+      ]
+    },
+    {
+      "id": "B2_007",
+      "block_id": "B2_HEA",
+      "label": "Pregunta la intensidad con escala numerica (0 a 10)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "del 0 al 10",
+        "en una escala de 0 a 10",
+        "cuanto le duele",
+        "cuanto te duele",
+        "intensidad"
+      ],
+      "regex": [
+        "\\b(del\\s+0\\s+al\\s+10|escala\\s+de\\s+0\\s+a\\s+10|en\\s+una\\s+escala\\s+de\\s+0\\s+a\\s+10)\\b"
+      ]
+    },
+    {
+      "id": "B2_008",
+      "block_id": "B2_HEA",
+      "label": "Pregunta la duracion de cada episodio o cuanto dura",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cuanto dura",
+        "cuanto le dura",
+        "cuanto te dura",
+        "duracion de",
+        "duracion"
+      ],
+      "regex": [
+        "\\b(cuanto\\s+dura|cuanto\\s+le\\s+dura|cuanto\\s+te\\s+dura|duracion\\s+de\\s+cada\\s+episodio|cual\\s+es\\s+la\\s+duracion)\\b"
+      ]
+    },
+    {
+      "id": "B2_009",
+      "block_id": "B2_HEA",
+      "label": "Pregunta la frecuencia o ritmo (cada cuanto ocurre; continuo vs intermitente)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cada cuanto",
+        "cuantas veces al dia",
+        "es continuo",
+        "es constante",
+        "intermitente",
+        "va y viene"
+      ],
+      "regex": [
+        "\\b(cada\\s+cuanto|cuantas\\s+veces\\s+al\\s+dia|es\\s+continuo|es\\s+constante|es\\s+intermitente|va\\s+y\\s+viene)\\b"
+      ]
+    },
+    {
+      "id": "B2_010",
+      "block_id": "B2_HEA",
+      "label": "Pregunta factores que empeoran o desencadenan",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que lo empeora",
+        "cuando empeora",
+        "que lo desencadena",
+        "con que empeora",
+        "que lo provoca"
+      ],
+      "regex": [
+        "\\b(que\\s+lo\\s+empeora|cuando\\s+empeora|que\\s+lo\\s+desencadena|con\\s+que\\s+empeora|que\\s+lo\\s+provoca)\\b"
+      ]
+    },
+    {
+      "id": "B2_011",
+      "block_id": "B2_HEA",
+      "label": "Pregunta factores que alivian o mejoran (reposo, medicacion, postura, etc.)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que lo mejora",
+        "que lo alivia",
+        "que le calma",
+        "que te calma",
+        "con que mejora"
+      ],
+      "regex": [
+        "\\b(que\\s+lo\\s+mejora|que\\s+lo\\s+alivia|que\\s+le\\s+calma|que\\s+te\\s+calma|con\\s+que\\s+mejora)\\b"
+      ]
+    },
+    {
+      "id": "B2_012",
+      "block_id": "B2_HEA",
+      "label": "Pregunta sintomas asociados relevantes al motivo (se acompana de / junto con esto / ademas de esto)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "otros sintomas",
+        "se acompana de",
+        "ademas de esto que nota",
+        "junto con esto"
+      ],
+      "regex": [
+        "\\b(otros\\s+sintomas|se\\s+acompana\\s+de|ademas\\s+de\\s+esto\\s+que\\s+nota|junto\\s+con\\s+esto)\\b"
+      ]
+    },
+    {
+      "id": "B2_013",
+      "block_id": "B2_HEA",
+      "label": "Pregunta que ha probado ya para aliviar y si ha funcionado (medidas/medicacion)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ha tomado algo",
+        "has tomado algo",
+        "que ha probado",
+        "que has probado",
+        "le ha hecho efecto",
+        "te ha hecho efecto"
+      ],
+      "regex": [
+        "\\b(ha\\s+tomado\\s+algo|has\\s+tomado\\s+algo|que\\s+ha\\s+probado|que\\s+has\\s+probado|le\\s+ha\\s+hecho\\s+efecto|te\\s+ha\\s+hecho\\s+efecto)\\b"
+      ]
+    },
+    {
+      "id": "B2_014",
+      "block_id": "B2_HEA",
+      "label": "Pregunta si ha tenido episodios previos similares",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "le ha pasado antes",
+        "te ha pasado antes",
+        "ya le habia ocurrido",
+        "episodios previos",
+        "algo parecido antes"
+      ],
+      "regex": [
+        "\\b(le\\s+ha\\s+pasado\\s+antes|te\\s+ha\\s+pasado\\s+antes|ya\\s+le\\s+habia\\s+ocurrido|ya\\s+te\\s+habia\\s+ocurrido|episodios\\s+previos|algo\\s+parecido\\s+antes)\\b"
+      ]
+    },
+    {
+      "id": "B2_015",
+      "block_id": "B2_HEA",
+      "label": "Explora impacto funcional (actividad diaria, trabajo, sueno)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "le impide",
+        "te impide",
+        "afecta al trabajo",
+        "afecta a su vida diaria",
+        "te despierta por la noche",
+        "afecta al sueno"
+      ],
+      "regex": [
+        "\\b(le\\s+impide|te\\s+impide|afecta\\s+al\\s+trabajo|afecta\\s+a\\s+su\\s+vida\\s+diaria|afecta\\s+al\\s+sueno|te\\s+despierta\\s+por\\s+la\\s+noche)\\b"
+      ]
+    },
+    {
+      "id": "B2_016",
+      "block_id": "B2_HEA",
+      "label": "Descarta signos de alarma generales con una pregunta de cribado (red flags generales)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "alguna senal de alarma",
+        "algo preocupante",
+        "algo grave",
+        "signos de alarma",
+        "motivo para ir a urgencias",
+        "te preocupa especialmente",
+        "le preocupe especialmente"
+      ],
+      "regex": [
+        "\\b(hay\\s+alguna\\s+senal\\s+de\\s+alarma|tiene\\s+algun\\s+signo\\s+de\\s+alarma|hay\\s+algo\\s+que\\s+le\\s+preocupe\\s+especialmente|hay\\s+algo\\s+que\\s+te\\s+preocupe\\s+especialmente|hay\\s+algo\\s+que\\s+le\\s+haga\\s+pensar\\s+que\\s+es\\s+grave|esto\\s+le\\s+ha\\s+hecho\\s+ir\\s+a\\s+urgencias|ha\\s+necesitado\\s+ir\\s+a\\s+urgencias)\\b"
+      ]
+    },
+    {
+      "id": "B3_001",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por enfermedades o diagnosticos previos relevantes",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "enfermedades previas",
+        "diagnosticos previos",
+        "problemas de salud previos",
+        "antecedentes medicos",
+        "historial medico"
+      ],
+      "regex": [
+        "\\b(tiene\\s+alguna\\s+enfermedad\\s+previa|ha\\s+tenido\\s+alguna\\s+enfermedad\\s+importante|le\\s+han\\s+diagnosticado\\s+algo\\s+antes|diagnosticos\\s+previos|antecedentes\\s+medicos|historial\\s+medico)\\b"
+      ]
+    },
+    {
+      "id": "B3_002",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta especificamente por enfermedades cronicas en general (seguimiento habitual)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "enfermedad cronica",
+        "problema cronico",
+        "seguimiento medico",
+        "controlado por",
+        "revisiones"
+      ],
+      "regex": [
+        "\\b(tiene\\s+alguna\\s+enfermedad\\s+cronica|padece\\s+alguna\\s+enfermedad\\s+cronica|tiene\\s+algun\\s+problema\\s+de\\s+salud\\s+de\\s+larga\\s+evolucion|hace\\s+seguimiento\\s+por\\s+alguna\\s+enfermedad)\\b"
+      ]
+    },
+    {
+      "id": "B3_003",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Explora hipertension o tension alta (si procede)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "hipertension",
+        "tension alta",
+        "presion alta",
+        "hta"
+      ],
+      "regex": [
+        "\\b(tiene\\s+hipertension|le\\s+han\\s+dicho\\s+que\\s+tiene\\s+la\\s+tension\\s+alta|presion\\s+alta|hta)\\b"
+      ]
+    },
+    {
+      "id": "B3_004",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Explora diabetes (si procede)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "diabetes",
+        "azucar alto",
+        "diabetico",
+        "dm"
+      ],
+      "regex": [
+        "\\b(tiene\\s+diabetes|le\\s+han\\s+diagnosticado\\s+diabetes|azucar\\s+alto|\\bdm\\b|diabetico)\\b"
+      ]
+    },
+    {
+      "id": "B3_005",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Explora dislipemia o colesterol alto (si procede)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "colesterol alto",
+        "dislipemia",
+        "trigliceridos",
+        "hipercolesterolemia"
+      ],
+      "regex": [
+        "\\b(tiene\\s+colesterol\\s+alto|le\\s+han\\s+dicho\\s+que\\s+tiene\\s+el\\s+colesterol\\s+alto|dislipemia|hipercolesterolemia|trigliceridos\\s+altos)\\b"
+      ]
+    },
+    {
+      "id": "B3_006",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por cardiopatia previa relevante (infarto, insuficiencia cardiaca, arritmias, valvulas)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "problema del corazon",
+        "cardiopatia",
+        "infarto previo",
+        "insuficiencia cardiaca",
+        "arritmia",
+        "valvula"
+      ],
+      "regex": [
+        "\\b(tiene\\s+alguna\\s+enfermedad\\s+del\\s+corazon|ha\\s+tenido\\s+infarto|insuficiencia\\s+cardiaca|arritmias|problema\\s+de\\s+valvulas)\\b"
+      ]
+    },
+    {
+      "id": "B3_007",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por enfermedades respiratorias cronicas (asma, epoc) si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "asma",
+        "epoc",
+        "bronquitis cronica",
+        "enfermedad pulmonar cronica"
+      ],
+      "regex": [
+        "\\b(tiene\\s+asma|tiene\\s+epoc|bronquitis\\s+cronica|enfermedad\\s+pulmonar\\s+cronica)\\b"
+      ]
+    },
+    {
+      "id": "B3_008",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por cirugias previas",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cirugias previas",
+        "operado alguna vez",
+        "intervencion quirurgica",
+        "le han operado",
+        "te han operado"
+      ],
+      "regex": [
+        "\\b(le\\s+han\\s+operado\\s+alguna\\s+vez|te\\s+han\\s+operado\\s+alguna\\s+vez|ha\\s+tenido\\s+alguna\\s+cirugia|cirugias\\s+previas|intervencion\\s+quirurgica)\\b"
+      ]
+    },
+    {
+      "id": "B3_009",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por ingresos u hospitalizaciones previas",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ingresado alguna vez",
+        "hospitalizado",
+        "ingresos previos",
+        "ha estado ingresado",
+        "te han ingresado"
+      ],
+      "regex": [
+        "\\b(ha\\s+estado\\s+ingresado|te\\s+han\\s+ingresado|ha\\s+estado\\s+hospitalizado|ingresos\\s+previos|hospitalizaciones\\s+previas)\\b"
+      ]
+    },
+    {
+      "id": "B3_010",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por urgencias previas por el mismo problema o consultas recientes",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ha ido a urgencias",
+        "has ido a urgencias",
+        "consultado antes",
+        "ha consultado por esto",
+        "visita previa"
+      ],
+      "regex": [
+        "\\b(ha\\s+ido\\s+a\\s+urgencias\\s+por\\s+esto|has\\s+ido\\s+a\\s+urgencias\\s+por\\s+esto|ha\\s+consultado\\s+antes\\s+por\\s+esto|ya\\s+lo\\s+han\\s+visto\\s+por\\s+esto|consulta\\s+reciente)\\b"
+      ]
+    },
+    {
+      "id": "B3_011",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Explora antecedentes infecciosos relevantes si procede (vih, hepatitis, tuberculosis, tb)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "vih",
+        "hepatitis",
+        "tuberculosis",
+        "tb",
+        "infeccion cronica"
+      ],
+      "regex": [
+        "\\b(vih|hepatitis|tuberculosis|tb)\\b"
+      ]
+    },
+    {
+      "id": "B3_012",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por estado vacunal o vacunas relevantes si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "vacunas al dia",
+        "estado vacunal",
+        "tiene las vacunas",
+        "vacunado",
+        "vacunacion"
+      ],
+      "regex": [
+        "\\b(tiene\\s+las\\s+vacunas\\s+al\\s+dia|como\\s+esta\\s+de\\s+vacunas|estado\\s+vacunal|esta\\s+vacunado|esta\\s+vacunada|vacunacion)\\b"
+      ]
+    },
+    {
+      "id": "B3_013",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Pregunta por antecedentes alergicos personales no farmacologicos (rinitis, asma alergica, alergias conocidas) si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "alergias conocidas",
+        "rinitis alergica",
+        "asma alergica",
+        "alergia a algo",
+        "alergico a algo"
+      ],
+      "regex": [
+        "\\b(tiene\\s+alergias\\s+conocidas|alergia\\s+a\\s+algo|es\\s+alergico\\s+a\\s+algo|rinitis\\s+alergica|asma\\s+alergica)\\b"
+      ]
+    },
+    {
+      "id": "B3_014",
+      "block_id": "B3_ANTECEDENTES",
+      "label": "Antecedentes gineco-obstetricos si aplica (menstruacion, embarazos, partos) de forma inclusiva",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ultima regla",
+        "fur",
+        "fum",
+        "menstruacion",
+        "regla",
+        "embarazo",
+        "embarazos",
+        "parto",
+        "partos"
+      ],
+      "regex": [
+        "\\b(ultima\\s+regla|\\bfur\\b|\\bfum\\b|menstruacion|regla|embarazad[ao]s?|embarazos|partos?)\\b"
+      ]
+    },
+    {
+      "id": "B4_001",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por medicacion actual (que toma habitualmente o ahora)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que medicacion toma",
+        "que medicamentos toma",
+        "toma alguna medicacion",
+        "tomas alguna medicacion",
+        "que esta tomando",
+        "que estas tomando"
+      ],
+      "regex": [
+        "\\b(que\\s+medicacion\\s+toma|que\\s+medicamentos\\s+toma|toma(s)?\\s+alguna\\s+medicacion|toma(s)?\\s+algun\\s+medicamento|que\\s+esta(s)?\\s+tomando|medicacion\\s+actual|medicamentos\\s+habituales)\\b"
+      ]
+    },
+    {
+      "id": "B4_002",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Aclara nombre del medicamento (cual exactamente)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cual",
+        "cuales",
+        "nombre del medicamento",
+        "como se llama",
+        "cual exactamente"
+      ],
+      "regex": [
+        "\\b(cual\\s+es\\s+(el|la)\\s+(medicamento|medicacion)\\s+exactamente|como\\s+se\\s+llama\\s+(el|la)\\s+(medicamento|medicacion)|me\\s+puede(s)?\\s+decir\\s+el\\s+nombre\\s+del\\s+medicamento|cuales\\s+son\\s+los\\s+medicamentos)\\b"
+      ]
+    },
+    {
+      "id": "B4_003",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Aclara dosis o cantidad (cuanto toma)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que dosis",
+        "cuanta dosis",
+        "cuanto toma",
+        "que cantidad",
+        "cuanta cantidad"
+      ],
+      "regex": [
+        "\\b(que\\s+dosis\\s+(toma|tomas)|cuanta\\s+dosis\\s+(toma|tomas)|que\\s+cantidad\\s+(toma|tomas)|cuanta\\s+cantidad\\s+(toma|tomas)|cuanto\\s+(toma|tomas)\\s+de\\s+eso)\\b"
+      ]
+    },
+    {
+      "id": "B4_004",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Aclara pauta o frecuencia (cada cuanto lo toma)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cada cuanto",
+        "con que frecuencia",
+        "cuantas veces al dia",
+        "pauta",
+        "como lo toma"
+      ],
+      "regex": [
+        "\\b(cada\\s+cuanto\\s+lo\\s+(toma|tomas)|con\\s+que\\s+frecuencia\\s+lo\\s+(toma|tomas)|cuantas\\s+veces\\s+al\\s+dia\\s+lo\\s+(toma|tomas)|cual\\s+es\\s+la\\s+pauta|como\\s+lo\\s+(toma|tomas))\\b"
+      ]
+    },
+    {
+      "id": "B4_005",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Explora adherencia (si lo toma como se lo indicaron)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "lo toma tal como",
+        "lo tomas tal como",
+        "se le olvida",
+        "se te olvida",
+        "lo toma siempre",
+        "lo tomas siempre"
+      ],
+      "regex": [
+        "\\b(lo\\s+(toma|tomas)\\s+tal\\s+como\\s+se\\s+lo\\s+indicaron|lo\\s+(toma|tomas)\\s+como\\s+le\\s+dijeron|se\\s+le\\s+olvida\\s+alguna\\s+vez|se\\s+te\\s+olvida\\s+alguna\\s+vez|lo\\s+(toma|tomas)\\s+siempre\\s+o\\s+algunas\\s+veces\\s+se\\s+lo\\s+salta)\\b"
+      ]
+    },
+    {
+      "id": "B4_006",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por cambios recientes o medicacion nueva",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "medicacion nueva",
+        "medicamento nuevo",
+        "ha cambiado",
+        "has cambiado",
+        "recientemente"
+      ],
+      "regex": [
+        "\\b(ha\\s+empezado\\s+alguna\\s+medicacion\\s+nueva|has\\s+empezado\\s+alguna\\s+medicacion\\s+nueva|ha\\s+cambiado\\s+alguna\\s+medicacion\\s+recientemente|has\\s+cambiado\\s+alguna\\s+medicacion\\s+recientemente|algun\\s+medicamento\\s+nuevo\\s+en\\s+las\\s+ultimas\\s+semanas)\\b"
+      ]
+    },
+    {
+      "id": "B4_007",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Explora automedicacion (analgesicos, aines) por cuenta propia",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "por su cuenta",
+        "por tu cuenta",
+        "sin receta",
+        "automedica",
+        "toma algo para el dolor",
+        "tomas algo para el dolor"
+      ],
+      "regex": [
+        "\\b(ha\\s+tomado\\s+algo\\s+por\\s+su\\s+cuenta|has\\s+tomado\\s+algo\\s+por\\s+tu\\s+cuenta|toma(s)?\\s+algo\\s+sin\\s+receta|se\\s+ha\\s+automedicado|te\\s+has\\s+automedicado|ha\\s+tomado\\s+algo\\s+para\\s+el\\s+dolor|has\\s+tomado\\s+algo\\s+para\\s+el\\s+dolor)\\b"
+      ]
+    },
+    {
+      "id": "B4_008",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por alergias a medicamentos",
+      "points": 1,
+      "is_minimum": true,
+      "critical": true,
+      "no_applicable": false,
+      "keywords": [
+        "alergia a medicamentos",
+        "alergico a algun medicamento",
+        "alergias medicamentos",
+        "reaccion a medicamentos",
+        "alergico a penicilina",
+        "alergia a antibioticos"
+      ],
+      "regex": [
+        "\\b(es\\s+alergic[oa]\\s+a\\s+algun\\s+medicamento|tiene\\s+alergias\\s+a\\s+medicamentos|alergia(s)?\\s+a\\s+medicamentos|ha\\s+tenido\\s+alguna\\s+reaccion\\s+con\\s+medicamentos|le\\s+ha\\s+sentado\\s+mal\\s+algun\\s+medicamento\\s+por\\s+alergia)\\b"
+      ]
+    },
+    {
+      "id": "B4_009",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Caracteriza la reaccion alergica (que paso, sintomas, gravedad)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "que reaccion",
+        "que paso",
+        "que sintomas",
+        "que le ocurrio",
+        "que te ocurrio",
+        "que le dio",
+        "que te dio"
+      ],
+      "regex": [
+        "\\b(que\\s+(reaccion|paso)\\s+(tuvo|tuviste)|que\\s+sintomas\\s+(tuvo|tuviste)|que\\s+le\\s+ocurrio|que\\s+te\\s+ocurrio|que\\s+le\\s+dio|que\\s+te\\s+dio|como\\s+fue\\s+la\\s+reaccion)\\b"
+      ]
+    },
+    {
+      "id": "B4_010",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por anticoagulantes o antiagregantes si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "anticoagulante",
+        "antiagregante",
+        "sintrom",
+        "acenocumarol",
+        "warfarina",
+        "heparina",
+        "aspirina diaria",
+        "clopidogrel"
+      ],
+      "regex": [
+        "\\b(toma(s)?\\s+anticoagulantes|toma(s)?\\s+antiagregantes|toma(s)?\\s+sintrom|toma(s)?\\s+acenocumarol|toma(s)?\\s+warfarina|toma(s)?\\s+heparina|toma(s)?\\s+aspirina\\s+a\\s+diario|toma(s)?\\s+clopidogrel)\\b"
+      ]
+    },
+    {
+      "id": "B4_011",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por suplementos, vitaminas o productos naturales",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "suplementos",
+        "vitaminas",
+        "productos naturales",
+        "hierbas",
+        "fitoterapia",
+        "remedios naturales"
+      ],
+      "regex": [
+        "\\b(toma(s)?\\s+suplementos|toma(s)?\\s+vitaminas|toma(s)?\\s+productos\\s+naturales|toma(s)?\\s+hierbas|usa(s)?\\s+remedios\\s+naturales|fitoterapia)\\b"
+      ]
+    },
+    {
+      "id": "B4_012",
+      "block_id": "B4_MEDICACION_ALERGIAS",
+      "label": "Pregunta por efectos adversos o intolerancias previas a medicamentos (no alergia)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "efectos secundarios",
+        "efecto adverso",
+        "intolerancia",
+        "le sienta mal",
+        "te sienta mal"
+      ],
+      "regex": [
+        "\\b(ha\\s+tenido\\s+efectos\\s+secundarios\\s+con\\s+alguna\\s+medicacion|has\\s+tenido\\s+efectos\\s+secundarios\\s+con\\s+alguna\\s+medicacion|alguna\\s+medicacion\\s+le\\s+sienta\\s+mal|alguna\\s+medicacion\\s+te\\s+sienta\\s+mal|ha\\s+tenido\\s+alguna\\s+intolerancia\\s+a\\s+medicamentos|has\\s+tenido\\s+alguna\\s+intolerancia\\s+a\\s+medicamentos)\\b"
+      ]
+    },
+    {
+      "id": "B5_001",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por situacion laboral o estudios actuales",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "a que se dedica",
+        "en que trabaja",
+        "trabaja actualmente",
+        "esta trabajando",
+        "estudia actualmente",
+        "que estudia"
+      ],
+      "regex": [
+        "\\b(a\\s+que\\s+se\\s+dedica|en\\s+que\\s+trabaja|trabaja\\s+actualmente|esta\\s+trabajando|estudia\\s+actualmente|que\\s+estudia|esta\\s+estudiando)\\b"
+      ]
+    },
+    {
+      "id": "B5_002",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por condiciones del trabajo o exposiciones laborales relevantes si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "exposicion laboral",
+        "riesgos laborales",
+        "condiciones del trabajo",
+        "trabaja a turnos",
+        "turnos de noche",
+        "esfuerzo fisico"
+      ],
+      "regex": [
+        "\\b(en\\s+(su|tu)\\s+trabajo\\s+(hay|existe|esta|estas)\\s+(alg[ou]n[ao]?\\s+)?(riesgo|exposicion|condicion|problema)|exposicion\\s+laboral|condiciones\\s+del\\s+trabajo|riesgos\\s+laborales|trabaja\\s+a\\s+turnos|turnos\\s+(de\\s+)?(noche|rotativos)|levanta(s)?\\s+peso|esfuerzo\\s+fisico\\s+en\\s+el\\s+trabajo)\\b"
+      ]
+    },
+    {
+      "id": "B5_003",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por situacion de vivienda (donde vive, tipo de vivienda) si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "donde vive actualmente",
+        "tipo de vivienda",
+        "situacion de vivienda",
+        "casa o piso"
+      ],
+      "regex": [
+        "\\b(donde\\s+vive\\s+actualmente|en\\s+que\\s+tipo\\s+de\\s+vivienda\\s+vive|en\\s+que\\s+tipo\\s+de\\s+vivienda\\s+vives|situacion\\s+de\\s+vivienda|vive\\s+en\\s+casa\\s+o\\s+piso|vives\\s+en\\s+casa\\s+o\\s+piso)\\b"
+      ]
+    },
+    {
+      "id": "B5_004",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta con quien vive o convivencia habitual",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "con quien vive",
+        "con quien vives",
+        "vive solo",
+        "vives solo",
+        "vive acompañado",
+        "vives acompañado"
+      ],
+      "regex": [
+        "\\b(con\\s+quien\\s+vive|con\\s+quien\\s+vives|vive\\s+solo|vives\\s+solo|vive\\s+acompanado|vives\\s+acompanado|vive\\s+con\\s+familia|vives\\s+con\\s+familia|vive\\s+con\\s+pareja|vives\\s+con\\s+pareja)\\b"
+      ]
+    },
+    {
+      "id": "B5_005",
+      "block_id": "B5_SOCIAL",
+      "label": "Explora red de apoyo o soporte social (quien le ayuda si lo necesita)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "tiene apoyo",
+        "tienes apoyo",
+        "red de apoyo",
+        "quien le ayuda",
+        "quien te ayuda"
+      ],
+      "regex": [
+        "\\b(tiene\\s+apoyo\\s+en\\s+casa|tienes\\s+apoyo\\s+en\\s+casa|red\\s+de\\s+apoyo|quien\\s+le\\s+ayuda\\s+si\\s+lo\\s+necesita|quien\\s+te\\s+ayuda\\s+si\\s+lo\\s+necesitas|cuenta\\s+con\\s+alguien\\s+para\\s+ayudarle|cuentas\\s+con\\s+alguien\\s+para\\s+ayudarte)\\b"
+      ]
+    },
+    {
+      "id": "B5_006",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por consumo de tabaco",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "fuma tabaco",
+        "fumas tabaco",
+        "consume tabaco",
+        "consumes tabaco",
+        "es fumador",
+        "es fumadora"
+      ],
+      "regex": [
+        "\\b(fuma\\s+tabaco|fumas\\s+tabaco|consum(e|es)\\s+tabaco|es\\s+fumador|es\\s+fumadora|toma(s)?\\s+tabaco)\\b"
+      ]
+    },
+    {
+      "id": "B5_007",
+      "block_id": "B5_SOCIAL",
+      "label": "Cuantifica tabaco si procede (cigarrillos al dia o paquetes al dia)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cuantos cigarrillos al dia",
+        "paquetes al dia",
+        "cuanto fuma",
+        "cuanto fumas"
+      ],
+      "regex": [
+        "\\b(cuantos\\s+cigarrillos\\s+al\\s+dia|cuantos\\s+fuma\\s+al\\s+dia|cuantos\\s+fumas\\s+al\\s+dia|paquetes\\s+al\\s+dia|cuantos\\s+paquetes\\s+al\\s+dia|cuanto\\s+fuma|cuanto\\s+fumas)\\b"
+      ]
+    },
+    {
+      "id": "B5_008",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por consumo de alcohol",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "bebe alcohol",
+        "bebes alcohol",
+        "consume alcohol",
+        "consumes alcohol",
+        "suele beber alcohol"
+      ],
+      "regex": [
+        "\\b(bebe\\s+alcohol|bebes\\s+alcohol|consum(e|es)\\s+alcohol|suele\\s+beber\\s+alcohol|sueles\\s+beber\\s+alcohol)\\b"
+      ]
+    },
+    {
+      "id": "B5_009",
+      "block_id": "B5_SOCIAL",
+      "label": "Cuantifica alcohol si procede (frecuencia y cantidad)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "con que frecuencia bebe",
+        "con que frecuencia bebes",
+        "cuantas veces a la semana",
+        "unidades de alcohol"
+      ],
+      "regex": [
+        "\\b(con\\s+que\\s+frecuencia\\s+(bebe|bebes)|cuantas\\s+veces\\s+a\\s+la\\s+semana\\s+(bebe|bebes)|cuantas\\s+copas\\s+o\\s+cervezas\\s+(toma|tomas)|unidades\\s+de\\s+alcohol\\s+a\\s+la\\s+semana)\\b"
+      ]
+    },
+    {
+      "id": "B5_010",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por consumo de otras drogas o toxicos (cannabis, cocaina, etc.)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "consume drogas",
+        "consumes drogas",
+        "drogas recreativas",
+        "cannabis",
+        "marihuana",
+        "cocaina"
+      ],
+      "regex": [
+        "\\b(consum(e|es)\\s+alguna\\s+droga|usa(s)?\\s+alguna\\s+droga|drogas\\s+recreativas|cannabis|marihuana|hachis|cocaina|anfetaminas|mdma|heroina)\\b"
+      ]
+    },
+    {
+      "id": "B5_011",
+      "block_id": "B5_SOCIAL",
+      "label": "Explora patron de consumo si procede (frecuencia o ultimo consumo)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "con que frecuencia",
+        "ultimo consumo",
+        "cuando fue la ultima vez"
+      ],
+      "regex": [
+        "\\b(con\\s+que\\s+frecuencia\\s+lo\\s+(consume|consumes)|cada\\s+cuanto\\s+lo\\s+(consume|consumes)|cuando\\s+fue\\s+la\\s+ultima\\s+vez\\s+que\\s+lo\\s+(consumio|consumiste)|ultimo\\s+consumo)\\b"
+      ]
+    },
+    {
+      "id": "B5_012",
+      "block_id": "B5_SOCIAL",
+      "label": "Pregunta por seguridad y riesgos en el entorno si procede (violencia, seguridad en casa)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "se siente seguro en casa",
+        "te sientes seguro en casa",
+        "seguridad en casa",
+        "violencia",
+        "maltrato"
+      ],
+      "regex": [
+        "\\b(se\\s+siente\\s+seguro\\s+en\\s+casa|te\\s+sientes\\s+seguro\\s+en\\s+casa|se\\s+siente\\s+segura\\s+en\\s+casa|te\\s+sientes\\s+segura\\s+en\\s+casa|hay\\s+algun\\s+problema\\s+de\\s+violencia\\s+en\\s+casa|alguien\\s+le\\s+ha\\s+hecho\\s+dano|alguien\\s+te\\s+ha\\s+hecho\\s+dano|maltrato)\\b"
+      ]
+    },
+    {
+      "id": "B6_001",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta general por antecedentes familiares relevantes (enfermedades en la familia)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "antecedentes familiares",
+        "en su familia hay",
+        "en tu familia hay",
+        "en la familia hay",
+        "enfermedades en la familia",
+        "historia familiar"
+      ],
+      "regex": [
+        "\\b(antecedentes\\s+familiares|historia\\s+familiar|en\\s+(su|tu|la)\\s+familia\\s+hay\\s+alguna\\s+enfermedad|enfermedades\\s+en\\s+la\\s+familia|algun\\s+familiar\\s+con\\s+alguna\\s+enfermedad)\\b"
+      ]
+    },
+    {
+      "id": "B6_002",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por enfermedad cardiovascular prematura en familiares (infarto/ictus/muerte subita)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "infarto en la familia",
+        "ictus en la familia",
+        "muerte subita",
+        "problemas del corazon en la familia",
+        "antecedentes cardiovasculares familiares"
+      ],
+      "regex": [
+        "\\b(infarto\\s+en\\s+la\\s+familia|ictus\\s+en\\s+la\\s+familia|muerte\\s+subita\\s+en\\s+la\\s+familia|problemas\\s+(del\\s+corazon|cardiacos|cardiovasculares)\\s+en\\s+la\\s+familia|algun\\s+familiar\\s+con\\s+(infarto|ictus|muerte\\s+subita))\\b"
+      ]
+    },
+    {
+      "id": "B6_003",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por hipertension o colesterol alto en familiares de primer grado",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "hipertension en la familia",
+        "tension alta en la familia",
+        "colesterol alto en la familia",
+        "dislipemia familiar"
+      ],
+      "regex": [
+        "\\b(hipertension\\s+en\\s+la\\s+familia|tension\\s+alta\\s+en\\s+la\\s+familia|colesterol\\s+alto\\s+en\\s+la\\s+familia|dislipemia\\s+en\\s+la\\s+familia|algun\\s+familiar\\s+con\\s+(hipertension|tension\\s+alta|colesterol\\s+alto))\\b"
+      ]
+    },
+    {
+      "id": "B6_004",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por diabetes mellitus en familiares",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "diabetes en la familia",
+        "familiar diabetico",
+        "familiares con diabetes",
+        "diabetes mellitus en familiares"
+      ],
+      "regex": [
+        "\\b(diabetes\\s+en\\s+la\\s+familia|familiares\\s+con\\s+diabetes|algun\\s+familiar\\s+(diabetico|con\\s+diabetes)|diabetes\\s+mellitus\\s+en\\s+familiares)\\b"
+      ]
+    },
+    {
+      "id": "B6_005",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por cancer en familiares (tipo y edad de aparicion si procede)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cancer en la familia",
+        "tumor en la familia",
+        "neoplasia en la familia",
+        "que tipo de cancer",
+        "a que edad le aparecio"
+      ],
+      "regex": [
+        "\\b(cancer\\s+en\\s+la\\s+familia|tumor\\s+en\\s+la\\s+familia|neoplasia\\s+en\\s+la\\s+familia|algun\\s+familiar\\s+con\\s+cancer|que\\s+tipo\\s+de\\s+cancer|a\\s+que\\s+edad\\s+(le\\s+aparecio|se\\s+lo\\s+diagnosticaron))\\b"
+      ]
+    },
+    {
+      "id": "B6_006",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por enfermedades neurologicas o psiquiatricas en familiares (demencia, epilepsia, depresion, etc.)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "demencia en la familia",
+        "alzheimer en la familia",
+        "epilepsia en la familia",
+        "enfermedad mental en la familia",
+        "depresion en la familia"
+      ],
+      "regex": [
+        "\\b(demencia\\s+en\\s+la\\s+familia|alzheimer\\s+en\\s+la\\s+familia|epilepsia\\s+en\\s+la\\s+familia|enfermedad\\s+(mental|psiquiatrica)\\s+en\\s+la\\s+familia|depresion\\s+en\\s+la\\s+familia|algun\\s+familiar\\s+con\\s+(demencia|alzheimer|epilepsia|depresion|esquizofrenia|trastorno\\s+bipolar))\\b"
+      ]
+    },
+    {
+      "id": "B6_007",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por enfermedades hereditarias o geneticas conocidas en la familia",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "enfermedad hereditaria",
+        "enfermedad genetica",
+        "algo hereditario",
+        "trastorno genetico",
+        "familia con enfermedad rara"
+      ],
+      "regex": [
+        "\\b(enfermedad\\s+(hereditaria|genetica)|algo\\s+hereditario\\s+en\\s+la\\s+familia|trastorno\\s+genetico|algun\\s+familiar\\s+con\\s+una\\s+enfermedad\\s+hereditaria|enfermedad\\s+rara\\s+en\\s+la\\s+familia)\\b"
+      ]
+    },
+    {
+      "id": "B6_008",
+      "block_id": "B6_FAMILIAR",
+      "label": "Pregunta por edad y causa de fallecimiento en familiares cercanos si procede",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "de que fallecio",
+        "causa de fallecimiento",
+        "a que edad fallecio",
+        "murio de",
+        "fallecio por"
+      ],
+      "regex": [
+        "\\b(de\\s+que\\s+fallecio|causa\\s+de\\s+fallecimiento|a\\s+que\\s+edad\\s+fallecio|murio\\s+de\\s+que|fallecio\\s+por\\s+que|por\\s+que\\s+murio)\\b"
+      ]
+    },
+    {
+      "id": "B7_001",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por fiebre o febrícula",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "fiebre",
+        "febricula",
+        "temperatura alta"
+      ],
+      "regex": [
+        "\\b(fiebre|febricula|temperatura\\s+alta)\\b"
+      ]
+    },
+    {
+      "id": "B7_002",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por escalofríos o tiritona",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "escalofrios",
+        "tiritona"
+      ],
+      "regex": [
+        "\\b(escalofrios|tiritona)\\b"
+      ]
+    },
+    {
+      "id": "B7_003",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por pérdida de peso no intencionada",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "perdida de peso",
+        "adelgazado sin querer"
+      ],
+      "regex": [
+        "\\b(perdida\\s+de\\s+peso|adelgazado\\s+sin\\s+querer)\\b"
+      ]
+    },
+    {
+      "id": "B7_004",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por astenia o cansancio marcado",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "astenia",
+        "cansancio",
+        "fatiga"
+      ],
+      "regex": [
+        "\\b(astenia|cansancio\\s+marcado|fatiga)\\b"
+      ]
+    },
+    {
+      "id": "B7_005",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por sudoración nocturna",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "sudoracion nocturna",
+        "sudar por la noche"
+      ],
+      "regex": [
+        "\\b(sudoracion\\s+nocturna|sudar\\s+por\\s+la\\s+noche)\\b"
+      ]
+    },
+    {
+      "id": "B7_006",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por pérdida de apetito o anorexia",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "perdida de apetito",
+        "anorexia",
+        "menos ganas de comer"
+      ],
+      "regex": [
+        "\\b(perdida\\s+de\\s+apetito|anorexia|menos\\s+ganas\\s+de\\s+comer)\\b"
+      ]
+    },
+    {
+      "id": "B7_007",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por adinamia o falta de fuerza general",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "adinamia",
+        "falta de fuerza"
+      ],
+      "regex": [
+        "\\b(adinamia|falta\\s+de\\s+fuerza)\\b"
+      ]
+    },
+    {
+      "id": "B7_008",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENERAL_CONSTITUCIONAL",
+      "label": "Pregunta por cambios en el patrón de sueño",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "duerme mal",
+        "insomnio",
+        "cambios en el sueño"
+      ],
+      "regex": [
+        "\\b(insomnio|duerme\\s+mal|cambios\\s+en\\s+el\\s+sueno)\\b"
+      ]
+    },
+    {
+      "id": "B7_009",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "PIEL",
+      "label": "Pregunta por erupciones cutáneas o exantemas",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "erupciones",
+        "exantema",
+        "sarpullido"
+      ],
+      "regex": [
+        "\\b(erupciones|exantema|sarpullido)\\b"
+      ]
+    },
+    {
+      "id": "B7_010",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "PIEL",
+      "label": "Pregunta por prurito o picor en la piel",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "prurito",
+        "picor"
+      ],
+      "regex": [
+        "\\b(prurito|picor)\\b"
+      ]
+    },
+    {
+      "id": "B7_011",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "PIEL",
+      "label": "Pregunta por cambios en lunares o manchas",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cambios en lunares",
+        "manchas que cambian"
+      ],
+      "regex": [
+        "\\b(cambios\\s+en\\s+lunares|manchas\\s+que\\s+cambian)\\b"
+      ]
+    },
+    {
+      "id": "B7_012",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "PIEL",
+      "label": "Pregunta por heridas o úlceras que no cicatrizan",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "no cicatriza",
+        "ulceras",
+        "heridas cronicas"
+      ],
+      "regex": [
+        "\\b(no\\s+cicatriza|ulceras|heridas\\s+cronicas)\\b"
+      ]
+    },
+    {
+      "id": "B7_013",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "PIEL",
+      "label": "Pregunta por caída del cabello o cambios en uñas",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "caida del cabello",
+        "uñas fragiles"
+      ],
+      "regex": [
+        "\\b(caida\\s+del\\s+cabello|unas\\s+fragiles|cambios\\s+en\\s+las\\s+unas)\\b"
+      ]
+    },
+    {
+      "id": "B7_014",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por dolor torácico",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "dolor toracico",
+        "dolor en el pecho"
+      ],
+      "regex": [
+        "\\b(dolor\\s+toracico|dolor\\s+en\\s+el\\s+pecho)\\b"
+      ]
+    },
+    {
+      "id": "B7_015",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por palpitaciones o latidos irregulares",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "palpitaciones",
+        "latidos irregulares"
+      ],
+      "regex": [
+        "\\b(palpitaciones|latidos\\s+irregulares)\\b"
+      ]
+    },
+    {
+      "id": "B7_016",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por disnea de esfuerzo",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disnea de esfuerzo",
+        "falta de aire al esfuerzo"
+      ],
+      "regex": [
+        "\\b(disnea\\s+de\\s+esfuerzo|falta\\s+de\\s+aire\\s+al\\s+esfuerzo)\\b"
+      ]
+    },
+    {
+      "id": "B7_017",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por ortopnea",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ortopnea",
+        "almohadas para dormir"
+      ],
+      "regex": [
+        "\\b(ortopnea|almohadas\\s+para\\s+dormir)\\b"
+      ]
+    },
+    {
+      "id": "B7_018",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por disnea paroxística nocturna",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disnea nocturna",
+        "ahogo nocturno"
+      ],
+      "regex": [
+        "\\b(disnea\\s+paroxistica\\s+nocturna|ahogo\\s+nocturno)\\b"
+      ]
+    },
+    {
+      "id": "B7_019",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por edemas en miembros inferiores",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "edemas",
+        "piernas hinchadas",
+        "tobillos hinchados"
+      ],
+      "regex": [
+        "\\b(edemas|piernas\\s+hinchadas|tobillos\\s+hinchados)\\b"
+      ]
+    },
+    {
+      "id": "B7_020",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por síncope",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "sincope",
+        "perdida de conocimiento"
+      ],
+      "regex": [
+        "\\b(sincope|perdida\\s+de\\s+conocimiento)\\b"
+      ]
+    },
+    {
+      "id": "B7_021",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por presíncope",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "presincope",
+        "sensacion de desmayo"
+      ],
+      "regex": [
+        "\\b(presincope|sensacion\\s+de\\s+desmayo)\\b"
+      ]
+    },
+    {
+      "id": "B7_022",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "CARDIOVASCULAR",
+      "label": "Pregunta por claudicación intermitente",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "claudicacion intermitente",
+        "dolor en pantorrillas al caminar"
+      ],
+      "regex": [
+        "\\b(claudicacion\\s+intermitente|dolor\\s+en\\s+pantorrillas\\s+al\\s+caminar)\\b"
+      ]
+    },
+    {
+      "id": "B7_023",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por disnea (falta de aire) en reposo o con esfuerzo",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disnea",
+        "falta de aire",
+        "ahogo"
+      ],
+      "regex": [
+        "\\b(disnea|falta\\s+de\\s+aire|ahogo)\\b"
+      ]
+    },
+    {
+      "id": "B7_024",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por tos y sus características (seca/productiva/nocturna)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "tos",
+        "tos seca",
+        "tos productiva",
+        "tos nocturna"
+      ],
+      "regex": [
+        "\\b(tos\\s+(seca|productiva|nocturna)|tos)\\b"
+      ]
+    },
+    {
+      "id": "B7_025",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por expectoración y sus características (color/cantidad)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "expectoracion",
+        "flemas",
+        "esputo"
+      ],
+      "regex": [
+        "\\b(expectoracion|flemas|esputo)\\b"
+      ]
+    },
+    {
+      "id": "B7_026",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por hemoptisis (sangre en el esputo)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "hemoptisis",
+        "sangre al toser",
+        "sangre en el esputo"
+      ],
+      "regex": [
+        "\\b(hemoptisis|sangre\\s+al\\s+toser|sangre\\s+en\\s+el\\s+esputo)\\b"
+      ]
+    },
+    {
+      "id": "B7_027",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por dolor torácico pleurítico (al respirar o al toser)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "dolor pleuritico",
+        "dolor al respirar",
+        "dolor al inspirar"
+      ],
+      "regex": [
+        "\\b(dolor\\s+pleuritico|dolor\\s+al\\s+respirar|dolor\\s+al\\s+inspirar)\\b"
+      ]
+    },
+    {
+      "id": "B7_028",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por sibilancias o \"pitos\" al respirar",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "sibilancias",
+        "pitos",
+        "silbidos al respirar"
+      ],
+      "regex": [
+        "\\b(sibilancias|pitos|silbidos\\s+al\\s+respirar)\\b"
+      ]
+    },
+    {
+      "id": "B7_029",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por estridor",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "estridor",
+        "ruido al inspirar"
+      ],
+      "regex": [
+        "\\b(estridor|ruido\\s+al\\s+inspirar)\\b"
+      ]
+    },
+    {
+      "id": "B7_030",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "RESPIRATORIO",
+      "label": "Pregunta por fiebre asociada a síntomas respiratorios",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "fiebre con tos",
+        "fiebre con disnea",
+        "fiebre y tos"
+      ],
+      "regex": [
+        "\\b(fiebre\\s+(con|y)\\s+(tos|disnea|falta\\s+de\\s+aire)|tos\\s+con\\s+fiebre)\\b"
+      ]
+    },
+    {
+      "id": "B7_031",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por náuseas",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "nauseas",
+        "ganas de vomitar"
+      ],
+      "regex": [
+        "\\b(nauseas|ganas\\s+de\\s+vomitar)\\b"
+      ]
+    },
+    {
+      "id": "B7_032",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por vómitos y sus características (frecuencia/contenido)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "vomitos",
+        "ha vomitado",
+        "vomitar"
+      ],
+      "regex": [
+        "\\b(vomitos|ha\\s+vomitado|vomitar)\\b"
+      ]
+    },
+    {
+      "id": "B7_033",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por diarrea y sus características (frecuencia/consistencia)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "diarrea",
+        "heces liquidas",
+        "deposiciones liquidas"
+      ],
+      "regex": [
+        "\\b(diarrea|heces\\s+liquidas|deposiciones\\s+liquidas)\\b"
+      ]
+    },
+    {
+      "id": "B7_034",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por estreñimiento",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "estreñimiento",
+        "estrenimiento",
+        "dificultad para evacuar"
+      ],
+      "regex": [
+        "\\b(estrenimiento|estreñimiento|dificultad\\s+para\\s+evacuar)\\b"
+      ]
+    },
+    {
+      "id": "B7_035",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por dolor abdominal",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "dolor abdominal",
+        "dolor de barriga",
+        "dolor en el abdomen"
+      ],
+      "regex": [
+        "\\b(dolor\\s+abdominal|dolor\\s+de\\s+barriga|dolor\\s+en\\s+el\\s+abdomen)\\b"
+      ]
+    },
+    {
+      "id": "B7_036",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por distensión abdominal o hinchazón",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "distension abdominal",
+        "barriga hinchada",
+        "hinchazon"
+      ],
+      "regex": [
+        "\\b(distension\\s+abdominal|barriga\\s+hinchada|hinchazon)\\b"
+      ]
+    },
+    {
+      "id": "B7_037",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por pirosis o reflujo (acidez)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "pirosis",
+        "acidez",
+        "reflujo"
+      ],
+      "regex": [
+        "\\b(pirosis|acidez|reflujo)\\b"
+      ]
+    },
+    {
+      "id": "B7_038",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por disfagia (dificultad para tragar)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disfagia",
+        "dificultad para tragar",
+        "se atraganta"
+      ],
+      "regex": [
+        "\\b(disfagia|dificultad\\s+para\\s+tragar|se\\s+atraganta)\\b"
+      ]
+    },
+    {
+      "id": "B7_039",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por melenas (heces negras)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "melenas",
+        "heces negras",
+        "heces muy oscuras"
+      ],
+      "regex": [
+        "\\b(melenas|heces\\s+negras|heces\\s+muy\\s+oscuras)\\b"
+      ]
+    },
+    {
+      "id": "B7_040",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por rectorragia (sangre roja en heces)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "rectorragia",
+        "sangre roja en heces",
+        "sangre al defecar"
+      ],
+      "regex": [
+        "\\b(rectorragia|sangre\\s+roja\\s+en\\s+heces|sangre\\s+al\\s+defecar)\\b"
+      ]
+    },
+    {
+      "id": "B7_041",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "DIGESTIVO",
+      "label": "Pregunta por ictericia (coloración amarillenta de piel u ojos)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ictericia",
+        "piel amarilla",
+        "ojos amarillos"
+      ],
+      "regex": [
+        "\\b(ictericia|piel\\s+amarilla|ojos\\s+amarillos)\\b"
+      ]
+    },
+    {
+      "id": "B7_042",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por disuria (dolor o escozor al orinar)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disuria",
+        "escozor al orinar",
+        "ardor al orinar"
+      ],
+      "regex": [
+        "\\b(disuria|escozor\\s+al\\s+orinar|ardor\\s+al\\s+orinar)\\b"
+      ]
+    },
+    {
+      "id": "B7_043",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por hematuria (sangre en la orina)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "hematuria",
+        "sangre en la orina",
+        "orina con sangre"
+      ],
+      "regex": [
+        "\\b(hematuria|sangre\\s+en\\s+la\\s+orina|orina\\s+con\\s+sangre)\\b"
+      ]
+    },
+    {
+      "id": "B7_044",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por poliuria (orinar más de lo habitual)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "poliuria",
+        "orina mucho",
+        "orinar mas"
+      ],
+      "regex": [
+        "\\b(poliuria|orina\\s+mucho|orinar\\s+mas\\s+de\\s+lo\\s+habitual)\\b"
+      ]
+    },
+    {
+      "id": "B7_045",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por oliguria (orinar menos de lo habitual)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "oliguria",
+        "orina poco",
+        "orinar menos"
+      ],
+      "regex": [
+        "\\b(oliguria|orina\\s+poco|orinar\\s+menos\\s+de\\s+lo\\s+habitual)\\b"
+      ]
+    },
+    {
+      "id": "B7_046",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por nicturia (levantarse a orinar por la noche)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "nicturia",
+        "levantarse a orinar",
+        "orinar por la noche"
+      ],
+      "regex": [
+        "\\b(nicturia|levantarse\\s+a\\s+orinar|orinar\\s+por\\s+la\\s+noche)\\b"
+      ]
+    },
+    {
+      "id": "B7_047",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por incontinencia urinaria (escapes de orina)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "incontinencia",
+        "escapes de orina",
+        "se le escapa la orina"
+      ],
+      "regex": [
+        "\\b(incontinencia\\s+urinaria|escapes\\s+de\\s+orina|se\\s+le\\s+escapa\\s+la\\s+orina)\\b"
+      ]
+    },
+    {
+      "id": "B7_048",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por retención urinaria o dificultad para iniciar la micción",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "retencion urinaria",
+        "dificultad para orinar",
+        "dificultad para empezar"
+      ],
+      "regex": [
+        "\\b(retencion\\s+urinaria|dificultad\\s+para\\s+orinar|dificultad\\s+para\\s+empezar\\s+a\\s+orinar)\\b"
+      ]
+    },
+    {
+      "id": "B7_049",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por cambios en el chorro urinario",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "chorro flojo",
+        "cambios en el chorro",
+        "chorro intermitente"
+      ],
+      "regex": [
+        "\\b(chorro\\s+flojo|cambios\\s+en\\s+el\\s+chorro|chorro\\s+intermitente)\\b"
+      ]
+    },
+    {
+      "id": "B7_050",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "GENITOURINARIO",
+      "label": "Pregunta por tenesmo vesical (ganas de orinar sin conseguirlo o incompleto)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "tenesmo vesical",
+        "ganas de orinar y no puede",
+        "sensacion de vaciado incompleto"
+      ],
+      "regex": [
+        "\\b(tenesmo\\s+vesical|ganas\\s+de\\s+orinar\\s+y\\s+no\\s+puede|sensacion\\s+de\\s+vaciado\\s+incompleto)\\b"
+      ]
+    },
+    {
+      "id": "B7_051",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por dolor articular (artralgias)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "dolor articular",
+        "artralgias"
+      ],
+      "regex": [
+        "\\b(dolor\\s+articular|artralgias)\\b"
+      ]
+    },
+    {
+      "id": "B7_052",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por rigidez matutina y su duración",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "rigidez matutina",
+        "rigidez por la mañana"
+      ],
+      "regex": [
+        "\\b(rigidez\\s+matutina|rigidez\\s+por\\s+la\\s+mañana)\\b"
+      ]
+    },
+    {
+      "id": "B7_053",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por inflamación articular (hinchazón, calor o enrojecimiento)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "inflamacion articular",
+        "articulacion hinchada",
+        "calor articular"
+      ],
+      "regex": [
+        "\\b(inflamacion\\s+articular|articulacion\\s+hinchada|calor\\s+articular)\\b"
+      ]
+    },
+    {
+      "id": "B7_054",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por limitación funcional o dificultad para moverse",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "limitacion funcional",
+        "dificultad para moverse",
+        "movilidad reducida"
+      ],
+      "regex": [
+        "\\b(limitacion\\s+funcional|dificultad\\s+para\\s+moverse|movilidad\\s+reducida)\\b"
+      ]
+    },
+    {
+      "id": "B7_055",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por dolor muscular (mialgias)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "dolor muscular",
+        "mialgias"
+      ],
+      "regex": [
+        "\\b(dolor\\s+muscular|mialgias)\\b"
+      ]
+    },
+    {
+      "id": "B7_056",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "MUSCULOESQUELETICO",
+      "label": "Pregunta por deformidades articulares",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "deformidades articulares",
+        "articulaciones deformadas"
+      ],
+      "regex": [
+        "\\b(deformidades\\s+articulares|articulaciones\\s+deformadas)\\b"
+      ]
+    },
+    {
+      "id": "B7_057",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por cefalea (dolor de cabeza)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cefalea",
+        "dolor de cabeza"
+      ],
+      "regex": [
+        "\\b(cefalea|dolor\\s+de\\s+cabeza)\\b"
+      ]
+    },
+    {
+      "id": "B7_058",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por mareos o vértigo",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "mareos",
+        "vertigo"
+      ],
+      "regex": [
+        "\\b(mareos|vertigo|vértigo)\\b"
+      ]
+    },
+    {
+      "id": "B7_059",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por alteraciones visuales",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "vision borrosa",
+        "vision doble",
+        "perdida de vision"
+      ],
+      "regex": [
+        "\\b(vision\\s+borrosa|vision\\s+doble|perdida\\s+de\\s+vision)\\b"
+      ]
+    },
+    {
+      "id": "B7_060",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por parestesias (hormigueos o entumecimiento)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "parestesias",
+        "hormigueos",
+        "entumecimiento"
+      ],
+      "regex": [
+        "\\b(parestesias|hormigueos|entumecimiento)\\b"
+      ]
+    },
+    {
+      "id": "B7_061",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por debilidad muscular",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "debilidad muscular",
+        "falta de fuerza"
+      ],
+      "regex": [
+        "\\b(debilidad\\s+muscular|falta\\s+de\\s+fuerza)\\b"
+      ]
+    },
+    {
+      "id": "B7_062",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por alteraciones de la marcha",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "alteraciones de la marcha",
+        "dificultad para caminar"
+      ],
+      "regex": [
+        "\\b(alteraciones\\s+de\\s+la\\s+marcha|dificultad\\s+para\\s+caminar)\\b"
+      ]
+    },
+    {
+      "id": "B7_063",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por alteraciones del equilibrio",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "alteraciones del equilibrio",
+        "inestabilidad"
+      ],
+      "regex": [
+        "\\b(alteraciones\\s+del\\s+equilibrio|inestabilidad)\\b"
+      ]
+    },
+    {
+      "id": "B7_064",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por convulsiones",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "convulsiones",
+        "crisis convulsivas"
+      ],
+      "regex": [
+        "\\b(convulsiones|crisis\\s+convulsivas)\\b"
+      ]
+    },
+    {
+      "id": "B7_065",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por pérdida de memoria o alteraciones cognitivas",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "perdida de memoria",
+        "problemas de memoria",
+        "alteraciones cognitivas"
+      ],
+      "regex": [
+        "\\b(perdida\\s+de\\s+memoria|problemas\\s+de\\s+memoria|alteraciones\\s+cognitivas)\\b"
+      ]
+    },
+    {
+      "id": "B7_066",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "NEUROLOGICO",
+      "label": "Pregunta por alteraciones del habla",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "alteraciones del habla",
+        "dificultad para hablar"
+      ],
+      "regex": [
+        "\\b(alteraciones\\s+del\\s+habla|dificultad\\s+para\\s+hablar)\\b"
+      ]
+    },
+    {
+      "id": "B7_067",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "ENDOCRINO",
+      "label": "Pregunta por intolerancia al frío o al calor",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "intolerancia al frio",
+        "intolerancia al calor"
+      ],
+      "regex": [
+        "\\b(intolerancia\\s+al\\s+frio|intolerancia\\s+al\\s+calor)\\b"
+      ]
+    },
+    {
+      "id": "B7_068",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "ENDOCRINO",
+      "label": "Pregunta por polidipsia (sed excesiva)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "polidipsia",
+        "mucha sed"
+      ],
+      "regex": [
+        "\\b(polidipsia|mucha\\s+sed)\\b"
+      ]
+    },
+    {
+      "id": "B7_069",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "ENDOCRINO",
+      "label": "Pregunta por polifagia (hambre excesiva)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "polifagia",
+        "hambre excesiva"
+      ],
+      "regex": [
+        "\\b(polifagia|hambre\\s+excesiva)\\b"
+      ]
+    },
+    {
+      "id": "B7_070",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "ENDOCRINO",
+      "label": "Pregunta por temblor fino distal",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "temblor fino",
+        "temblor en las manos"
+      ],
+      "regex": [
+        "\\b(temblor\\s+fino|temblor\\s+en\\s+las\\s+manos)\\b"
+      ]
+    },
+    {
+      "id": "B7_071",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "ENDOCRINO",
+      "label": "Pregunta por cambios en la distribución del vello corporal",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cambios en el vello",
+        "vello corporal"
+      ],
+      "regex": [
+        "\\b(cambios\\s+en\\s+el\\s+vello|vello\\s+corporal)\\b"
+      ]
+    },
+    {
+      "id": "B7_072",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "HEMATOLOGICO",
+      "label": "Pregunta por tendencia al sangrado (epistaxis, gingivorragias, equimosis fáciles)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "tendencia al sangrado",
+        "sangra con facilidad",
+        "moretones faciles"
+      ],
+      "regex": [
+        "\\b(tendencia\\s+al\\s+sangrado|sangra\\s+con\\s+facilidad|moretones\\s+faciles|equimosis\\s+faciles|epistaxis|gingivorragias)\\b"
+      ]
+    },
+    {
+      "id": "B7_073",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "HEMATOLOGICO",
+      "label": "Pregunta por ganglios aumentados de tamaño (adenopatías)",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ganglios inflamados",
+        "adenopatias",
+        "bultos en el cuello"
+      ],
+      "regex": [
+        "\\b(ganglios\\s+inflamados|adenopatias|bultos\\s+en\\s+el\\s+cuello|ganglios\\s+crecidos)\\b"
+      ]
+    },
+    {
+      "id": "B7_074",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "HEMATOLOGICO",
+      "label": "Pregunta por palidez cutáneo-mucosa",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "palidez",
+        "palido",
+        "palidez cutanea"
+      ],
+      "regex": [
+        "\\b(palidez\\s+cutanea|palidez\\s+mucosa|esta\\s+palido|palido)\\b"
+      ]
+    },
+    {
+      "id": "B7_075",
+      "block_id": "B7_ANAMNESIS_APARATOS",
+      "subsection": "HEMATOLOGICO",
+      "label": "Pregunta por petequias o púrpura",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "petequias",
+        "purpura",
+        "manchas rojas en la piel"
+      ],
+      "regex": [
+        "\\b(petequias|purpura|manchas\\s+rojas\\s+en\\s+la\\s+piel)\\b"
+      ]
+    },
+    {
+      "id": "B8_001",
+      "block_id": "B8_CIERRE",
+      "label": "Resume los síntomas y la información principal aportada por el paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "resumiendo",
+        "recapitulando",
+        "lo que me cuenta es que",
+        "entonces usted tiene"
+      ],
+      "regex": [
+        "\\b(resumiendo|recapitulando|en\\s+resumen|por\\s+lo\\s+que\\s+me\\s+cuenta|lo\\s+que\\s+me\\s+cuenta\\s+es\\s+que|entonces\\s+(usted|tu)\\s+(tiene|presenta)|si\\s+no\\s+me\\s+equivoco)\\b"
+      ]
+    },
+    {
+      "id": "B8_002",
+      "block_id": "B8_CIERRE",
+      "label": "Verifica con el paciente que la información clave se ha entendido correctamente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "he entendido bien",
+        "si no me equivoco",
+        "es correcto",
+        "confirme si"
+      ],
+      "regex": [
+        "\\b(he\\s+entendido\\s+bien|si\\s+he\\s+entendido\\s+bien|corrijame\\s+si\\s+me\\s+equivoco|confirme\\s+si|para\\s+confirmar|es\\s+correcto\\s+que|es\\s+asi)\\b"
+      ]
+    },
+    {
+      "id": "B8_003",
+      "block_id": "B8_CIERRE",
+      "label": "Pregunta si hay algo más que el paciente quiera añadir antes de terminar",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "algo mas",
+        "quiere añadir algo",
+        "alguna otra cosa",
+        "algo que no le haya preguntado"
+      ],
+      "regex": [
+        "\\b(algo\\s+mas\\s+(que\\s+)?(quier(a|e)\\s+)?(decir|comentar|contar|anadir)|quier(e|a)\\s+anadir\\s+algo|alguna\\s+otra\\s+cosa|hay\\s+algo\\s+que\\s+no\\s+le\\s+haya\\s+preguntado|se\\s+me\\s+queda\\s+algo)\\b"
+      ]
+    },
+    {
+      "id": "B8_004",
+      "block_id": "B8_CIERRE",
+      "label": "Pregunta si el paciente tiene dudas o preguntas antes de cerrar",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "alguna duda",
+        "tiene dudas",
+        "alguna pregunta",
+        "quiere preguntar algo"
+      ],
+      "regex": [
+        "\\b(tiene\\s+(alguna\\s+)?duda(s)?|alguna\\s+duda|tiene\\s+(alguna\\s+)?pregunta(s)?|alguna\\s+pregunta|quier(e|a)\\s+preguntar\\s+algo|le\\s+queda\\s+alguna\\s+duda)\\b"
+      ]
+    },
+    {
+      "id": "B8_005",
+      "block_id": "B8_CIERRE",
+      "label": "Explica de forma general los siguientes pasos tras la entrevista (sin detallar pruebas o tratamientos)",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "los siguientes pasos",
+        "ahora vamos a",
+        "a continuacion",
+        "lo siguiente sera"
+      ],
+      "regex": [
+        "\\b(los\\s+siguientes\\s+pasos|ahora\\s+vamos\\s+a|a\\s+continuacion\\s+vamos\\s+a|lo\\s+siguiente\\s+sera|despues\\s+de\\s+esto\\s+vamos\\s+a|ahora\\s+pasaremos\\s+a)\\b"
+      ]
+    },
+    {
+      "id": "B8_006",
+      "block_id": "B8_CIERRE",
+      "label": "Agradece al paciente la información y su colaboración",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "muchas gracias",
+        "gracias por",
+        "le agradezco",
+        "gracias por contarme"
+      ],
+      "regex": [
+        "\\b(muchas\\s+gracias|gracias\\s+por|le\\s+agradezco|te\\s+agradezco|gracias\\s+por\\s+(contar|comentar|explicar|decirme)|agradezco\\s+su\\s+colaboracion)\\b"
+      ]
+    },
+    {
+      "id": "B8_007",
+      "block_id": "B8_CIERRE",
+      "label": "Se despide de forma profesional y cordial",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "hasta luego",
+        "nos vemos",
+        "que tenga buen dia",
+        "nos veremos"
+      ],
+      "regex": [
+        "\\b(hasta\\s+luego|hasta\\s+pronto|nos\\s+vemos|nos\\s+veremos|que\\s+tenga\\s+(un\\s+)?buen\\s+dia|que\\s+vaya\\s+bien|un\\s+saludo)\\b"
+      ]
+    },
+    {
+      "id": "B8_008",
+      "block_id": "B8_CIERRE",
+      "label": "Valida o tranquiliza de forma verbal las preocupaciones del paciente durante el cierre",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "entiendo su preocupacion",
+        "entiendo que",
+        "es normal que",
+        "vamos a verlo"
+      ],
+      "regex": [
+        "\\b(entiendo\\s+su\\s+preocupacion|entiendo\\s+que|es\\s+normal\\s+que|es\\s+comprensible\\s+que|no\\s+se\\s+preocupe|vamos\\s+a\\s+verlo|vamos\\s+a\\s+revisarlo\\s+bien|vamos\\s+a\\s+ayudarle)\\b"
+      ]
+    },
+    {
+      "id": "B9_001",
+      "block_id": "B9_COMUNICACION",
+      "label": "Utiliza lenguaje claro y accesible, evitando tecnicismos innecesarios",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "en palabras sencillas",
+        "de forma simple",
+        "para que se entienda"
+      ],
+      "regex": [
+        "\\b(en\\s+palabras\\s+sencillas|de\\s+forma\\s+simple|para\\s+que\\s+se\\s+entienda|es\\s+decir|o\\s+sea)\\b"
+      ]
+    },
+    {
+      "id": "B9_002",
+      "block_id": "B9_COMUNICACION",
+      "label": "Formula preguntas abiertas que facilitan la expresión del paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "cuenteme",
+        "como ha sido",
+        "que siente"
+      ],
+      "regex": [
+        "\\b(cuent(e|eme)\\s+me|como\\s+ha\\s+sido|que\\s+siente|que\\s+le\\s+ocurre|que\\s+le\\s+pasa)\\b"
+      ]
+    },
+    {
+      "id": "B9_003",
+      "block_id": "B9_COMUNICACION",
+      "label": "Escucha activamente y usa continuadores verbales sin interrumpir",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "entiendo",
+        "ajá",
+        "ya veo"
+      ],
+      "regex": [
+        "\\b(entiendo|aj[aá]|ya\\s+veo|comprendo|de\\s+acuerdo)\\b"
+      ]
+    },
+    {
+      "id": "B9_004",
+      "block_id": "B9_COMUNICACION",
+      "label": "Parafrasea o reformula para confirmar la comprensión",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "si le entiendo bien",
+        "entonces lo que dice es",
+        "o sea que"
+      ],
+      "regex": [
+        "\\b(si\\s+le\\s+entiendo\\s+bien|entonces\\s+lo\\s+que\\s+(me\\s+)?dice\\s+es|o\\s+sea\\s+que)\\b"
+      ]
+    },
+    {
+      "id": "B9_005",
+      "block_id": "B9_COMUNICACION",
+      "label": "Muestra empatía verbal ante las preocupaciones del paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "entiendo que",
+        "debe ser dificil",
+        "lamento que"
+      ],
+      "regex": [
+        "\\b(entiendo\\s+que|debe\\s+ser\\s+dificil|lamento\\s+que|siento\\s+que)\\b"
+      ]
+    },
+    {
+      "id": "B9_006",
+      "block_id": "B9_COMUNICACION",
+      "label": "Valida las emociones expresadas por el paciente",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "es normal que",
+        "es comprensible que",
+        "tiene razon en"
+      ],
+      "regex": [
+        "\\b(es\\s+normal\\s+que|es\\s+comprensible\\s+que|tiene\\s+razon\\s+en)\\b"
+      ]
+    },
+    {
+      "id": "B9_007",
+      "block_id": "B9_COMUNICACION",
+      "label": "Explica el motivo de preguntas sensibles o relevantes",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "le pregunto esto porque",
+        "es importante saber",
+        "necesito saber"
+      ],
+      "regex": [
+        "\\b(le\\s+pregunto\\s+esto\\s+porque|es\\s+importante\\s+saber|necesito\\s+saber)\\b"
+      ]
+    },
+    {
+      "id": "B9_008",
+      "block_id": "B9_COMUNICACION",
+      "label": "Estructura la entrevista anunciando transiciones entre temas",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "ahora voy a",
+        "pasemos a",
+        "cambiando de tema"
+      ],
+      "regex": [
+        "\\b(ahora\\s+voy\\s+a|pasemos\\s+a|cambiando\\s+de\\s+tema|me\\s+gustaria\\s+preguntarle\\s+sobre)\\b"
+      ]
+    },
+    {
+      "id": "B9_009",
+      "block_id": "B9_COMUNICACION",
+      "label": "Mantiene un tono profesional y respetuoso durante la entrevista",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "por favor",
+        "si le parece",
+        "gracias"
+      ],
+      "regex": [
+        "\\b(por\\s+favor|si\\s+le\\s+parece|gracias)\\b"
+      ]
+    },
+    {
+      "id": "B9_010",
+      "block_id": "B9_COMUNICACION",
+      "label": "Se disculpa cuando es apropiado",
+      "points": 1,
+      "is_minimum": false,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "disculpe",
+        "perdon",
+        "lamento"
+      ],
+      "regex": [
+        "\\b(disculpe|perdon(e)?|lamento)\\b"
+      ]
+    },
+    {
+      "id": "B9_011",
+      "block_id": "B9_COMUNICACION",
+      "label": "Agradece la colaboración del paciente a lo largo de la entrevista",
+      "points": 1,
+      "is_minimum": true,
+      "critical": false,
+      "no_applicable": false,
+      "keywords": [
+        "gracias por",
+        "le agradezco que",
+        "aprecio que"
+      ],
+      "regex": [
+        "\\b(gracias\\s+por|le\\s+agradezco\\s+que|aprecio\\s+que)\\b"
+      ]
+    }
+  ]
+}
