@@ -106,9 +106,22 @@ Render está conectado a tu repositorio. Cada vez que hagas `git push` a `main`:
 
 - `GET /` - Home page con información del servicio
 - `GET /health` - Health check detallado
+- `GET /keepalive` - Keepalive para evitar spinning down (Render Free tier)
 - `POST /api/chat` - Proxy para chat completions (GPT-4o-mini)
 - `POST /api/embeddings` - Proxy para embeddings
 - `POST /api/realtime/url` - Obtener URL de Realtime API con auth
+
+### 🔄 Prevenir Spinning Down
+
+Render Free tier duerme servicios después de 15 min sin uso. Para evitarlo:
+
+1. Ve a https://uptimerobot.com (gratis)
+2. Sign up
+3. Add New Monitor:
+   - Type: HTTP(s)
+   - URL: `https://tu-url.onrender.com/keepalive`
+   - Interval: 5 minutes
+4. ✅ Tu servidor NUNCA se dormirá
 
 ---
 

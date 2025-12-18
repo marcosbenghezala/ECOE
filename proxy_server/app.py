@@ -51,6 +51,20 @@ def health():
     }), 200 if has_key else 503
 
 
+@app.route('/keepalive', methods=['GET'])
+def keepalive():
+    """
+    Endpoint para evitar que Render duerma el servicio (Free tier).
+    Debe ser pingeado cada 5-14 minutos por un servicio externo (ej: UptimeRobot).
+    """
+    return jsonify({
+        "status": "alive",
+        "service": "SimuPaciente UMH Proxy",
+        "timestamp": datetime.now().isoformat(),
+        "message": "Service is running and ready"
+    }), 200
+
+
 @app.route('/api/chat', methods=['POST'])
 def chat_completion():
     """
