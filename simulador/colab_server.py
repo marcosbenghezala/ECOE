@@ -74,14 +74,25 @@ CASES_DIR = BASE_DIR / 'casos_procesados'
 DATA_DIR = BASE_DIR / 'data'
 SESSIONS_DIR = BASE_DIR / 'sessions'
 
-# Inicializar OpenAI client (una sola vez)
+# Inicializar OpenAI client (una sola vez) - compatible con todas las versiones
 try:
     from openai import OpenAI
-    openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    # Inicializar con solo los parámetros básicos para compatibilidad
+    openai_client = OpenAI(
+        api_key=os.getenv('OPENAI_API_KEY'),
+        timeout=30.0,
+        max_retries=2
+    )
     print("✅ OpenAI client inicializado")
 except Exception as e:
-    print(f"⚠️  Error inicializando OpenAI client: {e}")
-    openai_client = None
+    # Si falla con parámetros, intentar solo con api_key
+    try:
+        from openai import OpenAI
+        openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        print("✅ OpenAI client inicializado (modo compatible)")
+    except Exception as e2:
+        print(f"⚠️  Error inicializando OpenAI client: {e2}")
+        openai_client = None
 
 # Inicializar componentes con parámetros correctos
 # EvaluatorV2 es legacy - solo se usa si no falla, pero no es crítico

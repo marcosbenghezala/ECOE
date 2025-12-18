@@ -34,7 +34,11 @@ class EvaluatorV2:
             index_path: Ruta al índice de metadatos
             learning_system: Instancia de LearningSystem (opcional)
         """
-        self.client = OpenAI(api_key=api_key)
+        # Inicialización compatible con múltiples versiones de openai
+        try:
+            self.client = OpenAI(api_key=api_key, timeout=30.0, max_retries=2)
+        except:
+            self.client = OpenAI(api_key=api_key)
 
         # Cargar master items
         with open(master_items_path, 'r', encoding='utf-8') as f:
