@@ -8,65 +8,72 @@ Guía paso a paso para desplegar el proxy server y configurar el sistema para es
 
 Para que los estudiantes puedan usar SimuPaciente sin configurar su propia API key:
 
-1. **Tú** despliegas un proxy server en Railway (gratis)
+1. **Tú** despliegas un proxy server en Render.com (100% gratis, sin tarjeta)
 2. El proxy tiene tu API key (oculta)
 3. **Estudiantes** usan el notebook de Colab que se conecta al proxy
 4. ✅ Los estudiantes NO ven tu API key
 
 ---
 
-## Parte 1: Desplegar Proxy en Railway (15 minutos)
+## Parte 1: Desplegar Proxy en Render.com (10 minutos) - 100% GRATIS
 
-### Paso 1: Crear cuenta en Railway
+### Paso 1: Crear cuenta en Render
 
-1. Ve a https://railway.app
-2. Click en **"Login"**
-3. Selecciona **"Login with GitHub"**
-4. Autoriza Railway para acceder a tu cuenta de GitHub
+1. Ve a https://render.com
+2. Click en **"Get Started"**
+3. Selecciona **"Sign up with GitHub"**
+4. Autoriza Render (NO requiere tarjeta de crédito ✅)
 
-### Paso 2: Crear nuevo proyecto
+### Paso 2: Crear nuevo Web Service
 
-1. En el dashboard de Railway, click en **"New Project"**
-2. Selecciona **"Deploy from GitHub repo"**
-3. Busca y selecciona tu repositorio **`marcosbenghezala/ECOE`**
-4. Railway comenzará a detectar el código
+1. En el dashboard de Render, click en **"New +"**
+2. Selecciona **"Web Service"**
+3. Click en **"Connect a repository"**
+4. Busca y selecciona tu repositorio **`marcosbenghezala/ECOE`**
+5. Click en **"Connect"**
 
 ### Paso 3: Configurar el servicio
 
-1. Railway creará automáticamente un servicio
-2. Click en el servicio que se creó
-3. Ve a **"Settings"** (⚙️ en la barra lateral)
-4. En la sección **"Service Settings"**:
-   - **Root Directory**: Cambia a `proxy_server`
-   - **Start Command**: Debería detectar automáticamente `gunicorn app:app`
-5. Click en **"Deploy"** (arriba a la derecha)
+Render detectará automáticamente el archivo `render.yaml`, pero verifica:
+
+- **Name:** `simu-paciente-umh-proxy`
+- **Region:** Frankfurt (más cercano a España)
+- **Branch:** `main`
+- **Root Directory:** `proxy_server`
+- **Runtime:** Python 3
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `gunicorn -w 2 -b 0.0.0.0:$PORT app:app --timeout 120`
+- **Plan:** **Free** ⚠️ IMPORTANTE - Selecciona "Free"
 
 ### Paso 4: Añadir variables de entorno
 
-1. En la barra lateral, click en **"Variables"** (📝)
-2. Click en **"+ New Variable"**
+1. Scroll hasta la sección **"Environment Variables"**
+2. Click en **"Add Environment Variable"**
 3. Añade:
-   - **Variable name:** `OPENAI_API_KEY`
+   - **Key:** `OPENAI_API_KEY`
    - **Value:** Tu API key de OpenAI (ej: `sk-proj-...`)
 4. Click en **"Add"**
-5. El servicio se redesplegar á automáticamente
 
-### Paso 5: Obtener la URL pública
+### Paso 5: Deploy
 
-1. Ve a **"Settings"** → **"Networking"**
-2. En la sección **"Public Networking"**:
-   - Click en **"Generate Domain"**
-3. Railway te dará una URL como:
+1. Click en **"Create Web Service"**
+2. Render comenzará a construir tu aplicación (2-5 minutos)
+3. Verás los logs de build en tiempo real
+4. Espera a que el status cambie a **"Live"** (verde)
+
+### Paso 6: Obtener la URL pública
+
+1. Una vez desplegado, verás la URL en la parte superior del dashboard:
    ```
-   https://simulador-umh-production.up.railway.app
+   https://simu-paciente-umh-proxy.onrender.com
    ```
-4. **¡COPIA ESTA URL!** La necesitarás para el notebook
+2. **¡COPIA ESTA URL!** La necesitarás para el notebook
 
-### Paso 6: Verificar que funciona
+### Paso 7: Verificar que funciona
 
 1. Abre en tu navegador:
    ```
-   https://TU-URL-DE-RAILWAY.up.railway.app/health
+   https://simu-paciente-umh-proxy.onrender.com/health
    ```
 
 2. Deberías ver algo como:
@@ -79,6 +86,13 @@ Para que los estudiantes puedan usar SimuPaciente sin configurar su propia API k
    ```
 
 ✅ **¡Proxy desplegado correctamente!**
+
+### 📊 Límites del plan gratuito
+
+- ✅ 750 horas/mes (suficiente para 24/7)
+- ✅ 512 MB RAM
+- ✅ HTTPS automático
+- ⚠️ El servicio se duerme después de 15 min sin uso (primera request tarda ~30s en despertar)
 
 ---
 
@@ -107,8 +121,8 @@ import os
 #
 # ============================================
 
-# URL del proxy server (desplegado en Railway)
-PROXY_URL = "https://TU-URL-DE-RAILWAY-AQUI.up.railway.app"
+# URL del proxy server (desplegado en Render)
+PROXY_URL = "https://TU-URL-DE-RENDER-AQUI.onrender.com"
 
 # Configurar para usar el proxy
 os.environ['PROXY_URL'] = PROXY_URL
@@ -121,7 +135,7 @@ print("\n📝 No necesitas hacer nada más")
 print("👉 Continúa ejecutando las siguientes celdas")
 ```
 
-**⚠️ IMPORTANTE:** Reemplaza `TU-URL-DE-RAILWAY-AQUI` con la URL que copiaste en el Paso 5 anterior.
+**⚠️ IMPORTANTE:** Reemplaza `TU-URL-DE-RENDER-AQUI` con la URL que copiaste en el Paso 6 anterior.
 
 ### Paso 3: Guardar el notebook
 
@@ -155,20 +169,20 @@ print("👉 Continúa ejecutando las siguientes celdas")
 
 ### Ver logs del servidor
 
-1. En Railway, ve a tu proyecto
-2. Click en el servicio
-3. Ve a **"Deployments"**
-4. Click en el deployment activo
-5. Verás los logs en tiempo real
+1. En Render, ve a tu dashboard
+2. Click en tu servicio
+3. Ve a **"Logs"** en la barra lateral
+4. Verás los logs en tiempo real
 
 ### Detener el servidor (si es necesario)
 
-1. En Railway, ve a **"Settings"**
-2. Scroll hasta abajo
-3. Click en **"Remove Service"**
-4. Confirma
+1. En Render, ve a tu servicio
+2. Click en **"Settings"** (barra lateral)
+3. Scroll hasta abajo hasta "Delete Web Service"
+4. Click en **"Delete Web Service"**
+5. Confirma
 
-El servidor se detendrá y dejará de consumir recursos.
+El servidor se eliminará completamente.
 
 ### Limitar uso (recomendado)
 
@@ -182,11 +196,13 @@ En OpenAI Platform:
 
 ## 📊 Costos y Límites
 
-### Railway (Gratis)
-- ✅ 500 horas/mes de ejecución
-- ✅ $5 USD de crédito gratis
-- ⚠️ Después se duerme (no hay cargos)
-- 💡 Suficiente para ~20-30 estudiantes simultáneos
+### Render.com (100% GRATIS)
+- ✅ 750 horas/mes de ejecución (suficiente para 24/7)
+- ✅ 512 MB RAM
+- ✅ HTTPS automático
+- ✅ NO requiere tarjeta de crédito
+- ⚠️ El servicio se duerme después de 15 min sin uso (primera request tarda ~30s)
+- 💡 Suficiente para 20-50 estudiantes/mes
 
 ### OpenAI
 - Realtime API: ~$0.06 por minuto de conversación
@@ -201,32 +217,32 @@ En OpenAI Platform:
 
 ### Problema: "API key not configured"
 
-**Causa:** La variable `OPENAI_API_KEY` no está en Railway
+**Causa:** La variable `OPENAI_API_KEY` no está en Render
 
 **Solución:**
-1. Ve a Railway → Variables
+1. Ve a Render → Tu servicio → Environment
 2. Verifica que `OPENAI_API_KEY` existe
 3. Verifica que el valor es correcto (empieza con `sk-proj-` o `sk-`)
-4. Redesplega el servicio
+4. Haz manual redeploy: "Manual Deploy" → "Deploy latest commit"
 
 ### Problema: "Connection refused" o "500 Server Error"
 
 **Causa:** El servidor no está corriendo
 
 **Solución:**
-1. Ve a Railway → Deployments
-2. Verifica que hay un deployment activo
+1. Ve a Render → Tu servicio → Logs
+2. Verifica que el servicio está "Live" (verde)
 3. Chequea los logs por errores
 4. Redespliega si es necesario
 
 ### Problema: El servidor responde muy lento
 
-**Causa:** Railway duerme servicios inactivos
+**Causa:** Render duerme servicios inactivos
 
 **Solución:**
-- La primera request después de dormir tarda 10-20 segundos
+- La primera request después de 15 min inactivo tarda ~30 segundos (spin-up)
 - Esto es normal en el tier gratis
-- Considera el tier Pro de Railway ($5/mes) para evitar sleep
+- Las siguientes requests son rápidas
 
 ### Problema: Los estudiantes ven errores en Colab
 
@@ -294,8 +310,8 @@ En OpenAI Platform:
 
 ¿Problemas con el deployment?
 
-1. Chequea los logs en Railway
+1. Chequea los logs en Render → Tu servicio → Logs
 2. Verifica la configuración paso a paso
-3. Contacta al equipo técnico
+3. Consulta la documentación de Render: https://render.com/docs
 
 **Universidad Miguel Hernández de Elche**

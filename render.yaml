@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: simu-paciente-umh-proxy
+    runtime: python
+    region: frankfurt
+    plan: free
+    repo: https://github.com/marcosbenghezala/ECOE
+    rootDir: proxy_server
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT app:app --timeout 120
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+    healthCheckPath: /health
