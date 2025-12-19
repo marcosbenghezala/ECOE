@@ -29,7 +29,9 @@ interface SimulationInterfaceProps {
 
 type SimulationState = "idle" | "listening" | "processing" | "speaking"
 
-const WS_URL = import.meta.env.VITE_API_URL?.replace('http', 'ws') || "ws://localhost:8080"
+// Use dynamic WebSocket URL based on window.location (works in both localhost and production)
+const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+const WS_URL = `${protocol}//${window.location.host}`
 
 type MediaType = "image" | "audio" | "video"
 
