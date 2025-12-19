@@ -1,5 +1,5 @@
 # Use Python 3.11 slim image
-# Force rebuild: 2025-12-19-v2
+# Force rebuild: 2025-12-19-v3
 FROM python:3.11-slim
 
 # Install Node.js 18
@@ -11,14 +11,19 @@ RUN apt-get update && apt-get install -y curl && \
 # Set working directory
 WORKDIR /app
 
-# Copy everything
+# Copy dependency files first (better layer caching)
+COPY simulador/requirements.txt simulador/
+COPY simulador/frontend/package*.json simulador/frontend/
+
+# Install dependencies (these layers will be cached if package files don't change)
+RUN cd simulador/frontend && npm install
+RUN pip install --no-cache-dir -r simulador/requirements.txt
+
+# Copy source code (this layer changes frequently, so it's last)
 COPY . .
 
-# Install frontend dependencies and build (clean first to avoid stale cache)
-RUN cd simulador/frontend && npm install && rm -rf dist && npm run build && cd ../..
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r simulador/requirements.txt
+# Build frontend from source (this will use the updated api.ts)
+RUN cd simulador/frontend && npm run build && cd ../..
 
 # Change to simulador directory
 WORKDIR /app/simulador
