@@ -199,6 +199,20 @@ En este modo, el frontend dev (puerto 5173) hace peticiones al backend (puerto 8
 
 ---
 
+## 🚀 Deployment
+
+Para desplegar la aplicación en producción, consulta **[DEPLOY_RAILWAY.md](../DEPLOY_RAILWAY.md)** en la raíz del proyecto.
+
+La guía incluye instrucciones paso a paso para:
+- Crear cuenta en Railway.app
+- Configurar variables de entorno
+- Generar dominio público
+- Solución de problemas comunes
+
+**Tiempo estimado de deployment:** 10 minutos
+
+---
+
 ## 🚀 Uso
 
 ### 1. Acceder a la Aplicación
