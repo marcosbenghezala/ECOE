@@ -3,6 +3,7 @@ providers = ["node", "python"]
 [phases.install]
 cmds = [
   "cd simulador/frontend && npm install && cd ../..",
+  "python -m ensurepip --upgrade",
   "python -m pip install --user -r simulador/requirements.txt"
 ]
 
