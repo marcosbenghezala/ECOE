@@ -31,5 +31,5 @@ WORKDIR /app/simulador
 # Expose port
 EXPOSE 8080
 
-# Start command - use Gunicorn with gevent for WebSocket support
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--worker-class", "gevent", "--workers", "1", "--timeout", "300", "colab_server:app"]
+# Start command - use Gunicorn with eventlet for WebSocket support (compatible with Flask-Sock)
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--worker-class", "eventlet", "--workers", "1", "--timeout", "300", "colab_server:app"]
