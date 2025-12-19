@@ -1,10 +1,10 @@
 [phases.setup]
-nixPkgs = ["nodejs", "python39", "python39Packages.pip"]
+nixPkgs = ["nodejs", "python311"]
 
 [phases.install]
 cmds = [
   "cd simulador/frontend && npm install && cd ../..",
-  "pip3 install -r simulador/requirements.txt"
+  "pip install --user -r simulador/requirements.txt"
 ]
 
 [phases.build]
