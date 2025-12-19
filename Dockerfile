@@ -19,8 +19,11 @@ RUN cd simulador/frontend && npm install && npm run build && cd ../..
 # Install Python dependencies
 RUN pip install --no-cache-dir -r simulador/requirements.txt
 
+# Change to simulador directory
+WORKDIR /app/simulador
+
 # Expose port
 EXPOSE 8080
 
 # Start command
-CMD ["python3", "simulador/colab_server.py"]
+CMD ["python3", "colab_server.py"]
