@@ -14,8 +14,8 @@ WORKDIR /app
 # Copy everything
 COPY . .
 
-# Install frontend dependencies and build
-RUN cd simulador/frontend && npm install && npm run build && cd ../..
+# Install frontend dependencies and build (clean first to avoid stale cache)
+RUN cd simulador/frontend && npm install && rm -rf dist && npm run build && cd ../..
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r simulador/requirements.txt
