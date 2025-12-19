@@ -83,26 +83,26 @@ except Exception as e:
     print(f"⚠️  Error inicializando ProxyClient: {e}")
     proxy_client = None
 
-# Mantener OpenAI client para compatibilidad (legacy) - solo si NO hay proxy
+# Inicializar OpenAI client (necesario para evaluación con GPT-4)
+# Se usa tanto con proxy (Realtime API) como sin proxy (directo)
 openai_client = None
-if not proxy_client or not proxy_client.use_proxy:
+try:
+    from openai import OpenAI
+    openai_client = OpenAI(
+        api_key=os.getenv('OPENAI_API_KEY'),
+        timeout=30.0,
+        max_retries=2
+    )
+    print("✅ OpenAI client inicializado")
+except Exception as e:
+    # Si falla con parámetros, intentar solo con api_key
     try:
         from openai import OpenAI
-        openai_client = OpenAI(
-            api_key=os.getenv('OPENAI_API_KEY'),
-            timeout=30.0,
-            max_retries=2
-        )
-        print("✅ OpenAI client inicializado (directo)")
-    except Exception as e:
-        # Si falla con parámetros, intentar solo con api_key
-        try:
-            from openai import OpenAI
-            openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-            print("✅ OpenAI client inicializado (modo compatible)")
-        except Exception as e2:
-            print(f"⚠️  Error inicializando OpenAI client: {e2}")
-            openai_client = None
+        openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+        print("✅ OpenAI client inicializado (modo compatible)")
+    except Exception as e2:
+        print(f"⚠️  Error inicializando OpenAI client: {e2}")
+        openai_client = None
 
 # Inicializar componentes con parámetros correctos
 # EvaluatorV2 es legacy - solo se usa si no falla, pero no es crítico

@@ -258,7 +258,8 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
             else:
                 print(f"🔌 Conectando a Realtime API directamente...")
 
-            self.ws = await websockets.connect(url, extra_headers=headers)
+            # websockets 15.0+ usa 'additional_headers' en lugar de 'extra_headers'
+            self.ws = await websockets.connect(url, additional_headers=headers)
             print("✅ Connected to OpenAI Realtime API")
 
             # Configurar sesión
