@@ -12,7 +12,8 @@ import { ResultsScreenV3 } from "@/components/results-screen-v3"
 import { SurveyScreen } from "@/components/survey-screen"
 import type { SimulationStep, CaseData, StudentData } from "@/types"
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080"
+// Use empty string for relative URLs (works in both localhost and production)
+const API_BASE_URL = import.meta.env.VITE_API_URL || ""
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<SimulationStep>("dashboard")
