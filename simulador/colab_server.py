@@ -410,13 +410,19 @@ def start_simulation():
         case_id = data.get('case_id')
         student_data = data.get('student', {})
 
-        case_file = CASES_DIR / f"{case_id}.bin"
-        if not case_file.exists():
-            return jsonify({'error': 'Case not found'}), 404
+        # Buscar JSON primero, luego .bin (pickle)
+        case_file_json = CASES_DIR / f"{case_id}.json"
+        case_file_bin = CASES_DIR / f"{case_id}.bin"
 
-        import pickle
-        with open(case_file, 'rb') as f:
-            case_data = pickle.load(f)
+        if case_file_json.exists():
+            with open(case_file_json, 'r', encoding='utf-8') as f:
+                case_data = json.load(f)
+        elif case_file_bin.exists():
+            import pickle
+            with open(case_file_bin, 'rb') as f:
+                case_data = pickle.load(f)
+        else:
+            return jsonify({'error': 'Case not found'}), 404
 
         session_id = str(uuid.uuid4())
 
