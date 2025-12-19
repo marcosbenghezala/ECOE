@@ -7,6 +7,8 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+# Exception: Allow frontend build for deployment
+!simulador/frontend/dist/
 downloads/
 eggs/
 .eggs/
