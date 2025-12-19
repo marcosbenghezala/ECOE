@@ -264,6 +264,16 @@ def static_files(path):
 
 # ========== API REST ==========
 
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for Railway deployment"""
+    return jsonify({
+        'status': 'healthy',
+        'openai_configured': bool(os.getenv('OPENAI_API_KEY')),
+        'timestamp': datetime.now().isoformat()
+    }), 200
+
+
 @app.route('/api/cases', methods=['GET'])
 def get_cases():
     """Obtener lista de casos disponibles (JSON + pickle)"""
