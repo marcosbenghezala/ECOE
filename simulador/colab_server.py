@@ -1054,15 +1054,19 @@ def websocket_realtime(ws, session_id):
     async_thread = threading.Thread(target=run_async_loop, daemon=True)
     async_thread.start()
 
-    # Esperar a que OpenAI conecte (con timeout de 10 segundos)
-    if not connection_ready.wait(timeout=10):
-        ws.send(json.dumps({'error': 'Timeout conectando a OpenAI Realtime API'}))
+    # Esperar a que OpenAI conecte (con timeout de 15 segundos)
+    if not connection_ready.wait(timeout=15):
+        error_msg = 'Timeout conectando a OpenAI Realtime API (15s)'
+        print(f"❌ {error_msg}")
+        ws.send(json.dumps({'type': 'error', 'error': error_msg}))
         async_loop.call_soon_threadsafe(async_loop.stop)
         ws.close()
         return
 
     if connection_error:
-        ws.send(json.dumps({'error': f'Error conectando a OpenAI: {str(connection_error)}'}))
+        error_msg = f'Error conectando a OpenAI: {str(connection_error)}'
+        print(f"❌ {error_msg}")
+        ws.send(json.dumps({'type': 'error', 'error': error_msg}))
         async_loop.call_soon_threadsafe(async_loop.stop)
         ws.close()
         return
