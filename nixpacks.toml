@@ -1,10 +1,11 @@
-[phases.setup]
-nixPkgs = ["nodejs", "python311"]
+[providers]
+node = "18"
+python = "3.11"
 
 [phases.install]
 cmds = [
   "cd simulador/frontend && npm install && cd ../..",
-  "pip install --user -r simulador/requirements.txt"
+  "python -m pip install --user -r simulador/requirements.txt"
 ]
 
 [phases.build]
