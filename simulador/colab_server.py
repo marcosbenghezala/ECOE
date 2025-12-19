@@ -1152,14 +1152,13 @@ def websocket_realtime(ws, session_id):
 
 # ========== INICIALIZACIÓN ==========
 
-def main():
-    """Punto de entrada principal"""
+def init_app():
+    """Inicializar directorios y recursos (se ejecuta al importar)"""
     port = int(os.environ.get('PORT', 8080))
 
     print("="*60)
-    print("🏥 ECOE Backend Server (VERSIÓN CORREGIDA)")
+    print("🏥 ECOE Backend Server")
     print("="*60)
-    print(f"Frontend: http://localhost:{port}")
     print(f"API: http://localhost:{port}/api")
     print(f"Casos: {CASES_DIR}")
     print("="*60)
@@ -1173,8 +1172,16 @@ def main():
         print(f"⚠️  Creando directorio de sesiones: {SESSIONS_DIR}")
         SESSIONS_DIR.mkdir(parents=True, exist_ok=True)
 
+
+def main():
+    """Punto de entrada para desarrollo local (python colab_server.py)"""
+    init_app()
+    port = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=port, debug=False, threaded=True)
 
+
+# Inicializar cuando se importa (para Gunicorn)
+init_app()
 
 if __name__ == '__main__':
     main()
