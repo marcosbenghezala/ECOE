@@ -10,6 +10,7 @@ import type {
 
 // Use empty string for relative URLs (works in both localhost and production)
 // Backend serves frontend from same domain, so /api routes work automatically
+// Updated: 2025-12-19
 export const API_BASE_URL = import.meta.env.VITE_API_URL || ""
 
 /**
