@@ -25,6 +25,17 @@ from dotenv import load_dotenv
 # Cargar .env del directorio padre (TO_GITHUB/)
 load_dotenv(Path(__file__).parent.parent / '.env')
 
+# Monkey patch eventlet para resolver problemas de DNS
+# Debe hacerse ANTES de importar requests/urllib3
+try:
+    import eventlet
+    eventlet.monkey_patch(socket=True, select=True, thread=False)
+    print("✅ Eventlet monkey patched (DNS fix)")
+except ImportError:
+    print("⚠️  Eventlet no disponible, usando DNS estándar")
+except Exception as e:
+    print(f"⚠️  Error monkey patching eventlet: {e}")
+
 # Voz por género (Realtime)
 VOICE_MAPPING = {
     "female": "shimmer",
