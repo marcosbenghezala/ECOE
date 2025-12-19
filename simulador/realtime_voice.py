@@ -41,9 +41,17 @@ class RealtimeVoiceManager:
             on_transcript: Callback para texto transcrito
             on_event: Callback para eventos de conversación
         """
-        self.api_key = os.getenv('OPENAI_API_KEY')
-        if not self.api_key:
-            raise ValueError("OPENAI_API_KEY no encontrada")
+        # Intentar usar proxy primero, sino API key directa
+        from proxy_client import ProxyClient
+        self.proxy_client = ProxyClient()
+
+        # Si no hay proxy, necesitamos API key local
+        if not self.proxy_client.use_proxy:
+            self.api_key = os.getenv('OPENAI_API_KEY')
+            if not self.api_key:
+                raise ValueError("OPENAI_API_KEY no encontrada y PROXY_URL no configurado")
+        else:
+            self.api_key = None  # No necesaria con proxy
 
         self.case_data = case_data
         self.voice = voice
@@ -239,15 +247,17 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
     async def connect(self):
         """Conectar a OpenAI Realtime API"""
 
-        url = "wss://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17"
-
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "OpenAI-Beta": "realtime=v1"
-        }
+        # Obtener configuración del WebSocket (vía proxy o directo)
+        config = self.proxy_client.get_realtime_config()
+        url = config['url']
+        headers = config['headers']
 
         try:
-            print(f"🔌 Conectando a Realtime API: {url}")
+            if self.proxy_client.use_proxy:
+                print(f"🔌 Conectando a Realtime API vía proxy...")
+            else:
+                print(f"🔌 Conectando a Realtime API directamente...")
+
             self.ws = await websockets.connect(url, extra_headers=headers)
             print("✅ Connected to OpenAI Realtime API")
 

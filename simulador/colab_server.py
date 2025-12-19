@@ -74,25 +74,35 @@ CASES_DIR = BASE_DIR / 'casos_procesados'
 DATA_DIR = BASE_DIR / 'data'
 SESSIONS_DIR = BASE_DIR / 'sessions'
 
-# Inicializar OpenAI client (una sola vez) - compatible con todas las versiones
+# Inicializar ProxyClient (soporta proxy o conexión directa)
 try:
-    from openai import OpenAI
-    # Inicializar con solo los parámetros básicos para compatibilidad
-    openai_client = OpenAI(
-        api_key=os.getenv('OPENAI_API_KEY'),
-        timeout=30.0,
-        max_retries=2
-    )
-    print("✅ OpenAI client inicializado")
+    from proxy_client import ProxyClient
+    proxy_client = ProxyClient()
+    print("✅ ProxyClient inicializado")
 except Exception as e:
-    # Si falla con parámetros, intentar solo con api_key
+    print(f"⚠️  Error inicializando ProxyClient: {e}")
+    proxy_client = None
+
+# Mantener OpenAI client para compatibilidad (legacy) - solo si NO hay proxy
+openai_client = None
+if not proxy_client or not proxy_client.use_proxy:
     try:
         from openai import OpenAI
-        openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        print("✅ OpenAI client inicializado (modo compatible)")
-    except Exception as e2:
-        print(f"⚠️  Error inicializando OpenAI client: {e2}")
-        openai_client = None
+        openai_client = OpenAI(
+            api_key=os.getenv('OPENAI_API_KEY'),
+            timeout=30.0,
+            max_retries=2
+        )
+        print("✅ OpenAI client inicializado (directo)")
+    except Exception as e:
+        # Si falla con parámetros, intentar solo con api_key
+        try:
+            from openai import OpenAI
+            openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+            print("✅ OpenAI client inicializado (modo compatible)")
+        except Exception as e2:
+            print(f"⚠️  Error inicializando OpenAI client: {e2}")
+            openai_client = None
 
 # Inicializar componentes con parámetros correctos
 # EvaluatorV2 es legacy - solo se usa si no falla, pero no es crítico
@@ -621,14 +631,32 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
 """
 
         try:
-            response = openai_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": reflection_prompt}],
-                response_format={"type": "json_object"},
-                temperature=0.3
-            )
+            # Usar ProxyClient si está disponible, sino openai_client directo
+            if proxy_client and proxy_client.use_proxy:
+                response = proxy_client.chat_completion(
+                    messages=[{"role": "user", "content": reflection_prompt}],
+                    model="gpt-4o-mini",
+                    temperature=0.3,
+                    max_tokens=2000
+                )
+            elif openai_client:
+                response = openai_client.chat.completions.create(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": reflection_prompt}],
+                    response_format={"type": "json_object"},
+                    temperature=0.3
+                )
+                response = {
+                    "choices": [{
+                        "message": {
+                            "content": response.choices[0].message.content
+                        }
+                    }]
+                }
+            else:
+                raise ValueError("Ni proxy_client ni openai_client están disponibles")
 
-            eval_reflection = json.loads(response.choices[0].message.content)
+            eval_reflection = json.loads(response["choices"][0]["message"]["content"])
         except Exception as e:
             print(f"⚠️ Error evaluando reflexión con GPT: {e}")
             eval_reflection = {
