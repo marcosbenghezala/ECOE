@@ -8,7 +8,9 @@ import type {
   SessionData,
 } from "@/types"
 
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080"
+// Use empty string for relative URLs (works in both localhost and production)
+// Backend serves frontend from same domain, so /api routes work automatically
+export const API_BASE_URL = import.meta.env.VITE_API_URL || ""
 
 /**
  * API Client for backend communication
