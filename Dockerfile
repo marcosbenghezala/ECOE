@@ -1,4 +1,5 @@
 # Use Python 3.11 slim image
+# Force rebuild: 2025-12-19-v2
 FROM python:3.11-slim
 
 # Install Node.js 18
