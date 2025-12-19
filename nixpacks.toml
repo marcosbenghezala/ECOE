@@ -1,6 +1,4 @@
-[providers]
-node = "18"
-python = "3.11"
+providers = ["node", "python"]
 
 [phases.install]
 cmds = [
