@@ -1008,6 +1008,12 @@ def websocket_realtime(ws, session_id):
     audio_throttle_s = float(os.getenv("WS_AGENT_AUDIO_THROTTLE_SECONDS", "0.01"))
     max_outgoing_per_tick = int(os.getenv("WS_OUTGOING_MAX_SENDS_PER_TICK", "20"))
     receive_timeout_s = float(os.getenv("WS_RECEIVE_TIMEOUT_SECONDS", "0.01"))
+    print(
+        "🔧 WS throttling: "
+        f"audio_throttle={audio_throttle_s}s "
+        f"max_outgoing_per_tick={max_outgoing_per_tick} "
+        f"receive_timeout={receive_timeout_s}s"
+    )
 
     def enqueue_to_frontend(payload: dict) -> None:
         try:
