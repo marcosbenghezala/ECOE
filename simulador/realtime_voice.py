@@ -15,8 +15,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 VOICE_MAPPING = {
-    "female": "shimmer",
-    "male": "sage",
+    "female": "nova",
+    "male": "echo",
+    "default": "nova",
 }
 
 
@@ -31,13 +32,15 @@ class RealtimeVoiceManager:
         self,
         case_data: dict,
         voice: str = 'echo',
+        voice_name: Optional[str] = None,
         on_transcript: Optional[Callable] = None,
         on_event: Optional[Callable] = None
     ):
         """
         Args:
             case_data: Datos del caso clínico
-            voice: Voz a usar (ash, ballad, coral, echo, sage, shimmer, verse)
+            voice: Voz a usar (p.ej. echo, nova, shimmer, alloy)
+            voice_name: Alias de `voice` (prioritario si se pasa)
             on_transcript: Callback para texto transcrito
             on_event: Callback para eventos de conversación
         """
@@ -54,7 +57,9 @@ class RealtimeVoiceManager:
             self.api_key = None  # No necesaria con proxy
 
         self.case_data = case_data
-        self.voice = voice
+        selected_voice = (voice_name or voice or VOICE_MAPPING["default"]).strip()
+        self.voice_name = selected_voice
+        self.voice = selected_voice
         self.on_transcript = on_transcript
         self.on_event = on_event
 
@@ -202,6 +207,35 @@ El estudiante debería seguir este orden (pero tú responde con naturalidad):
 - Muestra las emociones apropiadas según tu personalidad
 - Sé coherente: no te contradigas entre respuestas
 
+═══════════════════════════════════════
+🇪🇸 IDIOMA Y ACENTO (CRÍTICO)
+═══════════════════════════════════════
+
+- SIEMPRE hablas en español de España (castellano peninsular)
+- NO uses modismos latinoamericanos (che, wey/güey, ahorita, órale, ándale, vos, etc.)
+- Usa expresiones típicas de España de forma natural (sin abusar):
+  • "vale", "de acuerdo", "claro", "venga", "perfecto"
+  • "ostras", "jo" (sorpresa/énfasis suave)
+- Mantén registro adecuado de consulta: educado y colaborador
+- Si el estudiante habla otro idioma, responde educadamente que SOLO hablas español
+
+═══════════════════════════════════════
+🎧 MANEJO DE AUDIO NO CLARO (IMPORTANTE)
+═══════════════════════════════════════
+
+- Solo responde a preguntas que hayas entendido con claridad
+- Si hay ruido, silencio, audio cortado o no entiendes:
+  → Di: "Perdona, no te he oído bien. ¿Puedes repetirlo?"
+- NO inventes lo que crees que dijo el estudiante
+
+═══════════════════════════════════════
+🔄 VARIEDAD Y NATURALIDAD (IMPORTANTE)
+═══════════════════════════════════════
+
+- Evita sonar robótico: NO repitas siempre la misma frase
+- Varía confirmaciones: "vale", "de acuerdo", "sí", "claro", "entendido", "perfecto"
+- Varía expresiones de dolor/molestia: "me duele", "tengo un dolor", "me molesta", "siento presión"
+
 {multimedia_instructions}
 
 ═══════════════════════════════════════
@@ -312,7 +346,7 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
             "session": {
                 "modalities": ["text", "audio"],
                 "instructions": self.system_instructions,
-                "voice": self.voice,
+                "voice": self.voice_name,
                 "input_audio_format": "pcm16",
                 "output_audio_format": "pcm16",
                 "input_audio_transcription": {

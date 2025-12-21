@@ -42,9 +42,9 @@ except Exception as e:
 
 # Voz por género (Realtime)
 VOICE_MAPPING = {
-    "female": "shimmer",
-    # Mantener una voz claramente masculina por defecto
+    "female": "nova",
     "male": "echo",
+    "default": "nova",
 }
 
 
@@ -63,7 +63,12 @@ def get_voice_for_case(case_data: dict) -> str:
     if "mujer" in genero or "femenin" in genero:
         return VOICE_MAPPING["female"]
 
-    return VOICE_MAPPING["male"]
+    if genero in {"male", "m", "hombre", "masculino"}:
+        return VOICE_MAPPING["male"]
+    if "hombre" in genero or "masculin" in genero:
+        return VOICE_MAPPING["male"]
+
+    return VOICE_MAPPING["default"]
 
 # Importar módulos del proyecto
 from evaluator_v2 import EvaluatorV2
@@ -1030,7 +1035,7 @@ def websocket_realtime(ws, session_id):
     try:
         rtv = RealtimeVoiceManager(
             case_data=session['case_data'],
-            voice=session['voice'],
+            voice_name=session['voice'],
             on_transcript=on_transcript_handler,
             on_event=on_event_handler
         )
