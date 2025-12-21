@@ -999,6 +999,37 @@ def websocket_realtime(ws, session_id):
     websocket_connections[session_id] = ws
     print(f"✅ WebSocket guardado para sesión {session_id}")
 
+    # Cola thread-safe para enviar mensajes al frontend desde callbacks (RealtimeVoiceManager corre en otro thread).
+    # Evita enviar directamente por `ws.send()` desde el thread async (puede corromper frames y causar "Invalid frame header").
+    if session.get('ws_queue') is None:
+        session['ws_queue'] = queue.Queue()
+    outgoing_queue: "queue.Queue" = session['ws_queue']
+
+    audio_throttle_s = float(os.getenv("WS_AGENT_AUDIO_THROTTLE_SECONDS", "0.01"))
+    max_outgoing_per_tick = int(os.getenv("WS_OUTGOING_MAX_SENDS_PER_TICK", "50"))
+    receive_timeout_s = float(os.getenv("WS_RECEIVE_TIMEOUT_SECONDS", "0.05"))
+
+    def enqueue_to_frontend(payload: dict) -> None:
+        try:
+            outgoing_queue.put(payload)
+        except Exception as e:
+            print(f"⚠️  Error encolando mensaje al frontend: {e}")
+
+    def drain_outgoing_messages() -> None:
+        sent = 0
+        while sent < max_outgoing_per_tick:
+            try:
+                payload = outgoing_queue.get_nowait()
+            except queue.Empty:
+                break
+
+            ws.send(json.dumps(payload))
+            sent += 1
+
+            # Throttle específico para audio del agente (evita ráfagas de frames)
+            if payload.get("type") == "agent_audio" and audio_throttle_s > 0:
+                time.sleep(audio_throttle_s)
+
     # Callback para reenviar eventos al frontend
     def on_event_handler(event):
         if session_id in sessions:
@@ -1007,12 +1038,8 @@ def websocket_realtime(ws, session_id):
                 'event': event
             })
 
-        # Reenviar al frontend
-        if session_id in websocket_connections:
-            try:
-                websocket_connections[session_id].send(json.dumps(event))
-            except Exception as e:
-                print(f"Error enviando evento al frontend: {e}")
+        # Reenviar al frontend (thread-safe)
+        enqueue_to_frontend(event)
 
     def on_transcript_handler(text):
         print(f"📝 Transcript recibido: {text[:100]}...")  # DEBUG
@@ -1020,15 +1047,8 @@ def websocket_realtime(ws, session_id):
             sessions[session_id]['transcript'] += text + '\n'
             print(f"📊 Transcript total: {len(sessions[session_id]['transcript'])} chars")  # DEBUG
 
-        # Enviar transcripción al frontend
-        if session_id in websocket_connections:
-            try:
-                websocket_connections[session_id].send(json.dumps({
-                    'type': 'transcript_update',
-                    'text': text
-                }))
-            except Exception as e:
-                print(f"Error enviando transcripción al frontend: {e}")
+        # Enviar transcripción al frontend (thread-safe)
+        enqueue_to_frontend({'type': 'transcript_update', 'text': text})
 
     # Crear RealtimeVoiceManager
     print(f"🔧 DEBUG: Creando RealtimeVoiceManager para session {session_id}")
@@ -1117,7 +1137,10 @@ def websocket_realtime(ws, session_id):
         message_count = 0
         while session['active']:
             try:
-                message = ws.receive(timeout=0.1)
+                # Enviar mensajes pendientes al frontend antes de leer (control de flujo + orden)
+                drain_outgoing_messages()
+
+                message = ws.receive(timeout=receive_timeout_s)
                 if message is None:
                     continue
 
