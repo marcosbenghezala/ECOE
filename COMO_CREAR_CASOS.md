@@ -2,6 +2,10 @@
 
 El backend genera automáticamente el prompt del paciente a partir de `datos_paciente` para evitar contradicciones (p. ej. primero decir “no tomo nada” y luego listar fármacos). La idea es que `datos_paciente` sea la **fuente de verdad canónica**.
 
+## Estado actual
+
+Actualmente no hay casos precargados. El endpoint `/api/cases` devolverá `[]` hasta que crees al menos un caso (un JSON que no empiece por `_`) en `TO_GITHUB/casos_procesados/`.
+
 ## A) Quickstart (15–20 min)
 
 1. Copia `TO_GITHUB/casos_procesados/_TEMPLATE_CASO.json`.
@@ -20,6 +24,21 @@ El backend genera automáticamente el prompt del paciente a partir de `datos_pac
 - Evita técnica médica: el paciente habla coloquial.
 - Español de España (sin modismos latinoamericanos).
 - Regla práctica: **si el checklist maestro tiene ese ítem y aplica al caso, rellénalo** (o pon `tiene: false` si es un negativo relevante).
+
+## ⚠️ IMPORTANTE: `items_activos`
+
+El campo `items_activos` en el JSON del caso **no se usa** para activar/desactivar ítems en el runtime actual.
+
+Actualmente:
+- La activación/evaluación de ítems se decide de forma automática (por el backend/evaluador) en función de `sintomas_principales` y `contexto_generado` (y el checklist maestro).
+- El paciente responde según `datos_paciente` (respuestas canónicas).
+
+¿Qué significa esto?
+- No importa qué pongas en `items_activos` para el funcionamiento del paciente.
+- Lo importante es rellenar bien `datos_paciente` con respuestas canónicas.
+
+Recomendación:
+- Puedes dejar `items_activos` como `[]` o directamente omitirlo (opcional).
 
 ## C) Estructura mínima recomendada del caso
 

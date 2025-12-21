@@ -284,7 +284,12 @@ Los casos se pueden crear en formato **JSON** (recomendado) o **pickle** (legacy
 }
 ```
 
-Ver `casos_procesados/caso_prueba_001.json` como ejemplo completo.
+Actualmente no hay casos precargados.
+
+Para crear un nuevo caso:
+- Copia `casos_procesados/_TEMPLATE_CASO.json`
+- Renómbralo a `caso_<nombre>_001.json`
+- Rellena los campos según `TO_GITHUB/COMO_CREAR_CASOS.md`
 
 ---
 
@@ -312,7 +317,7 @@ simulador/
 │   ├── package.json
 │   └── vite.config.ts
 ├── casos_procesados/             # Casos clínicos (JSON + pickle)
-│   ├── caso_prueba_001.json      # Caso de ejemplo (JSON)
+│   ├── _TEMPLATE_CASO.json       # Template (NO se lista en /api/cases)
 │   └── *.bin                     # Casos legacy (pickle)
 ├── data/                         # Checklist master y embeddings
 │   ├── master-checklist-v2.json  # Checklist 180 ítems
