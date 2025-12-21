@@ -122,6 +122,51 @@ def extract_student_lines(transcript: str) -> List[str]:
     return student_lines
 
 
+def extract_patient_lines(transcript: str) -> List[str]:
+    """
+    Extrae SOLO las líneas del [PACIENTE].
+
+    Soporta formatos:
+    - [PACIENTE]: texto
+    - [PACIENTE] texto
+    - [PATIENT]: texto (legacy, inglés)
+    - [PATIENT] texto
+    - PACIENTE: texto (legacy sin corchetes)
+    """
+    patient_lines: List[str] = []
+
+    for raw_line in transcript.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if line.startswith("[PACIENTE]"):
+            content = line[len("[PACIENTE]") :].lstrip()
+            if content.startswith(":"):
+                content = content[1:].lstrip()
+            if content:
+                patient_lines.append(content)
+            continue
+
+        if line.startswith("[PATIENT]"):
+            content = line[len("[PATIENT]") :].lstrip()
+            if content.startswith(":"):
+                content = content[1:].lstrip()
+            if content:
+                patient_lines.append(content)
+            continue
+
+        if line.upper().startswith("PACIENTE"):
+            content = line[len("PACIENTE") :].lstrip()
+            if content.startswith(":"):
+                content = content[1:].lstrip()
+            if content:
+                patient_lines.append(content)
+            continue
+
+    return patient_lines
+
+
 def preprocess_transcript(transcript: str) -> Dict[str, Any]:
     """
     Preprocesa transcripción para evaluación.
@@ -156,4 +201,29 @@ def preprocess_transcript(transcript: str) -> Dict[str, Any]:
         "student_lines": student_lines,
         "student_lines_normalized": normalized_lines,
         "student_text_normalized": combined_normalized,
+    }
+
+
+def preprocess_transcript_by_role(transcript: str) -> Dict[str, Any]:
+    """
+    Preprocesa transcripción separando estudiante y paciente.
+
+    Returns:
+        {
+            "student_lines": [...],
+            "patient_lines": [...],
+            "student_text_normalized": "...",
+            "patient_text_normalized": "..."
+        }
+    """
+    student_lines = extract_student_lines(transcript)
+    patient_lines = extract_patient_lines(transcript)
+    student_text = " ".join(normalize_text(line) for line in student_lines if line)
+    patient_text = " ".join(normalize_text(line) for line in patient_lines if line)
+
+    return {
+        "student_lines": student_lines,
+        "patient_lines": patient_lines,
+        "student_text_normalized": student_text.strip(),
+        "patient_text_normalized": patient_text.strip(),
     }

@@ -10,12 +10,37 @@ from typing import Dict, List, Tuple, Optional
 from openai import OpenAI
 from datetime import datetime
 
-from text_utils import normalize_text as base_normalize_text, preprocess_transcript, extract_student_lines
+from text_utils import (
+    normalize_text as base_normalize_text,
+    preprocess_transcript_by_role,
+    extract_student_lines,
+)
 
 KEYWORD_MIN_RATIO_DEFAULT = 0.34
 KEYWORD_MIN_RATIO_STRICT = 0.5
+KEYWORD_MIN_RATIO_CRITICAL = 0.25
 EMBEDDING_THRESHOLD_DEFAULT = 0.75
 EMBEDDING_THRESHOLD_STRICT = 0.82
+EMBEDDING_THRESHOLD_CRITICAL = 0.72
+STRONG_KEYWORD_MARGIN = 0.1
+STRONG_EMBEDDING_MARGIN = 0.05
+
+CRITICAL_ITEM_IDS = {
+    "CARDIO_01",
+    "AP_01",
+    "AP_11",
+    "AF_01",
+    "HAB_01",
+}
+
+QUESTION_PREFIXES = (
+    "pregunta por",
+    "preguntar por",
+    "pregunta sobre",
+    "preguntar sobre",
+    "explora",
+    "indaga",
+)
 
 class EvaluatorV2:
     """
@@ -59,13 +84,20 @@ class EvaluatorV2:
         # Cargar índice
         with open(index_path, 'r', encoding='utf-8') as f:
             self.master_index = json.load(f)
+        self._embedding_index_by_id = {
+            meta.get("id"): idx
+            for idx, meta in enumerate(self.master_index)
+            if meta.get("id")
+        }
 
         # Sistema de aprendizaje (opcional)
         self.learning_system = learning_system
         self.embedding_threshold = EMBEDDING_THRESHOLD_DEFAULT
         self.embedding_threshold_strict = EMBEDDING_THRESHOLD_STRICT
+        self.embedding_threshold_critical = EMBEDDING_THRESHOLD_CRITICAL
         self.keyword_min_ratio = KEYWORD_MIN_RATIO_DEFAULT
         self.keyword_min_ratio_strict = KEYWORD_MIN_RATIO_STRICT
+        self.keyword_min_ratio_critical = KEYWORD_MIN_RATIO_CRITICAL
         self._synonym_patterns = [
             (re.compile(r"\bdecentes familiares\b"), ["antecedentes familiares"]),
             (re.compile(r"\bhistoria familiar\b"), ["antecedentes familiares"]),
@@ -78,6 +110,7 @@ class EvaluatorV2:
             (re.compile(r"\bhta\b|\bhipertension\b|\btension alta\b"), ["enfermedades cronicas"]),
             (re.compile(r"\bdislipemia\b|\bcolesterol alto\b|\bcolesterol\b"), ["enfermedades cronicas"]),
             (re.compile(r"\bmedicacion\b|\btratamiento actual\b|\benalapril\b|\batorvastatina\b|\batorcan\b"), ["medicacion actual"]),
+            (re.compile(r"\bfumas\b|\bfumador\b|\btabaco\b|\bcigarr"), ["habitos tabaco"]),
         ]
 
     def normalize_text(self, text: str) -> str:
@@ -98,6 +131,127 @@ class EvaluatorV2:
                     if addition not in expanded:
                         expanded = f"{expanded} {addition}"
         return expanded.strip()
+
+    def _is_question_item(self, item_text: str) -> bool:
+        normalized = self.normalize_text(item_text)
+        return normalized.startswith(QUESTION_PREFIXES)
+
+    def _is_critical_item(self, item_id: str, item: Dict) -> bool:
+        if item.get("critico"):
+            return True
+        return item_id in CRITICAL_ITEM_IDS
+
+    def _keyword_match_stats(self, text: str, item: Dict) -> Tuple[int, int, float]:
+        normalized_text = self.normalize_text_with_synonyms(text)
+        keywords = item.get('keywords', []) or []
+        if not keywords:
+            return 0, 0, 0.0
+
+        normalized_keywords = []
+        for kw in keywords:
+            kw_norm = self.normalize_text(kw)
+            if kw_norm:
+                normalized_keywords.append(kw_norm)
+
+        if not normalized_keywords:
+            return 0, 0, 0.0
+
+        hits = 0
+        for kw_norm in normalized_keywords:
+            pattern = r"\b" + re.escape(kw_norm) + r"\b"
+            if re.search(pattern, normalized_text):
+                hits += 1
+
+        ratio = hits / len(normalized_keywords)
+        return hits, len(normalized_keywords), ratio
+
+    def _patient_confirm(self, patient_text: str, item: Dict) -> bool:
+        hits, total, _ratio = self._keyword_match_stats(patient_text, item)
+        if total == 0:
+            return False
+        return hits >= 1
+
+    def _max_embedding_similarity(
+        self,
+        transcript_embeddings: List[np.ndarray],
+        item_embedding: Optional[np.ndarray],
+    ) -> float:
+        if not transcript_embeddings or item_embedding is None:
+            return 0.0
+        max_sim = 0.0
+        for chunk_emb in transcript_embeddings:
+            similarity = self.calculate_similarity(item_embedding, chunk_emb)
+            if similarity > max_sim:
+                max_sim = similarity
+        return max_sim
+
+    def _get_item_embedding(self, item_id: str) -> Optional[np.ndarray]:
+        idx = self._embedding_index_by_id.get(item_id)
+        if idx is None:
+            return None
+        try:
+            return self.master_embeddings[idx]
+        except Exception:
+            return None
+
+    def _match_item(
+        self,
+        item: Dict,
+        capa_nombre: str,
+        student_text: str,
+        patient_text: str,
+        transcript_embeddings: List[np.ndarray],
+        use_embeddings: bool,
+    ) -> Tuple[bool, Optional[str]]:
+        item_text = item.get('texto') or item.get('item') or ''
+        item_id = item.get('id', 'UNKNOWN')
+        is_question_item = self._is_question_item(item_text)
+        is_critical = self._is_critical_item(item_id, item)
+
+        keyword_ratio = self.keyword_min_ratio
+        embedding_threshold = self.embedding_threshold
+        strict_group = capa_nombre in {"DIFERENCIAL", "SCREENING"}
+        if strict_group and not is_critical:
+            keyword_ratio = self.keyword_min_ratio_strict
+            embedding_threshold = self.embedding_threshold_strict
+        elif is_critical:
+            keyword_ratio = self.keyword_min_ratio_critical
+            embedding_threshold = self.embedding_threshold_critical
+
+        hits, total, ratio = self._keyword_match_stats(student_text, item)
+        keyword_match = total > 0 and ratio >= keyword_ratio
+
+        embedding_match = False
+        max_similarity = 0.0
+        if use_embeddings and transcript_embeddings:
+            item_emb = self._get_item_embedding(item_id)
+            max_similarity = self._max_embedding_similarity(transcript_embeddings, item_emb)
+            embedding_match = max_similarity >= embedding_threshold
+
+        student_match = keyword_match or embedding_match
+
+        if is_question_item and not student_match:
+            return False, None
+
+        if not student_match:
+            return False, None
+
+        patient_confirm = self._patient_confirm(patient_text, item)
+
+        strong_keyword = keyword_match and ratio >= (keyword_ratio + STRONG_KEYWORD_MARGIN)
+        strong_embedding = embedding_match and max_similarity >= (embedding_threshold + STRONG_EMBEDDING_MARGIN)
+        strong_match = strong_keyword or strong_embedding or keyword_match
+
+        if strict_group and not is_critical and embedding_match and not keyword_match:
+            # En ítems estrictos evitamos match solo semántico sin confirmación del paciente.
+            if not patient_confirm:
+                return False, None
+
+        if not strong_match and not patient_confirm:
+            return False, None
+
+        match_type = "keyword" if keyword_match else "embedding"
+        return True, match_type
 
     def get_embedding(self, text: str) -> np.ndarray:
         """Genera embedding para un texto"""
@@ -202,30 +356,11 @@ class EvaluatorV2:
 
     def check_item_keyword(self, transcript: str, item: Dict, min_ratio: Optional[float] = None) -> bool:
         """Verifica ítem usando keywords"""
-        normalized_transcript = self.normalize_text_with_synonyms(transcript)
-        keywords = item.get('keywords', []) or []
-
-        if not keywords:
+        hits, total, _ratio = self._keyword_match_stats(transcript, item)
+        if total == 0:
             return False
-
-        normalized_keywords = []
-        for kw in keywords:
-            kw_norm = self.normalize_text(kw)
-            if kw_norm:
-                normalized_keywords.append(kw_norm)
-
-        if not normalized_keywords:
-            return False
-
-        hits = 0
-        for kw_norm in normalized_keywords:
-            pattern = r"\b" + re.escape(kw_norm) + r"\b"
-            if re.search(pattern, normalized_transcript):
-                hits += 1
-
-        # Umbral flexible para mejorar recall sin disparar falsos positivos.
         ratio = self.keyword_min_ratio if min_ratio is None else min_ratio
-        min_hits = max(1, int(math.ceil(len(normalized_keywords) * ratio)))
+        min_hits = max(1, int(math.ceil(total * ratio)))
         return hits >= min_hits
 
     def check_item_embedding(self,
@@ -281,7 +416,8 @@ class EvaluatorV2:
                            transcript: str,
                            sintomas_caso: List[str],
                            caso_id: str,
-                           incluir_aprendizaje: bool = True) -> Dict:
+                           incluir_aprendizaje: bool = True,
+                           use_embeddings: bool = True) -> Dict:
         """
         Evalúa una transcripción completa usando el sistema V2.
 
@@ -290,6 +426,7 @@ class EvaluatorV2:
             sintomas_caso: Síntomas principales del caso
             caso_id: ID del caso evaluado
             incluir_aprendizaje: Si debe registrar candidatos para aprendizaje
+            use_embeddings: Si se deben usar embeddings semánticos
 
         Returns:
             Reporte completo de evaluación
@@ -302,30 +439,31 @@ class EvaluatorV2:
         # 2. Organizar por capas (3 niveles)
         items_por_capas = self.organize_by_layers(items_activados)
 
-        # 3. Pre-calcular embeddings de la transcripción
-        preprocessed = preprocess_transcript(transcript)
+        # 3. Separar turnos por rol y preparar embeddings (solo estudiante)
+        preprocessed = preprocess_transcript_by_role(transcript)
         student_lines = preprocessed.get("student_lines") or []
-        student_text = "\n".join(student_lines).strip()
-        if not student_text:
-            student_text = transcript.strip()
+        patient_lines = preprocessed.get("patient_lines") or []
+        student_text = "\n".join(student_lines).strip() or transcript.strip()
+        patient_text = "\n".join(patient_lines).strip()
 
-        chunks = []
-        source_lines = student_lines if student_lines else [transcript]
-        for line in source_lines:
-            for chunk in re.split(r'[.!?]\s+', line):
-                if len(chunk.strip()) > 10:
-                    chunks.append(chunk.strip())
+        transcript_embeddings: List[np.ndarray] = []
+        if use_embeddings:
+            chunks = []
+            source_lines = student_lines if student_lines else [transcript]
+            for line in source_lines:
+                for chunk in re.split(r'[.!?]\s+', line):
+                    if len(chunk.strip()) > 10:
+                        chunks.append(chunk.strip())
 
-        transcript_embeddings = []
-        if chunks:
-            try:
-                resp = self.client.embeddings.create(
-                    input=chunks,
-                    model="text-embedding-3-small"
-                )
-                transcript_embeddings = [np.array(d.embedding) for d in resp.data]
-            except Exception as e:
-                print(f"⚠️ Error generando embeddings: {e}")
+            if chunks:
+                try:
+                    resp = self.client.embeddings.create(
+                        input=chunks,
+                        model="text-embedding-3-small"
+                    )
+                    transcript_embeddings = [np.array(d.embedding) for d in resp.data]
+                except Exception as e:
+                    print(f"⚠️ Error generando embeddings: {e}")
 
         # 4. Evaluar cada capa
         evaluacion_por_capas = {}
@@ -342,33 +480,14 @@ class EvaluatorV2:
 
                 item_text = item.get('texto', 'Unknown Item')
                 item_id = item.get('id', 'UNKNOWN')
-                keyword_ratio = self.keyword_min_ratio
-                embedding_threshold = self.embedding_threshold
-                if capa_nombre == "DIFERENCIAL":
-                    keyword_ratio = self.keyword_min_ratio_strict
-                    embedding_threshold = self.embedding_threshold_strict
-                elif capa_nombre == "SCREENING" and item_id not in {"AF_01", "AP_01", "AP_11", "HAB_01"}:
-                    keyword_ratio = self.keyword_min_ratio_strict
-                    embedding_threshold = self.embedding_threshold_strict
-
-                # Método 1: Keywords
-                is_done = self.check_item_keyword(student_text, item, min_ratio=keyword_ratio)
-                match_type = "keyword" if is_done else None
-
-                # Método 2: Embedding (si no encontrado por keywords)
-                if not is_done:
-                    # Buscar embedding del item en master_embeddings
-                    item_idx = None
-                    for idx, meta in enumerate(self.master_index):
-                        if meta['id'] == item_id:
-                            item_idx = idx
-                            break
-
-                    if item_idx is not None:
-                        item_emb = self.master_embeddings[item_idx]
-                        if self.check_item_embedding(transcript_embeddings, item_emb, threshold=embedding_threshold):
-                            is_done = True
-                            match_type = "embedding"
+                is_done, match_type = self._match_item(
+                    item=item,
+                    capa_nombre=capa_nombre,
+                    student_text=student_text,
+                    patient_text=patient_text,
+                    transcript_embeddings=transcript_embeddings,
+                    use_embeddings=use_embeddings,
+                )
 
                 score = peso if is_done else 0
                 total_score += score
