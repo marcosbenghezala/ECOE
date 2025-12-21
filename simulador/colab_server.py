@@ -13,7 +13,7 @@ import threading
 import queue
 import pickle
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from functools import wraps
 from collections import defaultdict
@@ -292,6 +292,56 @@ def health_check():
         'openai_configured': bool(os.getenv('OPENAI_API_KEY')),
         'timestamp': datetime.now().isoformat()
     }), 200
+
+
+@app.route('/api/admin/test-sheets', methods=['POST'])
+def admin_test_sheets():
+    """
+    Endpoint temporal para verificar Google Sheets en Railway.
+    Deshabilitado por defecto. Para habilitar:
+    - SHEETS_TEST_ENDPOINT_ENABLED=true
+    - (opcional) SHEETS_TEST_TOKEN=...
+      y enviar header: X-Admin-Token: <token>
+    """
+    if os.getenv("SHEETS_TEST_ENDPOINT_ENABLED", "false").lower() != "true":
+        return jsonify({'error': 'Not found'}), 404
+
+    expected = os.getenv("SHEETS_TEST_TOKEN", "").strip()
+    if expected:
+        provided = (request.headers.get("X-Admin-Token") or "").strip()
+        if provided != expected:
+            return jsonify({'error': 'Unauthorized'}), 401
+
+    if os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() != "true":
+        return jsonify({'error': 'GOOGLE_SHEETS_ENABLED=false'}), 400
+
+    try:
+        from sheets_logger import get_sheets_logger
+
+        payload = request.json or {}
+        now = datetime.now(timezone.utc)
+        simulation_data = {
+            "student_name": payload.get("student_name") or "Estudiante Test",
+            "student_email": payload.get("student_email") or "test@example.com",
+            "case_name": payload.get("case_name") or "TEST_SHEETS",
+            "duration_seconds": int(payload.get("duration_seconds") or 437),
+            "total_score": int(payload.get("total_score") or 82),
+            "timestamp": payload.get("timestamp") or now.isoformat(),
+            "conversation_evaluation": payload.get("conversation_evaluation") or {"ok": True},
+            "development_questions": payload.get("development_questions") or ["Pregunta 1", "Pregunta 2"],
+            "transcript": payload.get("transcript") or [
+                "[ESTUDIANTE] Hola, soy el doctor.",
+                "[PACIENTE] Hola, doctor.",
+                "[ESTUDIANTE] ¿Qué le pasa?",
+                "[PACIENTE] Me duele el pecho.",
+            ],
+        }
+
+        ok = get_sheets_logger().log_simulation(simulation_data)
+        return jsonify({"ok": bool(ok)})
+    except Exception as e:
+        print(f"[Sheets] Error en test-sheets: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route('/api/cases', methods=['GET'])
@@ -801,6 +851,53 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
         # Guardar en sesión
         session['evaluation'] = result
         save_session_to_disk(session_id)
+
+        # Auto-guardado opcional en Google Sheets (logger gspread -> pestaña RESUMEN + detalle)
+        if os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() == "true":
+            try:
+                from sheets_logger import get_sheets_logger
+
+                student = session.get("student") or {}
+                student_name = (
+                    student.get("nombre")
+                    or student.get("name")
+                    or student.get("student_name")
+                    or "Sin nombre"
+                )
+                student_email = (
+                    student.get("email")
+                    or student.get("correo")
+                    or student.get("student_email")
+                    or "sin-email"
+                )
+
+                duration_seconds = 0
+                try:
+                    start_dt = datetime.fromisoformat(str(session.get("start_time", "")).replace("Z", "+00:00"))
+                    if start_dt.tzinfo is None:
+                        start_dt = start_dt.replace(tzinfo=timezone.utc)
+                    duration_seconds = int((datetime.now(timezone.utc) - start_dt).total_seconds())
+                except Exception:
+                    duration_seconds = 0
+
+                case_name = case_data.get("titulo") or case_data.get("id") or "caso"
+                total_score = int(round(float(result.get("overall_score", 0) or 0)))
+
+                get_sheets_logger().log_simulation(
+                    {
+                        "student_name": student_name,
+                        "student_email": student_email,
+                        "case_name": case_name,
+                        "duration_seconds": duration_seconds,
+                        "total_score": total_score,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "conversation_evaluation": result.get("eval_transcript"),
+                        "development_questions": (result.get("eval_reflection") or {}).get("areas_mejora", []),
+                        "transcript": transcript,
+                    }
+                )
+            except Exception as e:
+                print(f"[Sheets] Error guardando en Google Sheets: {e}")
 
         print(f"✅ Evaluación completada: {overall_score:.1f}%")
 

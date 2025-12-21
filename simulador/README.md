@@ -137,22 +137,29 @@ Crea un archivo `.env` en la raíz del proyecto:
 OPENAI_API_KEY=sk-proj-...tu-api-key...
 ```
 
-**Opcional - Google Sheets Integration:**
+**Opcional - Google Sheets (RESUMEN + detalle por simulación):**
 
-Si quieres guardar resultados en Google Sheets:
+Si quieres guardar resultados en Google Sheets al finalizar `POST /api/simulation/evaluate`:
 
 ```bash
-# En .env, agregar:
-GOOGLE_SHEETS_CREDENTIALS_JSON='{"type":"service_account","project_id":"...","private_key":"..."}'
+# En .env (o Railway Variables):
+GOOGLE_SHEETS_ENABLED=true
+GOOGLE_SHEETS_SPREADSHEET_ID=15dJ9GPUvA0LFfoJShS29ujV_YsI_48NsBu010cq2vk0
+GOOGLE_SHEETS_CREDENTIALS='{"type":"service_account","project_id":"...","private_key":"..."}'
 ```
 
-Para obtener las credenciales de Google Sheets:
+El spreadsheet debe tener una pestaña llamada `RESUMEN` con cabeceras en A–G:
+
+`Timestamp | Estudiante | Email | Caso | Duración (min) | Puntuación | Ver Detalles`
+
+Para obtener las credenciales:
 1. Ir a [Google Cloud Console](https://console.cloud.google.com/)
 2. Crear proyecto nuevo o seleccionar existente
 3. Habilitar Google Sheets API
 4. Crear cuenta de servicio (Service Account)
 5. Descargar JSON de credenciales
-6. Copiar TODO el contenido del JSON en la variable `GOOGLE_SHEETS_CREDENTIALS_JSON`
+6. Compartir el spreadsheet con el email de la service account (rol Editor)
+7. Copiar TODO el contenido del JSON en la variable `GOOGLE_SHEETS_CREDENTIALS`
 
 ### 4. Build del Frontend
 
