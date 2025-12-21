@@ -304,8 +304,16 @@ def get_cases():
             print(f"⚠️  Directorio de casos no existe: {CASES_DIR}")
             return jsonify([])
 
-        # Prioridad: JSON primero, luego .bin (pickle)
-        all_case_files = list(CASES_DIR.glob('*.json')) + list(CASES_DIR.glob('*.bin'))
+        # Prioridad: JSON primero, luego .bin (pickle).
+        # - Ignorar plantillas/archivos auxiliares que empiezan por "_"
+        # - Evitar duplicados cuando existen .json y .bin con el mismo stem
+        json_files = [p for p in CASES_DIR.glob('*.json') if not p.name.startswith('_')]
+        bin_files = [p for p in CASES_DIR.glob('*.bin') if not p.name.startswith('_')]
+
+        json_stems = {p.stem for p in json_files}
+        bin_files = [p for p in bin_files if p.stem not in json_stems]
+
+        all_case_files = list(json_files) + list(bin_files)
 
         for case_file in all_case_files:
             try:
@@ -343,6 +351,9 @@ def get_cases():
 def get_case(case_id):
     """Obtener un caso específico (JSON + pickle)"""
     try:
+        if str(case_id).startswith('_'):
+            return jsonify({'error': 'Case not found'}), 404
+
         # Buscar JSON primero, luego .bin
         case_file_json = CASES_DIR / f"{case_id}.json"
         case_file_bin = CASES_DIR / f"{case_id}.bin"
@@ -401,6 +412,9 @@ def get_case_questions(case_id):
         }
     """
     try:
+        if str(case_id).startswith('_'):
+            return jsonify({'error': 'Case not found'}), 404
+
         if not sheets_integration:
             return jsonify({'error': 'Google Sheets integration not available'}), 503
 
@@ -429,6 +443,9 @@ def start_simulation():
         data = request.json
         case_id = data.get('case_id')
         student_data = data.get('student', {})
+
+        if not case_id or str(case_id).startswith('_'):
+            return jsonify({'error': 'Case not found'}), 404
 
         # Buscar JSON primero, luego .bin (pickle)
         case_file_json = CASES_DIR / f"{case_id}.json"
