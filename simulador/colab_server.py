@@ -25,16 +25,20 @@ from dotenv import load_dotenv
 # Cargar .env del directorio padre (TO_GITHUB/)
 load_dotenv(Path(__file__).parent.parent / '.env')
 
-# Monkey patch gevent para soporte robusto de WebSockets en Gunicorn.
+# Configuración robusta de Eventlet (Railway)
+os.environ.setdefault("EVENTLET_NO_GREENDNS", "yes")
+os.environ.setdefault("EVENTLET_HUB", "poll")
+
+# Monkey patch eventlet para soporte robusto de WebSockets en Gunicorn.
 # Debe hacerse ANTES de importar requests/urllib3
 try:
-    from gevent import monkey
-    monkey.patch_all()
-    print("✅ Gevent monkey patched")
+    import eventlet
+    eventlet.monkey_patch(socket=True, select=True, time=True, thread=False)
+    print("✅ Eventlet monkey patched (socket, select, time)")
 except ImportError:
-    print("⚠️  Gevent no disponible, usando stdlib")
+    print("⚠️  Eventlet no disponible")
 except Exception as e:
-    print(f"⚠️  Error monkey patching gevent: {e}")
+    print(f"⚠️  Error monkey patching eventlet: {e}")
 
 # Voz por género (Realtime)
 VOICE_MAPPING = {
