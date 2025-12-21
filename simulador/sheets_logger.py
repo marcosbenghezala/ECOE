@@ -10,6 +10,11 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import gspread
 
+from sheet_formatting import (
+    formatear_hoja_resumen,
+    formatear_hoja_detalle,
+    formatear_hoja_raw_json,
+)
 try:
     from oauth2client.service_account import ServiceAccountCredentials
 except Exception:  # pragma: no cover
@@ -54,6 +59,11 @@ class SheetsLogger:
             - transcript: str | list[str] (opcional)
         """
         ok, _detail = self._log_simulation_internal(simulation_data)
+        try:
+            raw_ws = self.spreadsheet.worksheet("RAW_JSON")
+            formatear_hoja_raw_json(raw_ws)
+        except Exception:
+            pass
         return ok
 
     def log_simulation_with_details(self, simulation_data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, Any]]]:
@@ -84,6 +94,7 @@ class SheetsLogger:
         Añade una fila a 'RESUMEN' y devuelve el número de fila.
         """
         worksheet = self._get_or_raise(self.config.resumen_sheet_name)
+        formatear_hoja_resumen(worksheet)
 
         timestamp = _as_str(data.get("timestamp")) or datetime.now(timezone.utc).isoformat()
         student_name = _as_str(data.get("student_name")) or "Sin nombre"
@@ -175,25 +186,8 @@ class SheetsLogger:
 
         worksheet.update("A1", rows, value_input_option="USER_ENTERED")
 
-        # Format: A column wider, headers bold, section headers shaded.
         try:
-            self._set_column_width(worksheet, 0, 520)
-            worksheet.format(
-                "A1",
-                {
-                    "textFormat": {"bold": True, "fontSize": 16},
-                    "horizontalAlignment": "CENTER",
-                },
-            )
-            for cell in ["A3", "A12", "A15", "A18"]:
-                worksheet.format(
-                    cell,
-                    {
-                        "textFormat": {"bold": True},
-                        "backgroundColor": {"red": 0.9, "green": 0.9, "blue": 0.9},
-                    },
-                )
-            worksheet.format("A10", {"textFormat": {"bold": True}})
+            formatear_hoja_detalle(worksheet)
         except Exception as e:
             print(f"[Sheets] ⚠️ No se pudo aplicar formato: {e}")
 
