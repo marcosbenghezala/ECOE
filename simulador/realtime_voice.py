@@ -84,13 +84,124 @@ class RealtimeVoiceManager:
             return 'hombre'
         return None
 
+    def _format_symptoms_bullets(self) -> str:
+        raw = self.case_data.get("sintomas") or self.case_data.get("sintomas_principales")
+        if raw is None:
+            return "- No especificados"
+
+        if isinstance(raw, dict):
+            bullets = []
+            for key, value in raw.items():
+                if value is None:
+                    continue
+                text = str(value).strip()
+                if not text:
+                    continue
+                bullets.append(f"- {str(key).strip()}: {text}")
+            return "\n".join(bullets) if bullets else "- No especificados"
+
+        if isinstance(raw, list):
+            bullets = [f"- {str(item).strip()}" for item in raw if str(item).strip()]
+            return "\n".join(bullets) if bullets else "- No especificados"
+
+        text = str(raw).strip()
+        return f"- {text}" if text else "- No especificados"
+
+    def _format_history_bullets(self) -> str:
+        raw = self.case_data.get("antecedentes")
+        if raw is None:
+            return "- No especificados"
+
+        if isinstance(raw, dict):
+            bullets = []
+            for key, value in raw.items():
+                if value is None:
+                    continue
+                label = str(key).strip().capitalize() or "Antecedentes"
+                if isinstance(value, list):
+                    cleaned = [str(v).strip() for v in value if str(v).strip()]
+                    if not cleaned:
+                        continue
+                    bullets.append(f"- {label}: {', '.join(cleaned)}")
+                else:
+                    text = str(value).strip()
+                    if not text:
+                        continue
+                    bullets.append(f"- {label}: {text}")
+            return "\n".join(bullets) if bullets else "- No especificados"
+
+        if isinstance(raw, list):
+            bullets = [f"- {str(item).strip()}" for item in raw if str(item).strip()]
+            return "\n".join(bullets) if bullets else "- No especificados"
+
+        text = str(raw).strip()
+        return f"- {text}" if text else "- No especificados"
+
+    def _format_medication_bullets(self) -> str:
+        raw = (
+            self.case_data.get("medicacion_actual")
+            or self.case_data.get("medicacion")
+            or self.case_data.get("medicación")
+        )
+        if raw is None:
+            return "- No especificada"
+
+        if isinstance(raw, list):
+            bullets = [f"- {str(item).strip()}" for item in raw if str(item).strip()]
+            return "\n".join(bullets) if bullets else "- No especificada"
+
+        text = str(raw).strip()
+        return f"- {text}" if text else "- No especificada"
+
+    def _format_lifestyle_bullets(self) -> str:
+        raw = self.case_data.get("estilo_vida") or self.case_data.get("habitos") or self.case_data.get("hábitos")
+        if raw is None:
+            return "- No especificado"
+
+        if isinstance(raw, dict):
+            bullets = []
+            for key, value in raw.items():
+                if value is None:
+                    continue
+                text = str(value).strip()
+                if not text:
+                    continue
+                bullets.append(f"- {str(key).strip()}: {text}")
+            return "\n".join(bullets) if bullets else "- No especificado"
+
+        if isinstance(raw, list):
+            bullets = [f"- {str(item).strip()}" for item in raw if str(item).strip()]
+            return "\n".join(bullets) if bullets else "- No especificado"
+
+        text = str(raw).strip()
+        return f"- {text}" if text else "- No especificado"
+
     def _build_system_instructions(self) -> str:
         """Construye el system prompt del paciente simulado."""
 
-        info_paciente = self.case_data.get('informacion_paciente', {})
+        info_paciente = self.case_data.get('informacion_paciente', {}) or {}
         nombre = info_paciente.get('nombre', 'Paciente')
-        edad = info_paciente.get('edad', 'adulto')
-        genero = info_paciente.get('genero', 'persona')
+        edad_val = info_paciente.get('edad')
+        if isinstance(edad_val, (int, float)):
+            edad_str = f"{int(edad_val)} años"
+        else:
+            edad_str = str(edad_val).strip() if edad_val is not None else "No especificada"
+
+        genero_raw = (
+            info_paciente.get("genero")
+            or self.case_data.get("gender")
+            or self.case_data.get("genero")
+            or "persona"
+        )
+        genero = self._normalize_gender() or str(genero_raw).strip() or "persona"
+        ocupacion = str(info_paciente.get("ocupacion") or "No especificada").strip()
+
+        basic_info = f"""INFORMACIÓN BÁSICA
+- Nombre: {nombre}
+- Edad: {edad_str}
+- Género: {genero}
+- Ocupación: {ocupacion}
+"""
 
         contexto = self.case_data.get('contexto_generado', '')
         if not contexto:
@@ -182,15 +293,48 @@ El estudiante debería seguir este orden (pero tú responde con naturalidad):
                 desc = item.get('descripcion', '')
                 multimedia_instructions += f"- {tipo.upper()}: {desc}\n"
 
-        instructions = f"""Eres {nombre}, {genero} de {edad} años.
+        has_case_details = bool(
+            self.case_data.get("sintomas")
+            or self.case_data.get("sintomas_principales")
+            or self.case_data.get("antecedentes")
+            or self.case_data.get("medicacion_actual")
+            or self.case_data.get("medicacion")
+            or self.case_data.get("estilo_vida")
+            or self.case_data.get("habitos")
+        )
+        case_private_info = ""
+        if has_case_details:
+            case_private_info = f"""
+═══════════════════════════════════════
+🧾 INFORMACIÓN DEL CASO (NO LA DIGAS SI NO TE PREGUNTAN)
+═══════════════════════════════════════
+
+SÍNTOMAS PRINCIPALES:
+{self._format_symptoms_bullets()}
+
+ANTECEDENTES:
+{self._format_history_bullets()}
+
+MEDICACIÓN HABITUAL:
+{self._format_medication_bullets()}
+
+HÁBITOS / CONTEXTO:
+{self._format_lifestyle_bullets()}
+"""
+
+        instructions = f"""Eres {nombre}, {genero} de {edad_str}.
 
 {personalidad}
+
+{basic_info}
 
 ═══════════════════════════════════════
 🏥 CONTEXTO CLÍNICO (TU CASO)
 ═══════════════════════════════════════
 
 {contexto}
+
+{case_private_info}
 
 {estructura_anamnesis}
 
