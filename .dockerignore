@@ -1,0 +1,33 @@
+# Scripts y herramientas locales (no necesarios en Railway)
+scripts/
+# Notebooks
+*.ipynb
+
+# Documentación (excepto README)
+*.md
+!README.md
+
+# Git y configuración local
+.git
+.gitignore
+.env
+.env.example
+
+# Archivos temporales
+*.pyc
+__pycache__/
+*.log
+*.tmp
+
+# Node modules (se instalan en build)
+node_modules/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
