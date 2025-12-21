@@ -97,9 +97,27 @@ def extract_student_lines(transcript: str) -> List[str]:
                 student_lines.append(content)
             continue
 
-    # Fallback: si no hay tags, asumir que todo es del estudiante (MVP)
+        # Detectar "ESTUDIANTE:" sin corchetes (logs legacy)
+        if line.upper().startswith("ESTUDIANTE"):
+            content = line[len("ESTUDIANTE") :].lstrip()
+            if content.startswith(":"):
+                content = content[1:].lstrip()
+            if content:
+                student_lines.append(content)
+            continue
+
+    # Fallback: si no hay tags, asumir que todo es del estudiante (MVP),
+    # pero excluir líneas explícitas de paciente si existen.
     if not student_lines and transcript.strip():
-        student_lines = [transcript.strip()]
+        fallback_lines = []
+        for raw_line in transcript.splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith("[PACIENTE]") or line.upper().startswith("PACIENTE"):
+                continue
+            fallback_lines.append(line)
+        student_lines = fallback_lines or [transcript.strip()]
 
     return student_lines
 

@@ -4,12 +4,18 @@ Integra el sistema de 3 capas (Principal/Diferencial/Screening) y aprendizaje
 """
 import json
 import re
+import math
 import numpy as np
 from typing import Dict, List, Tuple, Optional
 from openai import OpenAI
 from datetime import datetime
 
-from text_utils import normalize_text as base_normalize_text
+from text_utils import normalize_text as base_normalize_text, preprocess_transcript, extract_student_lines
+
+KEYWORD_MIN_RATIO_DEFAULT = 0.34
+KEYWORD_MIN_RATIO_STRICT = 0.5
+EMBEDDING_THRESHOLD_DEFAULT = 0.75
+EMBEDDING_THRESHOLD_STRICT = 0.82
 
 class EvaluatorV2:
     """
@@ -56,17 +62,21 @@ class EvaluatorV2:
 
         # Sistema de aprendizaje (opcional)
         self.learning_system = learning_system
-        self.embedding_threshold = 0.75
+        self.embedding_threshold = EMBEDDING_THRESHOLD_DEFAULT
+        self.embedding_threshold_strict = EMBEDDING_THRESHOLD_STRICT
+        self.keyword_min_ratio = KEYWORD_MIN_RATIO_DEFAULT
+        self.keyword_min_ratio_strict = KEYWORD_MIN_RATIO_STRICT
         self._synonym_patterns = [
             (re.compile(r"\bdecentes familiares\b"), ["antecedentes familiares"]),
             (re.compile(r"\bhistoria familiar\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bfamiliares\b"), ["antecedentes familiares"]),
             (re.compile(r"\bfamilia con infarto\b"), ["antecedentes familiares"]),
             (re.compile(r"\bpadre con infarto\b"), ["antecedentes familiares"]),
             (re.compile(r"\bmadre con infarto\b"), ["antecedentes familiares"]),
             (re.compile(r"\bmedicacion para la tension\b"), ["enfermedades cronicas", "medicacion actual"]),
             (re.compile(r"\bmedicacion\b.*\btension\b"), ["enfermedades cronicas", "medicacion actual"]),
             (re.compile(r"\bhta\b|\bhipertension\b|\btension alta\b"), ["enfermedades cronicas"]),
-            (re.compile(r"\bdislipemia\b|\bcolesterol alto\b"), ["enfermedades cronicas"]),
+            (re.compile(r"\bdislipemia\b|\bcolesterol alto\b|\bcolesterol\b"), ["enfermedades cronicas"]),
             (re.compile(r"\bmedicacion\b|\btratamiento actual\b|\benalapril\b|\batorvastatina\b|\batorcan\b"), ["medicacion actual"]),
         ]
 
@@ -190,7 +200,7 @@ class EvaluatorV2:
             'SCREENING': capa_screening
         }
 
-    def check_item_keyword(self, transcript: str, item: Dict) -> bool:
+    def check_item_keyword(self, transcript: str, item: Dict, min_ratio: Optional[float] = None) -> bool:
         """Verifica ítem usando keywords"""
         normalized_transcript = self.normalize_text_with_synonyms(transcript)
         keywords = item.get('keywords', []) or []
@@ -214,7 +224,8 @@ class EvaluatorV2:
                 hits += 1
 
         # Umbral flexible para mejorar recall sin disparar falsos positivos.
-        min_hits = max(1, int(len(normalized_keywords) * 0.34))
+        ratio = self.keyword_min_ratio if min_ratio is None else min_ratio
+        min_hits = max(1, int(math.ceil(len(normalized_keywords) * ratio)))
         return hits >= min_hits
 
     def check_item_embedding(self,
@@ -258,8 +269,9 @@ class EvaluatorV2:
         Returns:
             Lista de preguntas detectadas
         """
-        # Detectar preguntas (texto seguido de ?)
-        questions = re.findall(r'[^.!?]*\?', transcript)
+        student_lines = extract_student_lines(transcript)
+        student_text = "\n".join(student_lines) if student_lines else transcript
+        questions = re.findall(r'[^.!?]*\?', student_text)
         # Limpiar y filtrar
         questions = [q.strip() for q in questions if len(q.strip()) > 10]
 
@@ -291,8 +303,18 @@ class EvaluatorV2:
         items_por_capas = self.organize_by_layers(items_activados)
 
         # 3. Pre-calcular embeddings de la transcripción
-        chunks = re.split(r'[.!?]\s+', transcript)
-        chunks = [c for c in chunks if len(c) > 10]
+        preprocessed = preprocess_transcript(transcript)
+        student_lines = preprocessed.get("student_lines") or []
+        student_text = "\n".join(student_lines).strip()
+        if not student_text:
+            student_text = transcript.strip()
+
+        chunks = []
+        source_lines = student_lines if student_lines else [transcript]
+        for line in source_lines:
+            for chunk in re.split(r'[.!?]\s+', line):
+                if len(chunk.strip()) > 10:
+                    chunks.append(chunk.strip())
 
         transcript_embeddings = []
         if chunks:
@@ -320,9 +342,17 @@ class EvaluatorV2:
 
                 item_text = item.get('texto', 'Unknown Item')
                 item_id = item.get('id', 'UNKNOWN')
+                keyword_ratio = self.keyword_min_ratio
+                embedding_threshold = self.embedding_threshold
+                if capa_nombre == "DIFERENCIAL":
+                    keyword_ratio = self.keyword_min_ratio_strict
+                    embedding_threshold = self.embedding_threshold_strict
+                elif capa_nombre == "SCREENING" and item_id not in {"AF_01", "AP_01", "AP_11", "HAB_01"}:
+                    keyword_ratio = self.keyword_min_ratio_strict
+                    embedding_threshold = self.embedding_threshold_strict
 
                 # Método 1: Keywords
-                is_done = self.check_item_keyword(transcript, item)
+                is_done = self.check_item_keyword(student_text, item, min_ratio=keyword_ratio)
                 match_type = "keyword" if is_done else None
 
                 # Método 2: Embedding (si no encontrado por keywords)
@@ -336,7 +366,7 @@ class EvaluatorV2:
 
                     if item_idx is not None:
                         item_emb = self.master_embeddings[item_idx]
-                        if self.check_item_embedding(transcript_embeddings, item_emb):
+                        if self.check_item_embedding(transcript_embeddings, item_emb, threshold=embedding_threshold):
                             is_done = True
                             match_type = "embedding"
 

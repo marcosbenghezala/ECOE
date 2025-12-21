@@ -337,7 +337,13 @@ export default function Home() {
         />
       )}
 
-      {currentStep === "survey" && <SurveyScreen onComplete={handleSurveyComplete} onSkip={handleSurveyComplete} />}
+      {currentStep === "survey" && (
+        <SurveyScreen
+          sessionId={sessionId || undefined}
+          onComplete={handleSurveyComplete}
+          onSkip={handleSurveyComplete}
+        />
+      )}
     </main>
   )
 }

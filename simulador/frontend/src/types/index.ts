@@ -98,6 +98,15 @@ export interface SurveyResponse {
   sugerencias_mejora: string
 }
 
+export interface SurveyAnswer {
+  pregunta: string
+  respuesta: string
+}
+
+export interface SurveyPayload {
+  responses: SurveyAnswer[]
+}
+
 // Session Types
 export interface SessionData {
   session_id: string

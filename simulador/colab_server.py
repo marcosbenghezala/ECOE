@@ -925,7 +925,8 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
                 case_name = case_data.get("titulo") or case_data.get("id") or "caso"
                 total_score = int(round(float(result.get("overall_score", 0) or 0)))
 
-                get_sheets_logger().log_simulation(
+                logger = get_sheets_logger()
+                ok, detail_info = logger.log_simulation_with_details(
                     {
                         "student_name": student_name,
                         "student_email": student_email,
@@ -938,9 +939,14 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
                             case_data.get("id") or session.get("case_id"),
                             reflection,
                         ),
+                        "survey_responses": session.get("survey"),
                         "transcript": transcript,
                     }
                 )
+                if ok and detail_info:
+                    session["sheets_detail_title"] = detail_info.get("title")
+                    session["sheets_detail_gid"] = detail_info.get("gid")
+                    save_session_to_disk(session_id)
             except Exception as e:
                 print(f"[Sheets] Error guardando en Google Sheets: {e}")
 
@@ -1137,6 +1143,34 @@ def get_session(session_id):
 
     except Exception as e:
         print(f"❌ Error en /api/sessions/{session_id}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/session/<session_id>/survey', methods=['POST'])
+def save_survey(session_id):
+    """Guardar respuestas de encuesta final"""
+    try:
+        if session_id not in sessions:
+            return jsonify({'error': 'Session not found'}), 404
+
+        payload = request.json or {}
+        session = sessions[session_id]
+        session['survey'] = payload
+        save_session_to_disk(session_id)
+
+        if os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() == "true":
+            try:
+                from sheets_logger import get_sheets_logger
+
+                detail_sheet_name = session.get("sheets_detail_title")
+                if detail_sheet_name:
+                    get_sheets_logger().append_survey_to_detail(detail_sheet_name, payload)
+            except Exception as e:
+                print(f"[Sheets] Error guardando encuesta en Sheets: {e}")
+
+        return jsonify({"ok": True})
+    except Exception as e:
+        print(f"❌ Error en /api/session/{session_id}/survey: {e}")
         return jsonify({'error': str(e)}), 500
 
 

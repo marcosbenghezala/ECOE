@@ -14,6 +14,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+MAX_RESPONSE_OUTPUT_TOKENS = int(os.getenv("OPENAI_REALTIME_MAX_RESPONSE_OUTPUT_TOKENS", "420"))
+TURN_DETECTION_THRESHOLD = float(os.getenv("OPENAI_REALTIME_VAD_THRESHOLD", "0.45"))
+TURN_DETECTION_PREFIX_MS = int(os.getenv("OPENAI_REALTIME_VAD_PREFIX_MS", "300"))
+TURN_DETECTION_SILENCE_MS = int(os.getenv("OPENAI_REALTIME_VAD_SILENCE_MS", "700"))
+
 VOICE_MAPPING = {
     "female": "nova",
     "male": "echo",
@@ -387,6 +392,9 @@ Eres un paciente REAL: hablas poco al principio, esperas que te pregunten.
 
 Solo añades más detalles si el estudiante pregunta ESPECÍFICAMENTE.
 
+NO cierres la conversación ni te despidas salvo que el médico lo indique explícitamente.
+Si crees que ha terminado, pregunta "¿algo más?" en lugar de despedirte.
+
 ═══════════════════════════════════════
 ✅ EJEMPLOS DE RESPUESTAS CORRECTAS (CORTAS)
 ═══════════════════════════════════════
@@ -561,12 +569,12 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
                 },
                 "turn_detection": {
                     "type": "server_vad",
-                    "threshold": 0.5,
-                    "prefix_padding_ms": 300,
-                    "silence_duration_ms": 500
+                    "threshold": TURN_DETECTION_THRESHOLD,
+                    "prefix_padding_ms": TURN_DETECTION_PREFIX_MS,
+                    "silence_duration_ms": TURN_DETECTION_SILENCE_MS
                 },
                 "temperature": 0.8,
-                "max_response_output_tokens": 150,  # Respuestas cortas (~1-2 frases)
+                "max_response_output_tokens": MAX_RESPONSE_OUTPUT_TOKENS,
             }
         }
 

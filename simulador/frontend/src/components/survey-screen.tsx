@@ -5,8 +5,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { UMHLogo } from "@/components/umh-logo"
+import { saveSurvey } from "@/lib/api"
+import type { SurveyPayload } from "@/types"
 
 interface SurveyScreenProps {
+  sessionId?: string
   onComplete: () => void
   onSkip: () => void
 }
@@ -35,7 +38,7 @@ const likertLabels = [
   { value: "5", label: "Muy de acuerdo" },
 ]
 
-export function SurveyScreen({ onComplete, onSkip }: SurveyScreenProps) {
+export function SurveyScreen({ sessionId, onComplete, onSkip }: SurveyScreenProps) {
   const [likertAnswers, setLikertAnswers] = useState<Record<number, string>>({})
   const [openAnswers, setOpenAnswers] = useState<Record<number, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -44,16 +47,36 @@ export function SurveyScreen({ onComplete, onSkip }: SurveyScreenProps) {
   const allLikertAnswered = likertQuestions.every((_, idx) => likertAnswers[idx])
   const canSubmit = allLikertAnswered
 
-  const handleSubmit = () => {
+  const buildSurveyPayload = (): SurveyPayload => {
+    const responses = [
+      ...likertQuestions.map((question, idx) => ({
+        pregunta: question,
+        respuesta: likertAnswers[idx] || "",
+      })),
+      ...openQuestions.map((question, idx) => ({
+        pregunta: question,
+        respuesta: openAnswers[idx] || "",
+      })),
+    ]
+    return { responses }
+  }
+
+  const handleSubmit = async () => {
     setIsSubmitting(true)
-    // Simular envío
-    setTimeout(() => {
+    try {
+      if (sessionId) {
+        await saveSurvey(sessionId, buildSurveyPayload())
+      }
       setIsSubmitting(false)
       setIsSubmitted(true)
       setTimeout(() => {
         onComplete()
       }, 2000)
-    }, 1500)
+    } catch (error) {
+      console.error("❌ Error enviando encuesta:", error)
+      setIsSubmitting(false)
+      onSkip()
+    }
   }
 
   if (isSubmitted) {

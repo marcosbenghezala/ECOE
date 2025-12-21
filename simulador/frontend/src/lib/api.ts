@@ -4,7 +4,7 @@ import type {
   AudioTestResult,
   ClinicalReflection,
   EvaluationResult,
-  SurveyResponse,
+  SurveyPayload,
   SessionData,
 } from "@/types"
 
@@ -102,7 +102,7 @@ export async function getEvaluation(sessionId: string): Promise<EvaluationResult
 // Survey
 export async function saveSurvey(
   sessionId: string,
-  survey: SurveyResponse
+  survey: SurveyPayload
 ): Promise<void> {
   const response = await fetch(`${API_BASE_URL}/api/session/${sessionId}/survey`, {
     method: "POST",

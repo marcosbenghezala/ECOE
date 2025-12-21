@@ -15,6 +15,8 @@ try:
 except Exception:  # pragma: no cover
     ServiceAccountCredentials = None  # type: ignore
 
+FORMULA_SEPARATOR = os.getenv("SHEETS_FORMULA_SEPARATOR", ";")
+
 
 @dataclass(frozen=True)
 class SheetsConfig:
@@ -48,15 +50,34 @@ class SheetsLogger:
             - timestamp: str (ISO) (opcional)
             - conversation_evaluation: dict (opcional)
             - development_questions: list (opcional)
+            - survey_responses: list | dict (opcional)
             - transcript: str | list[str] (opcional)
         """
+        ok, _detail = self._log_simulation_internal(simulation_data)
+        return ok
+
+    def log_simulation_with_details(self, simulation_data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        return self._log_simulation_internal(simulation_data)
+
+    def append_survey_to_detail(self, detail_sheet_name: str, survey_responses: Any) -> None:
         if not self.config.enabled:
-            return False
+            return
+        worksheet = self._get_or_raise(detail_sheet_name)
+        start_row = len(worksheet.get_all_values()) + 1
+        rows: List[List[str]] = []
+        rows.append([""])
+        rows.append(["🗳️ ENCUESTA FINAL"])
+        rows.extend(_format_survey_responses(survey_responses))
+        worksheet.update(f"A{start_row}", rows, value_input_option="USER_ENTERED")
+
+    def _log_simulation_internal(self, simulation_data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, Any]]]:
+        if not self.config.enabled:
+            return False, None
 
         detail_sheet_name, detail_gid = self._create_detail_sheet(simulation_data)
         row_number = self._add_summary_row(simulation_data, detail_sheet_name)
         self._write_detail_link(row_number, detail_gid)
-        return True
+        return True, {"title": detail_sheet_name, "gid": detail_gid}
 
     def _add_summary_row(self, data: Dict[str, Any], detail_sheet_name: str) -> int:
         """
@@ -120,6 +141,11 @@ class SheetsLogger:
 
         conversation_eval = data.get("conversation_evaluation")
         development_questions = data.get("development_questions")
+        survey_responses = (
+            data.get("survey_responses")
+            or data.get("survey")
+            or data.get("encuesta")
+        )
         transcript = data.get("transcript")
 
         rows: List[List[str]] = []
@@ -140,6 +166,10 @@ class SheetsLogger:
         rows.append(["📝 PREGUNTAS DE DESARROLLO"])
         rows.extend(_format_development_questions(development_questions))
         rows.append([""])
+        if survey_responses:
+            rows.append(["🗳️ ENCUESTA FINAL"])
+            rows.extend(_format_survey_responses(survey_responses))
+            rows.append([""])
         rows.append(["🧾 TRANSCRIPCIÓN"])
         rows.extend(_format_transcript(transcript))
 
@@ -170,7 +200,7 @@ class SheetsLogger:
     def _write_detail_link(self, resumen_row_number: int, detail_gid: int) -> None:
         worksheet = self._get_or_raise(self.config.resumen_sheet_name)
         detail_url = f"https://docs.google.com/spreadsheets/d/{self.config.spreadsheet_id}/edit#gid={detail_gid}"
-        formula = f'=HYPERLINK("{detail_url}", "Ver Detalles")'
+        formula = f'=HYPERLINK("{detail_url}"{FORMULA_SEPARATOR} "Ver Detalles")'
         worksheet.update(f"G{resumen_row_number}", [[formula]], value_input_option="USER_ENTERED")
 
     def _get_or_raise(self, sheet_name: str) -> "gspread.Worksheet":
@@ -385,6 +415,44 @@ def _format_development_questions(questions: Any) -> List[List[str]]:
                 out.append([f"- {s}"])
         return out or [["(Sin preguntas)"]]
     return [[_as_str(questions) or "(Sin preguntas)"]]
+
+
+def _format_survey_responses(survey: Any) -> List[List[str]]:
+    if not survey:
+        return [["(Sin respuestas)"]]
+
+    if isinstance(survey, dict):
+        survey = survey.get("responses") or survey.get("respuestas") or survey
+
+    if isinstance(survey, list):
+        if all(isinstance(q, dict) for q in survey):
+            rows = [["Pregunta", "Respuesta del estudiante"]]
+            for q in survey:
+                pregunta = _as_str(
+                    q.get("pregunta")
+                    or q.get("question")
+                    or q.get("titulo")
+                    or q.get("title")
+                )
+                respuesta = _as_str(
+                    q.get("respuesta")
+                    or q.get("answer")
+                    or q.get("respuesta_estudiante")
+                    or q.get("valor")
+                )
+                if not pregunta and not respuesta:
+                    continue
+                rows.append([pregunta or "-", respuesta])
+            return rows if len(rows) > 1 else [["(Sin respuestas)"]]
+
+        out = []
+        for q in survey:
+            s = _as_str(q)
+            if s:
+                out.append([f"- {s}"])
+        return out or [["(Sin respuestas)"]]
+
+    return [[_as_str(survey) or "(Sin respuestas)"]]
 
 
 def _format_transcript(transcript: Any) -> List[List[str]]:
