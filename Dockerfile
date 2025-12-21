@@ -11,6 +11,9 @@ RUN apt-get update && apt-get install -y curl && \
 # Set working directory
 WORKDIR /app
 
+# Disable Eventlet's greendns (dnspython) to avoid DNS conflicts in production
+ENV EVENTLET_NO_GREENDNS=yes
+
 # Copy dependency files first (better layer caching)
 COPY simulador/requirements.txt simulador/
 COPY simulador/frontend/package*.json simulador/frontend/

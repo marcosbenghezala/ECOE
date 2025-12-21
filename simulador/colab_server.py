@@ -25,6 +25,10 @@ from dotenv import load_dotenv
 # Cargar .env del directorio padre (TO_GITHUB/)
 load_dotenv(Path(__file__).parent.parent / '.env')
 
+# Evitar que Eventlet use greendns (dnspython), que puede causar fallos de DNS en producción.
+# Nota: en Docker también se fija con EVENTLET_NO_GREENDNS=yes.
+os.environ.setdefault("EVENTLET_NO_GREENDNS", "yes")
+
 # Monkey patch eventlet para resolver problemas de DNS
 # Debe hacerse ANTES de importar requests/urllib3
 try:
