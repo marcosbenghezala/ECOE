@@ -252,25 +252,57 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
         url = config['url']
         headers = config['headers']
 
-        try:
-            if self.proxy_client.use_proxy:
-                print(f"🔌 Conectando a Realtime API vía proxy...")
-            else:
-                print(f"🔌 Conectando a Realtime API directamente...")
+        open_timeout_s = float(os.getenv("OPENAI_REALTIME_OPEN_TIMEOUT", "30"))
+        max_attempts = int(os.getenv("OPENAI_REALTIME_MAX_CONNECT_ATTEMPTS", "3"))
+        backoff_s = float(os.getenv("OPENAI_REALTIME_CONNECT_BACKOFF_SECONDS", "1.5"))
 
-            # websockets 15.0+ usa 'additional_headers' en lugar de 'extra_headers'
-            self.ws = await websockets.connect(url, additional_headers=headers)
-            print("✅ Connected to OpenAI Realtime API")
+        if self.proxy_client.use_proxy:
+            print("🔌 Conectando a Realtime API vía proxy...")
+        else:
+            print("🔌 Conectando a Realtime API directamente...")
 
-            # Configurar sesión
-            await self._configure_session()
+        last_error: Optional[Exception] = None
+        for attempt in range(1, max_attempts + 1):
+            try:
+                # websockets 15.0+ usa 'additional_headers' en lugar de 'extra_headers'
+                try:
+                    self.ws = await websockets.connect(
+                        url,
+                        additional_headers=headers,
+                        open_timeout=open_timeout_s,
+                    )
+                except TypeError:
+                    # Compatibilidad con websockets < 15 (dev local)
+                    self.ws = await websockets.connect(
+                        url,
+                        extra_headers=headers,
+                        open_timeout=open_timeout_s,
+                    )
 
-            # Iniciar loop de escucha
-            asyncio.create_task(self._listen_loop())
+                print("✅ Connected to OpenAI Realtime API")
 
-        except Exception as e:
-            print(f"❌ Error connecting to Realtime API: {type(e).__name__}: {e}")
-            raise
+                # Configurar sesión
+                await self._configure_session()
+
+                # Iniciar loop de escucha
+                asyncio.create_task(self._listen_loop())
+                return
+
+            except (TimeoutError, asyncio.TimeoutError) as e:
+                last_error = e
+                print(
+                    f"⚠️ Timeout conectando a Realtime API (intento {attempt}/{max_attempts}, "
+                    f"open_timeout={open_timeout_s}s)"
+                )
+            except Exception as e:
+                last_error = e
+                print(f"❌ Error connecting to Realtime API: {type(e).__name__}: {e}")
+
+            if attempt < max_attempts:
+                await asyncio.sleep(backoff_s * attempt)
+
+        assert last_error is not None
+        raise last_error
 
     async def _configure_session(self):
         """Configurar sesión inicial"""

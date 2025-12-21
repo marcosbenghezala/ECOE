@@ -1065,9 +1065,22 @@ def websocket_realtime(ws, session_id):
     async_thread = threading.Thread(target=run_async_loop, daemon=True)
     async_thread.start()
 
-    # Esperar a que OpenAI conecte (con timeout de 15 segundos)
-    if not connection_ready.wait(timeout=15):
-        error_msg = 'Timeout conectando a OpenAI Realtime API (15s)'
+    # Esperar a que OpenAI conecte (configurable en Railway).
+    # Por defecto, alineado con OPENAI_REALTIME_* de realtime_voice.py.
+    connect_ready_timeout_env = os.getenv("OPENAI_REALTIME_CONNECT_READY_TIMEOUT")
+    if connect_ready_timeout_env is not None:
+        connect_ready_timeout_s = float(connect_ready_timeout_env)
+    else:
+        open_timeout_s = float(os.getenv("OPENAI_REALTIME_OPEN_TIMEOUT", "30"))
+        max_attempts = int(os.getenv("OPENAI_REALTIME_MAX_CONNECT_ATTEMPTS", "3"))
+        backoff_s = float(os.getenv("OPENAI_REALTIME_CONNECT_BACKOFF_SECONDS", "1.5"))
+        connect_ready_timeout_s = (
+            (open_timeout_s * max_attempts)
+            + (backoff_s * (max_attempts - 1) * max_attempts / 2)
+            + 5.0
+        )
+    if not connection_ready.wait(timeout=connect_ready_timeout_s):
+        error_msg = f"Timeout conectando a OpenAI Realtime API ({int(connect_ready_timeout_s)}s)"
         print(f"❌ {error_msg}")
         ws.send(json.dumps({'type': 'error', 'error': error_msg}))
         async_loop.call_soon_threadsafe(async_loop.stop)

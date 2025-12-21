@@ -168,7 +168,7 @@ class ProxyClient:
 
     def get_realtime_config(
         self,
-        model: str = "gpt-4o-realtime-preview-2024-12-17"
+        model: Optional[str] = None
     ) -> Dict[str, Any]:
         """
         Obtiene configuración para conectarse a Realtime API
@@ -179,6 +179,8 @@ class ProxyClient:
         Returns:
             Dict con 'url' y 'headers' para WebSocket
         """
+        if model is None:
+            model = os.getenv("OPENAI_REALTIME_MODEL") or "gpt-4o-realtime-preview-2024-12-17"
         if self.use_proxy:
             return self._realtime_via_proxy(model)
         else:
