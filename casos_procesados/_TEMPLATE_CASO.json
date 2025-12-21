@@ -1,0 +1,250 @@
+{
+  "_comment": "Copia este archivo, renómbralo a <id>.json (sin guiones raros) y rellena. Este archivo empieza por '_' para que el backend lo ignore en /api/cases.",
+  "_comment_regla_1": "IMPORTANTE: El nombre del archivo DEBE coincidir con el campo 'id'. Ejemplo: casos_procesados/caso_abc_001.json y dentro id='caso_abc_001'.",
+  "_comment_regla_2": "IMPORTANTE: En datos_paciente, define respuestas CANÓNICAS para evitar contradicciones. Mantén respuestas cortas (1-2 frases).",
+
+  "id": "caso_XXX_001",
+  "titulo": "COMPLETAR: Nombre descriptivo del caso",
+  "especialidad": "COMPLETAR: Cardiología/Neumología/Digestivo/etc",
+  "dificultad": "COMPLETAR: Fácil/Intermedio/Difícil",
+  "duracion_estimada": 15,
+
+  "motivo_consulta": "COMPLETAR: Frase corta del paciente (ej: \"Me duele el pecho\")",
+
+  "informacion_paciente": {
+    "_comment": "Datos básicos del paciente. 'genero' se usa para la voz (masculino/femenino o male/female).",
+    "nombre": "COMPLETAR: Nombre y apellidos",
+    "edad": 0,
+    "genero": "masculino",
+    "ocupacion": "COMPLETAR: Ocupación"
+  },
+
+  "sintomas_principales": [
+    "COMPLETAR: lista corta de palabras clave (ej: \"dolor torácico\", \"náuseas\")"
+  ],
+
+  "datos_paciente": {
+    "_comment": "ESTA ES LA PARTE MÁS IMPORTANTE. Cada clave representa un tema del checklist. Define respuestas canónicas para NO CONTRADECIRTE.",
+    "_comment_formato": "Formato recomendado por item: {tiene?: true/false, lista?: [...], respuesta_corta: \"...\", respuesta_detalle: \"...\"}. Claves que empiezan por '_' se ignoran.",
+
+    "tiempo_evolucion": {
+      "_comment": "¿Desde cuándo? / ¿Cuánto tiempo llevas así?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "inicio": {
+      "_comment": "¿Cómo empezó? ¿Fue de repente o poco a poco? ¿Qué estabas haciendo?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "localizacion_dolor": {
+      "_comment": "¿Dónde te duele / dónde notas el síntoma principal?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "caracteristicas_dolor": {
+      "_comment": "¿Cómo es el dolor/síntoma? (opresivo, pinchazo, quemazón, falta de aire, etc.)",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "intensidad_dolor": {
+      "_comment": "Escala 0-10 o descripción (leve/moderado/fuerte).",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "irradiacion": {
+      "_comment": "¿Se va a algún sitio? (brazo, espalda, mandíbula...)",
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "factores_empeoramiento": {
+      "_comment": "¿Qué lo empeora? (esfuerzo, comer, respirar, moverse...)",
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "factores_alivio": {
+      "_comment": "¿Qué lo mejora? (reposo, medicación, postura...)",
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "sintomas_asociados": {
+      "_comment": "Otros síntomas asociados. Usa lista + respuestas cortas.",
+      "tiene": null,
+      "lista": [
+        "COMPLETAR"
+      ],
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+
+    "antecedentes_personales": {
+      "_comment": "Enfermedades previas relevantes. Si no hay: tiene=false.",
+      "tiene": null,
+      "lista": [
+        "COMPLETAR"
+      ],
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "antecedentes_familiares": {
+      "_comment": "Familiares con enfermedades relevantes. Si no hay: tiene=false.",
+      "tiene": null,
+      "lista": [
+        "COMPLETAR"
+      ],
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "medicacion_actual": {
+      "_comment": "Medicación habitual. Si toma: lista con fármaco+dosis+pauta.",
+      "tiene": null,
+      "lista": [
+        "COMPLETAR: Fármaco dosis pauta (ej: \"Enalapril 10 mg (1-0-0)\")"
+      ],
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "alergias": {
+      "_comment": "Alergias (medicación/alimentos). Si no hay: tiene=false.",
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+
+    "habitos_toxicos": {
+      "_comment": "Estructura especial. Completa tabaco/alcohol/drogas según aplique.",
+      "tabaco": {
+        "tiene": null,
+        "cantidad": "COMPLETAR: ej 10 cig/día",
+        "duracion": "COMPLETAR: ej 5 años",
+        "respuesta_corta": "COMPLETAR",
+        "respuesta_detalle": "COMPLETAR"
+      },
+      "alcohol": {
+        "tiene": null,
+        "cantidad": "COMPLETAR: ej 2-3 cervezas/semana",
+        "duracion": "COMPLETAR: ej desde los 18",
+        "respuesta_corta": "COMPLETAR",
+        "respuesta_detalle": "COMPLETAR"
+      },
+      "drogas": {
+        "tiene": null,
+        "respuesta_corta": "COMPLETAR",
+        "respuesta_detalle": "COMPLETAR"
+      }
+    },
+
+    "ice_ideas": {
+      "_comment": "¿Qué crees que te pasa?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "ice_concerns": {
+      "_comment": "¿Qué te preocupa?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "ice_expectations": {
+      "_comment": "¿Qué esperas que hagamos hoy?",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+
+    "_comment_ros": "Revisión por sistemas (ROS). Añade solo lo relevante. Para síntomas negativos, usa tiene=false con respuesta_corta clara.",
+
+    "fiebre": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "tos": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "expectoracion": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "disnea": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "nauseas": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "vomitos": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "diarrea": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "disuria": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "hematuria": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+
+    "factores_riesgo_cardiovascular": {
+      "_comment": "Si aplica (HTA, DM, dislipemia, tabaco, etc.)",
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "claudicacion": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "ortopnea": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "disnea_paroxistica_nocturna": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "palpitaciones": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "sincope": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    },
+    "edemas": {
+      "tiene": null,
+      "respuesta_corta": "COMPLETAR",
+      "respuesta_detalle": "COMPLETAR"
+    }
+  },
+
+  "contexto_generado": "OPCIONAL: Narrativa del caso para el paciente (NO duplica datos_paciente).",
+  "personalidad_generada": "OPCIONAL: Cómo habla/actúa el paciente (NO contradigas datos_paciente ni reglas de respuestas cortas).",
+
+  "multimedia": [],
+  "instrucciones": "OPCIONAL: objetivos del caso, instrucciones para el estudiante, etc.",
+
+  "items_activos": [],
+  "version": "3.0"
+}
+
