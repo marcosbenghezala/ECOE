@@ -199,6 +199,48 @@ def rate_limit(max_requests=RATE_LIMIT_MAX_REQUESTS, window=RATE_LIMIT_WINDOW):
     return decorator
 
 
+def _build_development_questions_for_log(case_id: str, reflection: dict) -> list:
+    if not isinstance(reflection, dict) or not reflection:
+        return []
+
+    questions = []
+    try:
+        if sheets_integration:
+            questions = sheets_integration.get_case_questions(str(case_id))
+    except Exception as e:
+        print(f"⚠️  Error cargando preguntas para Sheets: {e}")
+        questions = []
+
+    out = []
+    for q in questions or []:
+        field_name = (q.get("field_name") or "").strip()
+        if not field_name:
+            continue
+        answer = reflection.get(field_name)
+        if not answer:
+            continue
+        question_text = q.get("question") or q.get("pregunta") or field_name
+        out.append({"pregunta": str(question_text).strip(), "respuesta": str(answer).strip()})
+
+    if out:
+        return out
+
+    fallback_fields = [
+        ("resumen_caso", "Resumen del caso"),
+        ("diagnostico_principal", "Diagnóstico principal"),
+        ("diagnosticos_diferenciales", "Diagnósticos diferenciales"),
+        ("pruebas_diagnosticas", "Pruebas diagnósticas"),
+        ("plan_manejo", "Plan de manejo"),
+    ]
+    for field_name, label in fallback_fields:
+        answer = reflection.get(field_name)
+        if not answer:
+            continue
+        out.append({"pregunta": label, "respuesta": str(answer).strip()})
+
+    return out
+
+
 # ========== PERSISTENCIA DE SESIONES ==========
 
 def save_session_to_disk(session_id):
@@ -892,7 +934,10 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
                         "total_score": total_score,
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                         "conversation_evaluation": result.get("eval_transcript"),
-                        "development_questions": (result.get("eval_reflection") or {}).get("areas_mejora", []),
+                        "development_questions": _build_development_questions_for_log(
+                            case_data.get("id") or session.get("case_id"),
+                            reflection,
+                        ),
                         "transcript": transcript,
                     }
                 )

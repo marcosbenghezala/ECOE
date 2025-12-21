@@ -9,6 +9,8 @@ from typing import Dict, List, Tuple, Optional
 from openai import OpenAI
 from datetime import datetime
 
+from text_utils import normalize_text as base_normalize_text
+
 class EvaluatorV2:
     """
     Evaluador mejorado que:
@@ -54,12 +56,38 @@ class EvaluatorV2:
 
         # Sistema de aprendizaje (opcional)
         self.learning_system = learning_system
+        self.embedding_threshold = 0.75
+        self._synonym_patterns = [
+            (re.compile(r"\bdecentes familiares\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bhistoria familiar\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bfamilia con infarto\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bpadre con infarto\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bmadre con infarto\b"), ["antecedentes familiares"]),
+            (re.compile(r"\bmedicacion para la tension\b"), ["enfermedades cronicas", "medicacion actual"]),
+            (re.compile(r"\bmedicacion\b.*\btension\b"), ["enfermedades cronicas", "medicacion actual"]),
+            (re.compile(r"\bhta\b|\bhipertension\b|\btension alta\b"), ["enfermedades cronicas"]),
+            (re.compile(r"\bdislipemia\b|\bcolesterol alto\b"), ["enfermedades cronicas"]),
+            (re.compile(r"\bmedicacion\b|\btratamiento actual\b|\benalapril\b|\batorvastatina\b|\batorcan\b"), ["medicacion actual"]),
+        ]
 
     def normalize_text(self, text: str) -> str:
         """Normaliza texto para comparación"""
-        text = text.lower()
-        text = re.sub(r'[^\w\s]', '', text)
-        return text
+        return base_normalize_text(text)
+
+    def normalize_text_with_synonyms(self, text: str) -> str:
+        normalized = base_normalize_text(text)
+        return self._expand_synonyms(normalized)
+
+    def _expand_synonyms(self, text: str) -> str:
+        if not text:
+            return ""
+        expanded = text
+        for pattern, additions in self._synonym_patterns:
+            if pattern.search(expanded):
+                for addition in additions:
+                    if addition not in expanded:
+                        expanded = f"{expanded} {addition}"
+        return expanded.strip()
 
     def get_embedding(self, text: str) -> np.ndarray:
         """Genera embedding para un texto"""
@@ -164,34 +192,60 @@ class EvaluatorV2:
 
     def check_item_keyword(self, transcript: str, item: Dict) -> bool:
         """Verifica ítem usando keywords"""
-        normalized_transcript = self.normalize_text(transcript)
-        keywords = item.get('keywords', [])
+        normalized_transcript = self.normalize_text_with_synonyms(transcript)
+        keywords = item.get('keywords', []) or []
 
         if not keywords:
             return False
 
-        hits = 0
+        normalized_keywords = []
         for kw in keywords:
-            if self.normalize_text(kw) in normalized_transcript:
+            kw_norm = self.normalize_text(kw)
+            if kw_norm:
+                normalized_keywords.append(kw_norm)
+
+        if not normalized_keywords:
+            return False
+
+        hits = 0
+        for kw_norm in normalized_keywords:
+            pattern = r"\b" + re.escape(kw_norm) + r"\b"
+            if re.search(pattern, normalized_transcript):
                 hits += 1
 
-        # Umbral: 50% de keywords coinciden
-        return (hits / len(keywords)) >= 0.5
+        # Umbral flexible para mejorar recall sin disparar falsos positivos.
+        min_hits = max(1, int(len(normalized_keywords) * 0.34))
+        return hits >= min_hits
 
     def check_item_embedding(self,
                             transcript_embeddings: List[np.ndarray],
                             item_embedding: np.ndarray,
-                            threshold: float = 0.82) -> bool:
+                            threshold: Optional[float] = None) -> bool:
         """Verifica ítem usando similitud semántica"""
         if not transcript_embeddings or item_embedding is None:
             return False
 
+        threshold = self.embedding_threshold if threshold is None else threshold
         for chunk_emb in transcript_embeddings:
             similarity = self.calculate_similarity(item_embedding, chunk_emb)
             if similarity >= threshold:
                 return True
 
         return False
+
+    def _dedupe_items_by_id(self, items: List[Dict]) -> List[Dict]:
+        seen = set()
+        deduped = []
+        for item in items:
+            item_id = item.get("id")
+            if not item_id:
+                deduped.append(item)
+                continue
+            if item_id in seen:
+                continue
+            seen.add(item_id)
+            deduped.append(item)
+        return deduped
 
     def detect_student_questions(self, transcript: str) -> List[str]:
         """
@@ -258,8 +312,9 @@ class EvaluatorV2:
 
         for capa_nombre, items in items_por_capas.items():
             resultados_capa = []
+            deduped_items = self._dedupe_items_by_id(items)
 
-            for item in items:
+            for item in deduped_items:
                 peso = item.get('peso', 1)
                 max_score += peso
 
@@ -301,7 +356,7 @@ class EvaluatorV2:
 
             evaluacion_por_capas[capa_nombre] = {
                 'items': resultados_capa,
-                'total_items': len(items),
+                'total_items': len(deduped_items),
                 'items_completados': sum(1 for r in resultados_capa if r['done']),
                 'score': sum(r['score'] for r in resultados_capa),
                 'max_score': sum(r['max_score'] for r in resultados_capa)

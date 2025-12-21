@@ -78,9 +78,9 @@ class SheetsLogger:
             student_name,
             student_email,
             case_name,
-            f"{duration_min}",
-            f"{score}",
-            "Ver detalles",
+            duration_min,
+            score,
+            "Ver Detalles",
         ]
 
         # Append row and parse updatedRange to get row number.
@@ -169,8 +169,9 @@ class SheetsLogger:
 
     def _write_detail_link(self, resumen_row_number: int, detail_gid: int) -> None:
         worksheet = self._get_or_raise(self.config.resumen_sheet_name)
-        formula = f'=HYPERLINK("#gid={detail_gid}","Ver detalles")'
-        worksheet.update_acell(f"G{resumen_row_number}", formula)
+        detail_url = f"https://docs.google.com/spreadsheets/d/{self.config.spreadsheet_id}/edit#gid={detail_gid}"
+        formula = f'=HYPERLINK("{detail_url}", "Ver Detalles")'
+        worksheet.update(f"G{resumen_row_number}", [[formula]], value_input_option="USER_ENTERED")
 
     def _get_or_raise(self, sheet_name: str) -> "gspread.Worksheet":
         try:
@@ -358,6 +359,25 @@ def _format_development_questions(questions: Any) -> List[List[str]]:
     if not questions:
         return [["(Sin preguntas)"]]
     if isinstance(questions, list):
+        if all(isinstance(q, dict) for q in questions):
+            rows = [["Pregunta", "Respuesta del estudiante"]]
+            for q in questions:
+                pregunta = _as_str(
+                    q.get("pregunta")
+                    or q.get("question")
+                    or q.get("titulo")
+                    or q.get("title")
+                )
+                respuesta = _as_str(
+                    q.get("respuesta")
+                    or q.get("answer")
+                    or q.get("respuesta_estudiante")
+                )
+                if not pregunta and not respuesta:
+                    continue
+                rows.append([pregunta or "-", respuesta])
+            return rows if len(rows) > 1 else [["(Sin preguntas)"]]
+
         out = []
         for q in questions:
             s = _as_str(q)
@@ -378,4 +398,3 @@ def _format_transcript(transcript: Any) -> List[List[str]]:
         lines = [line.strip() for line in text.splitlines() if line.strip()]
 
     return [[line] for line in lines] if lines else [["(Sin transcripción)"]]
-
