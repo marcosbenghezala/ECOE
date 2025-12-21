@@ -1,10 +1,25 @@
 # Cómo crear casos (SimuPaciente)
 
-El backend genera automáticamente el prompt del paciente a partir de `datos_paciente` para evitar contradicciones (p. ej. primero decir “no tomo nada” y luego listar fármacos). La idea es que `datos_paciente` sea la **fuente de verdad canónica**.
+El backend genera automáticamente el prompt del paciente a partir de `datos_paciente` para evitar contradicciones (p. ej. primero decir “no tomo nada” y luego listar fármacos). La idea es que `datos_paciente` sea la **fuente de verdad canónica** basada en **hechos estructurados** (no en 130 frases redactadas).
+
+## Esquema simple (recomendado)
+
+Los casos nuevos deben usar este esquema:
+
+- `datos_paciente.frases`: 3–4 frases clave (motivo, relato libre, ICE).
+- `datos_paciente.personalidad`: rasgos + verbosidad + registro.
+- `datos_paciente.hechos`: hechos clínicos estructurados (sí/no/valores/listas).
+- `datos_paciente.checklist_overrides`: opcional para forzar algún NO.
+
+No es necesario rellenar `respuesta_corta`/`respuesta_detalle` por cada ítem: eso queda solo como compatibilidad legacy.
 
 ## Estado actual
 
-Actualmente no hay casos precargados. El endpoint `/api/cases` devolverá `[]` hasta que crees al menos un caso (un JSON que no empiece por `_`) en `TO_GITHUB/casos_procesados/`.
+Hay un caso de ejemplo ya creado: `TO_GITHUB/casos_procesados/caso_dolor_toracico_iam_001.json`.
+
+El endpoint `/api/cases`:
+- Ignora ficheros que empiezan por `_` (por eso el template no se lista).
+- Lista los casos `.json` reales que haya en `TO_GITHUB/casos_procesados/`.
 
 ## A) Quickstart (15–20 min)
 
@@ -12,7 +27,10 @@ Actualmente no hay casos precargados. El endpoint `/api/cases` devolverá `[]` h
 2. Renómbralo a `TO_GITHUB/casos_procesados/<id>.json` (ej: `caso_disnea_001.json`).
 3. Dentro del archivo, pon exactamente el mismo valor en `"id": "<id>"`.
 4. Rellena `informacion_paciente`, `motivo_consulta`, `sintomas_principales`.
-5. Rellena `datos_paciente` (mínimo: motivo + HEA/SOCRATES + ICE + antecedentes + medicación + alergias + hábitos + generales).
+5. Rellena `datos_paciente`:
+   - `frases` (motivo + relato + ICE)
+   - `personalidad`
+   - `hechos` (mínimo: HEA/SOCRATES + antecedentes + medicación + alergias + hábitos + 3–4 ROS/negativos importantes)
 6. Guarda y verifica que el JSON es válido (sin comas extra).
 7. Reinicia backend o redeploy: el caso aparecerá en `/api/cases`.
 
@@ -60,21 +78,23 @@ Campos opcionales:
 
 ### Formato por item
 
-Usa este patrón:
+Usa hechos ligeros. Patrones válidos:
 
 ```json
-"alergias": {
-  "tiene": false,
-  "respuesta_corta": "No, que yo sepa no tengo alergias.",
-  "respuesta_detalle": "No tengo alergias conocidas a medicamentos ni alimentos."
-}
+false
 ```
 
-Claves recomendadas:
-- `tiene`: `true`/`false` (para sí/no).
-- `respuesta_corta`: lo que dice por defecto.
-- `respuesta_detalle`: si el estudiante insiste (“¿algo más?”, “¿cuál exactamente?”).
-- `lista`: si hay elementos a listar (medicación, antecedentes, síntomas asociados).
+```json
+{ "tiene": true, "nota": "opresivo 8/10", "lista": ["..."] }
+```
+
+```json
+["Enalapril 10 mg (1-0-0)", "Atorvastatina 20 mg (0-0-1)"]
+```
+
+```json
+"En el centro del pecho"
+```
 
 ### Cuándo usar `tiene: true` vs `false` vs omitir
 
@@ -90,153 +110,70 @@ Claves recomendadas:
 
 ### Síntomas negativos (evitar ambigüedad)
 
-Mal:
-- “No” (sin contexto)
+Usa `false` o `{ "tiene": false }` en el hecho correspondiente.
 
-Bien:
-- `respuesta_corta`: “No, no me he desmayado.”
-- `respuesta_detalle`: “No, no he perdido el conocimiento en ningún momento.”
-
-### ICE (Ideas/Concerns/Expectations)
-
-Ejemplos:
-- `ice_ideas`: “Creo que puede ser asma / algo del corazón / una apendicitis…”
-- `ice_concerns`: “Me preocupa que sea grave.”
-- `ice_expectations`: “Que me miren rápido y me hagan pruebas.”
-
-### Hábitos tóxicos (estructura completa)
+Ejemplo (síncope negativo):
 
 ```json
-"habitos_toxicos": {
-  "tabaco": { "tiene": true, "cantidad": "10 cig/día", "duracion": "5 años", "respuesta_corta": "...", "respuesta_detalle": "..." },
-  "alcohol": { "tiene": false, "respuesta_corta": "No, no suelo beber.", "respuesta_detalle": "..." },
-  "drogas": { "tiene": false, "respuesta_corta": "No.", "respuesta_detalle": "..." }
+"ros": {
+  "cardiovascular": {
+    "sincope": false
+  }
 }
 ```
 
-## E) Checklist maestro → claves del template (completo)
+### ICE (Ideas/Concerns/Expectations)
 
-Fuente: `TO_GITHUB/data/master_items.json` (130 ítems).
+Se escribe en `datos_paciente.frases.ice` (texto libre, 1 frase cada uno):
 
-### E.1 Bloques universales
+```json
+"frases": {
+  "ice": {
+    "ideas": "Creo que puede ser algo del corazón.",
+    "concerns": "Me preocupa que sea grave.",
+    "expectations": "Que me hagan pruebas."
+  }
+}
+```
 
-| Bloque | ID | Ítem del checklist | Campo (template) |
-|---|---|---|---|
-| IDENTIFICACION | ID_01 | Saluda al paciente cordialmente | `presentacion_estudiante.saludo` (acción del estudiante) |
-| IDENTIFICACION | ID_02 | Se presenta con nombre y rol | `presentacion_estudiante.presentacion` (acción del estudiante) |
-| IDENTIFICACION | ID_03 | Confirma identidad del paciente (nombre, edad) | `presentacion_estudiante.confirma_identidad` (acción del estudiante) |
-| MOTIVO_CONSULTA | MC_01 | Realiza pregunta abierta inicial | `datos_paciente.motivo_consulta` (respuesta canónica) |
-| MOTIVO_CONSULTA | MC_02 | Recoge motivo principal con palabras del paciente | `datos_paciente.motivo_consulta` |
-| MOTIVO_CONSULTA | MC_03 | Permite relato libre sin interrumpir | `datos_paciente.relato_libre` |
-| MOTIVO_CONSULTA | MC_04 | Indaga sobre otros motivos de consulta | `datos_paciente.otros_motivos_consulta` |
-| MOTIVO_CONSULTA | MC_05 | Resume y verifica comprensión del motivo | `datos_paciente.confirmacion_resumen_motivo` |
-| HEA_SOCRATES | SOCR_01 | Localización exacta del síntoma | `datos_paciente.localizacion_dolor` |
-| HEA_SOCRATES | SOCR_02 | Cronología e inicio del síntoma | `datos_paciente.inicio` + `datos_paciente.tiempo_evolucion` |
-| HEA_SOCRATES | SOCR_03 | Características y cualidad del síntoma | `datos_paciente.caracteristicas_dolor` |
-| HEA_SOCRATES | SOCR_04 | Irradiación del síntoma | `datos_paciente.irradiacion` |
-| HEA_SOCRATES | SOCR_05 | Intensidad del síntoma | `datos_paciente.intensidad_dolor` |
-| HEA_SOCRATES | SOCR_06 | Factores agravantes | `datos_paciente.factores_empeoramiento` |
-| HEA_SOCRATES | SOCR_07 | Factores atenuantes | `datos_paciente.factores_alivio` |
-| HEA_SOCRATES | SOCR_08 | Evolución temporal y patrón | `datos_paciente.patron_evolucion` |
-| HEA_SOCRATES | SOCR_09 | Duración de episodios | `datos_paciente.duracion_episodios` |
-| HEA_SOCRATES | SOCR_10 | Síntomas acompañantes | `datos_paciente.sintomas_asociados` |
-| HEA_SOCRATES | SOCR_11 | Frecuencia o periodicidad | `datos_paciente.frecuencia_periodicidad` |
-| HEA_ICE | ICE_01 | Indaga ideas del paciente sobre la causa | `datos_paciente.ice_ideas` |
-| HEA_ICE | ICE_02 | Explora preocupaciones específicas | `datos_paciente.ice_concerns` |
-| HEA_ICE | ICE_03 | Revisa expectativas de la consulta | `datos_paciente.ice_expectations` |
-| ANTECEDENTES_PERSONALES | AP_01 | Pregunta por enfermedades crónicas | `datos_paciente.enfermedades_cronicas` |
-| ANTECEDENTES_PERSONALES | AP_02 | Pregunta por cirugías previas | `datos_paciente.cirugias_previas` |
-| ANTECEDENTES_PERSONALES | AP_03 | Pregunta por hospitalizaciones previas | `datos_paciente.hospitalizaciones_previas` |
-| ANTECEDENTES_PERSONALES | AP_04 | Pregunta por alergias medicamentosas | `datos_paciente.alergias_medicamentosas` |
-| ANTECEDENTES_PERSONALES | AP_05 | Pregunta por alergias no medicamentosas | `datos_paciente.alergias_no_medicamentosas` |
-| ANTECEDENTES_PERSONALES | AP_06 | Pregunta por historia transfusional | `datos_paciente.historia_transfusional` |
-| ANTECEDENTES_PERSONALES | AP_07 | Pregunta por inmunizaciones/vacunas | `datos_paciente.vacunas_inmunizaciones` |
-| ANTECEDENTES_PERSONALES | AP_08 | Pregunta por historia gineco-obstétrica (si procede) | `datos_paciente.historia_gineco_obstetrica` |
-| ANTECEDENTES_PERSONALES | AP_09 | Pregunta por accidentes traumáticos relevantes | `datos_paciente.traumatismos_relevantes` |
-| ANTECEDENTES_PERSONALES | AP_10 | Pregunta por discapacidad o uso de prótesis | `datos_paciente.discapacidad_protesis` |
-| ANTECEDENTES_PERSONALES | AP_11 | Pregunta por tratamientos actuales | `datos_paciente.medicacion_actual` (+ `datos_paciente.tratamientos_no_farmacologicos`) |
-| ANTECEDENTES_PERSONALES | AP_12 | Pregunta por historia psiquiátrica relevante | `datos_paciente.historia_psiquiatrica` |
-| ANTECEDENTES_FAMILIARES | AF_01 | Pregunta por patología en familiares de primer grado | `datos_paciente.patologia_familiares_primer_grado` |
-| ANTECEDENTES_FAMILIARES | AF_02 | Pregunta por causa de fallecimiento de familiares | `datos_paciente.causa_fallecimiento_familiares` |
-| ANTECEDENTES_FAMILIARES | AF_03 | Pregunta por muerte súbita o eventos cardiovasculares precoces | `datos_paciente.eventos_cv_precoces` |
-| ANTECEDENTES_FAMILIARES | AF_04 | Pregunta por cáncer hereditario relevante | `datos_paciente.cancer_hereditario` |
-| PSICOSOCIALES | PS_01 | Pregunta por situación familiar y convivencia | `datos_paciente.situacion_familiar` |
-| PSICOSOCIALES | PS_02 | Pregunta por estado civil y soporte social | `datos_paciente.estado_civil_soporte_social` |
-| PSICOSOCIALES | PS_03 | Pregunta por vivienda y entorno | `datos_paciente.vivienda` |
-| PSICOSOCIALES | PS_04 | Pregunta por situación laboral y profesión | `datos_paciente.situacion_laboral` |
-| PSICOSOCIALES | PS_05 | Pregunta por nivel educativo | `datos_paciente.nivel_educativo` |
-| PSICOSOCIALES | PS_06 | Pregunta por creencias religiosas si influyen en salud | `datos_paciente.creencias_religiosas_salud` |
-| PSICOSOCIALES | PS_07 | Pregunta por estrés vital reciente | `datos_paciente.estres_reciente` |
-| PSICOSOCIALES | PS_08 | Pregunta por cuidador primario si aplicable | `datos_paciente.cuidador_primario` |
-| PSICOSOCIALES | PS_09 | Pregunta sobre violencia o abuso (si procede y seguro) | `datos_paciente.violencia_abuso` |
-| HABITOS | HAB_01 | Pregunta por tabaquismo | `datos_paciente.habitos_toxicos.tabaco` |
-| HABITOS | HAB_02 | Pregunta por consumo de alcohol | `datos_paciente.habitos_toxicos.alcohol` |
-| HABITOS | HAB_03 | Pregunta por consumo de otras drogas | `datos_paciente.habitos_toxicos.drogas` |
-| HABITOS | HAB_04 | Pregunta por alimentación y tipo de dieta | `datos_paciente.alimentacion_dieta` |
-| HABITOS | HAB_05 | Pregunta por actividad física regular | `datos_paciente.actividad_fisica` |
-| HABITOS | HAB_06 | Pregunta por sueño (duración y calidad) | `datos_paciente.sueno` |
-| HABITOS | HAB_07 | Pregunta por sexualidad y conductas de riesgo | `datos_paciente.sexualidad_conductas_riesgo` |
-| HABITOS | HAB_08 | Pregunta por animales de compañía o exposiciones zoonóticas | `datos_paciente.animales_compania_exposiciones` |
-| GENERALES | GEN_01 | Pregunta por fiebre | `datos_paciente.fiebre` |
-| GENERALES | GEN_02 | Pregunta por pérdida de peso involuntaria | `datos_paciente.perdida_peso_involuntaria` |
-| GENERALES | GEN_03 | Pregunta por sudoración nocturna | `datos_paciente.sudoracion_nocturna` |
-| GENERALES | GEN_04 | Pregunta por astenia o cansancio | `datos_paciente.astenia` |
-| GENERALES | GEN_05 | Pregunta por anorexia o pérdida de apetito | `datos_paciente.anorexia` |
+### Hábitos (estructura simple)
 
-### E.2 ROS por sistemas
+```json
+"habitos": {
+  "tabaco": { "tiene": true, "cantidad": "10 cig/día", "duracion": "5 años" },
+  "alcohol": false,
+  "drogas": false,
+  "actividad_fisica": "Camino 30 min 3 veces/semana"
+}
+```
 
-| Sistema | ID | Ítem del checklist | Campo (template) |
-|---|---|---|---|
-| RESPIRATORIO | RESP_01 | Pregunta por tos | `datos_paciente.tos` |
-| RESPIRATORIO | RESP_02 | Pregunta por características de la tos | `datos_paciente.caracteristicas_tos` |
-| RESPIRATORIO | RESP_03 | Pregunta por disnea | `datos_paciente.disnea` |
-| RESPIRATORIO | RESP_04 | Pregunta por ortopnea | `datos_paciente.ortopnea` |
-| RESPIRATORIO | RESP_05 | Pregunta por disnea paroxística nocturna | `datos_paciente.disnea_paroxistica_nocturna` |
-| RESPIRATORIO | RESP_06 | Pregunta por dolor pleurítico | `datos_paciente.dolor_pleuritico` |
-| RESPIRATORIO | RESP_07 | Pregunta por hemoptisis | `datos_paciente.hemoptisis` |
-| RESPIRATORIO | RESP_08 | Pregunta por sibilancias | `datos_paciente.sibilancias` |
-| RESPIRATORIO | RESP_09 | Pregunta por exposición laboral/polvo/tabaco | `datos_paciente.exposicion_laboral_respiratoria` |
-| RESPIRATORIO | RESP_10 | Pregunta por antecedentes de tuberculosis | `datos_paciente.antecedentes_tuberculosis` |
-| CARDIOVASCULAR | CARDIO_01 | Pregunta por dolor torácico | `datos_paciente.dolor_toracico` (+ SOCRATES) |
-| CARDIOVASCULAR | CARDIO_02 | Caracteriza dolor torácico con SOCRATES | `datos_paciente.*` (bloque HEA_SOCRATES) |
-| CARDIOVASCULAR | CARDIO_03 | Pregunta por relación con esfuerzo/reposo | `datos_paciente.relacion_dolor_esfuerzo` |
-| CARDIOVASCULAR | CARDIO_04 | Pregunta por síntomas vegetativos asociados | `datos_paciente.sintomas_vegetativos` |
-| CARDIOVASCULAR | CARDIO_05 | Pregunta por palpitaciones | `datos_paciente.palpitaciones` |
-| CARDIOVASCULAR | CARDIO_06 | Pregunta por síncope o presíncope | `datos_paciente.sincope` (+ `datos_paciente.sincope_caracteristicas`) |
-| CARDIOVASCULAR | CARDIO_07 | Pregunta por edemas en miembros inferiores | `datos_paciente.edemas` |
-| CARDIOVASCULAR | CARDIO_08 | Pregunta por claudicación intermitente | `datos_paciente.claudicacion` |
-| DIGESTIVO | DIGEST_01 | Pregunta por dolor abdominal | `datos_paciente.dolor_abdominal` |
-| DIGESTIVO | DIGEST_02 | Pregunta por náuseas o vómitos | `datos_paciente.nauseas` + `datos_paciente.vomitos` |
-| DIGESTIVO | DIGEST_03 | Pregunta por cambios en el ritmo intestinal | `datos_paciente.cambios_ritmo_intestinal` |
-| DIGESTIVO | DIGEST_04 | Pregunta por melenas, rectorragia o hematemesis | `datos_paciente.melenas` + `datos_paciente.rectorragia` + `datos_paciente.hematemesis` |
-| DIGESTIVO | DIGEST_05 | Pregunta por disfagia | `datos_paciente.disfagia` |
-| DIGESTIVO | DIGEST_06 | Pregunta por pirosis o reflujo | `datos_paciente.pirosis` |
-| DIGESTIVO | DIGEST_07 | Pregunta por distensión abdominal | `datos_paciente.distension_abdominal` |
-| DIGESTIVO | DIGEST_08 | Pregunta por ictericia | `datos_paciente.ictericia` |
-| GENITOURINARIO | GU_01 | Pregunta por disuria | `datos_paciente.disuria` |
-| GENITOURINARIO | GU_02 | Pregunta por polaquiuria o nicturia | `datos_paciente.polaquiuria` + `datos_paciente.nicturia` |
-| GENITOURINARIO | GU_03 | Pregunta por hematuria | `datos_paciente.hematuria` |
-| GENITOURINARIO | GU_04 | Pregunta por incontinencia urinaria | `datos_paciente.incontinencia_urinaria` |
-| GENITOURINARIO | GU_05 | Pregunta por urgencia miccional | `datos_paciente.urgencia_miccional` |
-| GENITOURINARIO | GU_06 | Pregunta por dolor lumbar o en flancos | `datos_paciente.dolor_lumbar_flancos` |
-| GENITOURINARIO | GU_07 | Pregunta por secreción genital | `datos_paciente.secrecion_genital` |
-| GENITOURINARIO | GU_08 | Pregunta por síntomas prostáticos (si hombre) | `datos_paciente.sintomas_prostaticos` |
-| NEUROLÓGICO | NEURO_01 | Pregunta por cefalea | `datos_paciente.cefalea` |
-| NEUROLÓGICO | NEURO_02 | Caracteriza patrón de cefalea | `datos_paciente.cefalea_patron` |
-| NEUROLÓGICO | NEURO_03 | Pregunta por focalidad neurológica | `datos_paciente.focalidad_neurologica` |
-| NEUROLÓGICO | NEURO_04 | Pregunta por mareo o vértigo | `datos_paciente.mareo_vertigo` |
-| NEUROLÓGICO | NEURO_05 | Pregunta por alteración del nivel de conciencia | `datos_paciente.alteracion_nivel_conciencia` |
-| NEUROLÓGICO | NEURO_06 | Pregunta por signos meníngeos | `datos_paciente.signos_meningeos` |
-| NEUROLÓGICO | NEURO_07 | Pregunta por alteración del lenguaje | `datos_paciente.alteracion_lenguaje` |
-| NEUROLÓGICO | NEURO_08 | Pregunta por convulsiones | `datos_paciente.convulsiones` |
-| NEUROLÓGICO | NEURO_09 | Pregunta por problemas de memoria | `datos_paciente.alteracion_memoria` |
-| NEUROLÓGICO | NEURO_10 | Pregunta por alteraciones visuales | `datos_paciente.alteracion_vision` |
-| OSTEOMUSCULAR | OSTEO_01 | Pregunta por dolor articular | `datos_paciente.dolor_articular` |
-| OSTEOMUSCULAR | OSTEO_02 | Pregunta por rigidez matutina | `datos_paciente.rigidez_matutina` |
-| OSTEOMUSCULAR | OSTEO_03 | Pregunta por tumefacción articular | `datos_paciente.tumefaccion_articular` |
-| OSTEOMUSCULAR | OSTEO_04 | Pregunta por debilidad muscular | `datos_paciente.debilidad_muscular` |
-| OSTEOMUSCULAR | OSTEO_05 | Pregunta por limitación de movilidad | `datos_paciente.limitacion_movilidad` |
-| OSTEOMUSCULAR | OSTEO_06 | Pregunta por traumatismos recientes | `datos_paciente.traumatismo_reciente` |
+## E) Checklist maestro y mapeo (cómo se conecta todo)
+
+- Fuente de verdad del checklist: `TO_GITHUB/data/master_items.json`.
+- El backend convierte `datos_paciente` en “hechos canónicos” con `TO_GITHUB/simulador/patient_prompt.py`.
+- No necesitas escribir 130 frases: con **hechos** + 3–4 **frases clave** el prompt se genera solo y evita contradicciones.
+
+### Ejemplos de mapeo (orientativo)
+
+El template `TO_GITHUB/casos_procesados/_TEMPLATE_CASO.json` ya tiene la estructura esperada. Algunos ejemplos:
+
+- `SOCR_01` (localización) → `datos_paciente.hechos.hea.localizacion`
+- `SOCR_04` (irradiación) → `datos_paciente.hechos.hea.irradiacion`
+- `GEN_01` (fiebre) → `datos_paciente.hechos.generales.fiebre`
+- `RESP_01` (tos) → `datos_paciente.hechos.ros.respiratorio.tos`
+- `CARDIO_01` (dolor torácico) → `datos_paciente.hechos.ros.cardiovascular.dolor_toracico`
+- `AP_11` (medicación) → `datos_paciente.hechos.medicacion_actual`
+
+### Overrides (cuando no quieres tocar `hechos`)
+
+Si quieres forzar un NO rápidamente:
+
+```json
+"checklist_overrides": {
+  "RESP_07": false,
+  "hemoptisis": false
+}
+```
 
 ## F) Checklist de calidad (antes de subir a Railway)
 

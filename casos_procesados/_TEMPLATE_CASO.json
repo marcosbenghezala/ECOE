@@ -1,9 +1,12 @@
 {
-  "_comment": "Copia este archivo, renómbralo a <id>.json y rellena. Este archivo empieza por '_' para que el backend lo ignore en /api/cases.",
-  "_comment_regla_1": "IMPORTANTE: El nombre del archivo DEBE coincidir con el campo 'id'. Ejemplo: casos_procesados/caso_abc_001.json y dentro id='caso_abc_001'.",
-  "_comment_regla_2": "IMPORTANTE: En datos_paciente, define respuestas CANÓNICAS para evitar contradicciones. Respuestas cortas (1-2 frases) por defecto.",
-  "_comment_regla_3": "NO dejes 'COMPLETAR' en un caso real. Elimina campos que no apliquen o pon tiene=false con respuesta_corta clara.",
-  "_comment_origen": "Template alineado con el checklist maestro: TO_GITHUB/data/master_items.json (130 ítems).",
+  "_comment": "Template de caso (esquema SIMPLE): hechos estructurados + pocas frases clave. Este fichero empieza por '_' y el backend lo ignora en /api/cases.",
+  "_comment_reglas": [
+    "Regla 1: el nombre del archivo DEBE coincidir con el campo 'id' (ej: caso_xxx_001.json y dentro id='caso_xxx_001').",
+    "Regla 2: rellena solo los hechos que apliquen. Lo que no esté definido se considera DESCONOCIDO (el paciente dirá 'no lo sé / no me he fijado').",
+    "Regla 3: para negativos importantes, usa false o {\"tiene\": false}.",
+    "Regla 4: NO hace falta escribir respuesta_corta/respuesta_detalle por cada ítem. (Soportado solo por compatibilidad legacy)."
+  ],
+  "_comment_fuente_checklist": "Checklist maestro: TO_GITHUB/data/master_items.json (130 ítems). El parser mapea IDs a claves dentro de datos_paciente (ver simulador/patient_prompt.py).",
 
   "id": "caso_XXX_001",
   "titulo": "COMPLETAR: Nombre descriptivo del caso",
@@ -12,843 +15,211 @@
   "duracion_estimada": 15,
 
   "motivo_consulta": "COMPLETAR: Frase corta del paciente (ej: \"Me duele el pecho\")",
-
+  "sintomas_principales": [
+    "COMPLETAR: lista breve (3–8) de síntomas/ideas clave para evaluadores (opcional pero recomendado)"
+  ],
   "informacion_paciente": {
-    "_comment": "Datos básicos del paciente. 'genero' se usa para la voz (masculino/femenino o male/female).",
     "nombre": "COMPLETAR: Nombre y apellidos",
     "edad": 0,
     "genero": "masculino",
-    "ocupacion": "COMPLETAR: Ocupación"
+    "ocupacion": "COMPLETAR"
   },
-
-  "presentacion_estudiante": {
-    "_comment": "BLOQUE IDENTIFICACION (ID_*). Estos ítems son ACCIONES DEL ESTUDIANTE (no respuestas del paciente). Se documentan aquí para referencia.",
-    "_comment_uso": "No hace falta rellenar nada; el paciente no los usa en el prompt. Sirve para recordar qué se evalúa.",
-    "saludo": {
-      "id": "ID_01",
-      "descripcion": "Saluda al paciente cordialmente"
-    },
-    "presentacion": {
-      "id": "ID_02",
-      "descripcion": "Se presenta con nombre y rol"
-    },
-    "confirma_identidad": {
-      "id": "ID_03",
-      "descripcion": "Confirma identidad del paciente (nombre, edad)"
-    }
-  },
-
-  "sintomas_principales": [
-    "COMPLETAR: lista corta de palabras clave (ej: \"dolor torácico\", \"náuseas\")"
-  ],
 
   "datos_paciente": {
-    "_comment": "ESTA ES LA PARTE MÁS IMPORTANTE. Cada clave representa un tema del checklist. Define respuestas canónicas para NO CONTRADECIRTE.",
-    "_comment_formato": "Formato recomendado: {tiene?: true/false, lista?: [...], respuesta_corta: \"...\", respuesta_detalle: \"...\"}. Claves que empiezan por '_' se ignoran.",
-
-    "_comment_bloque_motivo": "BLOQUE MOTIVO_CONSULTA (MC_*)",
-    "_comment_motivo_nota": "Nota: top-level motivo_consulta es un resumen. Aquí defines la RESPUESTA CANÓNICA si el estudiante pregunta \"¿Qué te pasa?\".",
-    "motivo_consulta": {
-      "_comment": "MC_02 - Motivo principal en palabras del paciente (1 frase).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "relato_libre": {
-      "_comment": "MC_03 - Si el estudiante dice: \"Cuénteme desde el principio\". Máximo 1-2 frases, sin adelantar toda la historia.",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "otros_motivos_consulta": {
-      "_comment": "MC_04 - Si hay otros motivos además del principal.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "confirmacion_resumen_motivo": {
-      "_comment": "MC_05 - Si el estudiante resume, el paciente confirma/corrige (respuesta muy breve).",
-      "respuesta_corta": "Sí, eso es.",
-      "respuesta_detalle": "Sí, exactamente."
-    },
-
-    "_comment_bloque_socrates": "BLOQUE HEA_SOCRATES (SOCR_*) - Historia del síntoma actual",
-    "localizacion_dolor": {
-      "_comment": "SOCR_01 - Localización exacta.",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "inicio": {
-      "_comment": "SOCR_02 - Cronología e inicio (de repente/poco a poco, qué estaba haciendo).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "caracteristicas_dolor": {
-      "_comment": "SOCR_03 - Características/cualidad (opresivo, pinchazo, quemazón...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "irradiacion": {
-      "_comment": "SOCR_04 - Irradiación.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "intensidad_dolor": {
-      "_comment": "SOCR_05 - Intensidad (0-10 / leve-moderado-fuerte).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "factores_empeoramiento": {
-      "_comment": "SOCR_06 - Factores agravantes.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "factores_alivio": {
-      "_comment": "SOCR_07 - Factores atenuantes.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "patron_evolucion": {
-      "_comment": "SOCR_08 - Evolución temporal/patrón (va a más, intermitente, continuo...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "duracion_episodios": {
-      "_comment": "SOCR_09 - Duración de episodios (si es por crisis).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sintomas_asociados": {
-      "_comment": "SOCR_10 - Síntomas acompañantes (usa lista).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "frecuencia_periodicidad": {
-      "_comment": "SOCR_11 - Frecuencia/periodicidad (si se repite).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "tiempo_evolucion": {
-      "_comment": "Extra útil (similar a SOCR_02/SOCR_08): ¿desde cuándo en total? (ej: \"desde hace 2 horas\").",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_bloque_ice": "BLOQUE HEA_ICE (ICE_*)",
-    "ice_ideas": {
-      "_comment": "ICE_01 - ¿Qué crees que te pasa?",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "ice_concerns": {
-      "_comment": "ICE_02 - ¿Qué te preocupa?",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "ice_expectations": {
-      "_comment": "ICE_03 - ¿Qué esperas de la consulta?",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_bloque_antecedentes_personales": "BLOQUE ANTECEDENTES_PERSONALES (AP_*)",
-    "_comment_antecedentes_nota": "Puedes rellenar el resumen 'antecedentes_personales' y/o los subapartados. Si rellenas ambos, NO contradigas.",
-    "antecedentes_personales": {
-      "_comment": "Resumen opcional (lista de antecedentes relevantes).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "enfermedades_cronicas": {
-      "_comment": "AP_01 - Enfermedades crónicas (HTA, DM, asma...).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "cirugias_previas": {
-      "_comment": "AP_02 - Cirugías previas.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "hospitalizaciones_previas": {
-      "_comment": "AP_03 - Hospitalizaciones previas.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alergias_medicamentosas": {
-      "_comment": "AP_04 - Alergias medicamentosas.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alergias_no_medicamentosas": {
-      "_comment": "AP_05 - Alergias no medicamentosas (alimentos, látex, pólenes...).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "historia_transfusional": {
-      "_comment": "AP_06 - Historia transfusional.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "vacunas_inmunizaciones": {
-      "_comment": "AP_07 - Inmunizaciones/vacunas relevantes.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "historia_gineco_obstetrica": {
-      "_comment": "AP_08 - Gineco-obstétrica (si procede).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "traumatismos_relevantes": {
-      "_comment": "AP_09 - Accidentes/traumatismos relevantes.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "discapacidad_protesis": {
-      "_comment": "AP_10 - Discapacidad o uso de prótesis.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "medicacion_actual": {
-      "_comment": "AP_11 - Tratamientos/medicación actual. Si toma: lista con fármaco+dosis+pauta.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR: Fármaco dosis pauta (ej: \"Enalapril 10 mg (1-0-0)\")"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "tratamientos_no_farmacologicos": {
-      "_comment": "AP_11 (extra útil) - Otros tratamientos (fisioterapia, CPAP, oxígeno, etc.).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "historia_psiquiatrica": {
-      "_comment": "AP_12 - Historia psiquiátrica relevante.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_bloque_antecedentes_familiares": "BLOQUE ANTECEDENTES_FAMILIARES (AF_*)",
-    "_comment_familia_nota": "Igual que arriba: puedes rellenar el resumen 'antecedentes_familiares' y/o subapartados.",
-    "antecedentes_familiares": {
-      "_comment": "Resumen opcional (familiares con patología relevante).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "patologia_familiares_primer_grado": {
-      "_comment": "AF_01 - Patología en familiares de primer grado.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "causa_fallecimiento_familiares": {
-      "_comment": "AF_02 - Causa de fallecimiento de familiares (si procede).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "eventos_cv_precoces": {
-      "_comment": "AF_03 - Muerte súbita / eventos cardiovasculares precoces.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "cancer_hereditario": {
-      "_comment": "AF_04 - Cáncer hereditario relevante.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_bloque_psicosocial": "BLOQUE PSICOSOCIALES (PS_*)",
-    "situacion_familiar": {
-      "_comment": "PS_01 - ¿Con quién vive? ¿Tiene apoyo?",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "estado_civil_soporte_social": {
-      "_comment": "PS_02 - Estado civil y soporte social.",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "vivienda": {
-      "_comment": "PS_03 - Vivienda y entorno (barreras, escaleras, ascensor...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "situacion_laboral": {
-      "_comment": "PS_04 - Situación laboral/profesión (en activo, paro, jubilado...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "nivel_educativo": {
-      "_comment": "PS_05 - Nivel educativo.",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "creencias_religiosas_salud": {
-      "_comment": "PS_06 - Creencias religiosas si influyen en salud/tratamientos.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "estres_reciente": {
-      "_comment": "PS_07 - Estrés vital reciente.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "cuidador_primario": {
-      "_comment": "PS_08 - Cuidador primario si aplicable.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "violencia_abuso": {
-      "_comment": "PS_09 - Violencia o abuso (si procede y es seguro preguntar).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_bloque_habitos": "BLOQUE HABITOS (HAB_*)",
-    "_comment_habitos_nota": "HAB_01-03 se cubren con habitos_toxicos (tabaco/alcohol/drogas).",
-    "habitos_toxicos": {
-      "_comment": "HAB_01-03 - Completa tabaco/alcohol/drogas según aplique.",
-      "tabaco": {
-        "tiene": null,
-        "cantidad": "COMPLETAR: ej 10 cig/día",
-        "duracion": "COMPLETAR: ej 5 años",
-        "respuesta_corta": "COMPLETAR",
-        "respuesta_detalle": "COMPLETAR"
-      },
-      "alcohol": {
-        "tiene": null,
-        "cantidad": "COMPLETAR: ej 2-3 cervezas/semana",
-        "duracion": "COMPLETAR: ej desde los 18",
-        "respuesta_corta": "COMPLETAR",
-        "respuesta_detalle": "COMPLETAR"
-      },
-      "drogas": {
-        "tiene": null,
-        "respuesta_corta": "COMPLETAR",
-        "respuesta_detalle": "COMPLETAR"
+    "frases": {
+      "_comment": "Frases clave ESCRITAS por ti (3–4 frases total).",
+      "motivo_consulta": "COMPLETAR: 1 frase (ej: \"Me duele el pecho.\")",
+      "relato_libre": "COMPLETAR: 1–2 frases (si preguntan \"cuénteme\")",
+      "ice": {
+        "ideas": "COMPLETAR: 1 frase (opcional)",
+        "concerns": "COMPLETAR: 1 frase (opcional)",
+        "expectations": "COMPLETAR: 1 frase (opcional)"
       }
     },
-    "alimentacion_dieta": {
-      "_comment": "HAB_04 - Alimentación y tipo de dieta.",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "actividad_fisica": {
-      "_comment": "HAB_05 - Actividad física regular.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sueno": {
-      "_comment": "HAB_06 - Sueño (duración/calidad).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sexualidad_conductas_riesgo": {
-      "_comment": "HAB_07 - Sexualidad y conductas de riesgo (si aplica).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "animales_compania_exposiciones": {
-      "_comment": "HAB_08 - Animales de compañía / exposiciones zoonóticas.",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
+    "personalidad": {
+      "_comment": "Afecta al estilo del paciente (no inventa hechos).",
+      "rasgos": [
+        "COMPLETAR (ej: ansioso, colaborador)"
       ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
+      "verbosidad": "baja",
+      "registro": "coloquial"
     },
-
-    "_comment_bloque_generales": "BLOQUE GENERALES (GEN_*)",
-    "fiebre": {
-      "_comment": "GEN_01 - Fiebre.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "perdida_peso_involuntaria": {
-      "_comment": "GEN_02 - Pérdida de peso involuntaria.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sudoracion_nocturna": {
-      "_comment": "GEN_03 - Sudoración nocturna.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "astenia": {
-      "_comment": "GEN_04 - Astenia/cansancio.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "anorexia": {
-      "_comment": "GEN_05 - Anorexia/pérdida de apetito.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_ros": "REVISIÓN POR SISTEMAS (ROS) - rellena lo que aplique según el caso. Para negativos importantes: tiene=false con respuesta_corta clara.",
-
-    "_comment_resp": "RESPIRATORIO (RESP_*)",
-    "tos": {
-      "_comment": "RESP_01 - Tos.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "caracteristicas_tos": {
-      "_comment": "RESP_02 - Si tiene tos: seca/productiva, nocturna, frecuencia...",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "disnea": {
-      "_comment": "RESP_03 - Disnea.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "ortopnea": {
-      "_comment": "RESP_04 - Ortopnea.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "disnea_paroxistica_nocturna": {
-      "_comment": "RESP_05 - Disnea paroxística nocturna.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "dolor_pleuritico": {
-      "_comment": "RESP_06 - Dolor pleurítico (empeora al respirar/toser).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "hemoptisis": {
-      "_comment": "RESP_07 - Hemoptisis (sangre al toser).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sibilancias": {
-      "_comment": "RESP_08 - Sibilancias (pitidos/silbidos).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "exposicion_laboral_respiratoria": {
-      "_comment": "RESP_09 - Exposición laboral/polvo/humos/tabaco (si aplica).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "antecedentes_tuberculosis": {
-      "_comment": "RESP_10 - Antecedentes de tuberculosis/contactos.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_cardio": "CARDIOVASCULAR (CARDIO_*)",
-    "dolor_toracico": {
-      "_comment": "CARDIO_01 - Dolor torácico (sí/no). Detalles en SOCRATES.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "relacion_dolor_esfuerzo": {
-      "_comment": "CARDIO_03 - Relación con esfuerzo/reposo (aparece con esfuerzo, mejora con reposo...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sintomas_vegetativos": {
-      "_comment": "CARDIO_04 - Síntomas vegetativos (sudor, náuseas, palidez...).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
+    "hechos": {
+      "_comment": "Hechos estructurados. Formatos válidos:",
+      "_comment_formatos": [
+        "Booleano: true/false",
+        "Objeto: {\"tiene\": true/false/null, \"nota\": \"...\", \"valor\": \"...\", \"lista\": [...], ...}",
+        "Lista: [\"item 1\", \"item 2\"] (equivale a presente=true + lista)",
+        "String/number: \"texto\" (equivale a presente=true + valor)"
       ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "palpitaciones": {
-      "_comment": "CARDIO_05 - Palpitaciones.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sincope": {
-      "_comment": "CARDIO_06 - Síncope o presíncope.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sincope_caracteristicas": {
-      "_comment": "Si hay síncope: contexto, duración, recuperación, pródromos (extra útil).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "edemas": {
-      "_comment": "CARDIO_07 - Edemas en MMII.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "claudicacion": {
-      "_comment": "CARDIO_08 - Claudicación intermitente.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "factores_riesgo_cardiovascular": {
-      "_comment": "Extra útil: HTA/DM/dislipemia/tabaco/obesidad...",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
+
+      "motivo": {
+        "_comment": "MC_04 - Otros motivos de consulta (si existen).",
+        "otros_motivos": null
+      },
+
+      "hea": {
+        "_comment": "HEA/SOCRATES (SOCR_01..SOCR_11). Puedes rellenar lo que aplique.",
+        "localizacion": null,
+        "inicio": null,
+        "caracteristicas": null,
+        "irradiacion": null,
+        "intensidad_0_10": null,
+        "agravantes": null,
+        "atenuantes": null,
+        "evolucion": null,
+        "duracion_episodios": null,
+        "asociados": null,
+        "frecuencia": null
+      },
+
+      "antecedentes": {
+        "_comment": "Antecedentes personales (AP_*).",
+        "cronicas": null,
+        "cirugias": null,
+        "hospitalizaciones": null,
+        "transfusiones": null,
+        "vacunas": null,
+        "gineco_obstetrica": null,
+        "traumatismos": null,
+        "discapacidad_protesis": null,
+        "psiquiatria": null
+      },
+
+      "familiares": {
+        "_comment": "Antecedentes familiares (AF_*).",
+        "patologias_primer_grado": null,
+        "causas_fallecimiento": null,
+        "eventos_cv_precoces": null,
+        "cancer_hereditario": null
+      },
+
+      "medicacion_actual": null,
+
+      "alergias": {
+        "_comment": "Alergias (AP_04/AP_05).",
+        "medicamentos": null,
+        "no_medicamentos": null,
+        "nota": null
+      },
+
+      "habitos": {
+        "_comment": "Hábitos (HAB_*).",
+        "tabaco": null,
+        "alcohol": null,
+        "drogas": null,
+        "dieta": null,
+        "actividad_fisica": null,
+        "sueno": null,
+        "sexualidad": null,
+        "animales_exposiciones": null
+      },
+
+      "psicosocial": {
+        "_comment": "Psicosocial (PS_*).",
+        "convivencia": null,
+        "estado_civil_soporte": null,
+        "vivienda": null,
+        "laboral": null,
+        "educacion": null,
+        "creencias": null,
+        "estres": null,
+        "cuidador": null,
+        "violencia_abuso": null
+      },
+
+      "generales": {
+        "_comment": "Generales (GEN_*).",
+        "fiebre": null,
+        "perdida_peso": null,
+        "sudoracion_nocturna": null,
+        "astenia": null,
+        "anorexia": null
+      },
+
+      "ros": {
+        "_comment": "ROS por sistemas (items_por_sistemas). Rellena lo que aplique al caso.",
+
+        "respiratorio": {
+          "tos": null,
+          "caracteristicas_tos": null,
+          "disnea": null,
+          "ortopnea": null,
+          "disnea_paroxistica_nocturna": null,
+          "dolor_pleuritico": null,
+          "hemoptisis": null,
+          "sibilancias": null,
+          "exposicion_laboral": null,
+          "tuberculosis": null
+        },
+
+        "cardiovascular": {
+          "dolor_toracico": null,
+          "relacion_esfuerzo": null,
+          "sintomas_vegetativos": null,
+          "palpitaciones": null,
+          "sincope": null,
+          "edemas": null,
+          "claudicacion": null
+        },
+
+        "digestivo": {
+          "dolor_abdominal": null,
+          "nauseas_vomitos": null,
+          "ritmo_intestinal": null,
+          "sangrado_digestivo": null,
+          "disfagia": null,
+          "pirosis_reflujo": null,
+          "distension_abdominal": null,
+          "ictericia": null
+        },
+
+        "genitourinario": {
+          "disuria": null,
+          "polaquiuria_nicturia": null,
+          "hematuria": null,
+          "incontinencia": null,
+          "urgencia": null,
+          "dolor_flancos": null,
+          "secrecion_genital": null,
+          "sintomas_prostaticos": null
+        },
+
+        "neurologico": {
+          "cefalea": null,
+          "patron_cefalea": null,
+          "focalidad": null,
+          "mareo_vertigo": null,
+          "conciencia": null,
+          "meningeos": null,
+          "lenguaje": null,
+          "convulsiones": null,
+          "memoria": null,
+          "vision": null
+        },
+
+        "osteomuscular": {
+          "dolor_articular": null,
+          "rigidez_matutina": null,
+          "tumefaccion": null,
+          "debilidad_muscular": null,
+          "limitacion_movilidad": null,
+          "traumatismos": null
+        }
+      }
     },
 
-    "_comment_digest": "DIGESTIVO (DIGEST_*)",
-    "dolor_abdominal": {
-      "_comment": "DIGEST_01 - Dolor abdominal.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "nauseas": {
-      "_comment": "DIGEST_02 - Náuseas.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "vomitos": {
-      "_comment": "DIGEST_02 - Vómitos.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "cambios_ritmo_intestinal": {
-      "_comment": "DIGEST_03 - Cambios en ritmo intestinal (diarrea/estreñimiento).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "melenas": {
-      "_comment": "DIGEST_04 - Melenas (heces negras).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "rectorragia": {
-      "_comment": "DIGEST_04 - Rectorragia (sangre roja en heces).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "hematemesis": {
-      "_comment": "DIGEST_04 - Hematemesis (vomitar sangre).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "disfagia": {
-      "_comment": "DIGEST_05 - Disfagia (dificultad para tragar).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "pirosis": {
-      "_comment": "DIGEST_06 - Pirosis/reflujo.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "distension_abdominal": {
-      "_comment": "DIGEST_07 - Distensión abdominal/hinchazón.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "ictericia": {
-      "_comment": "DIGEST_08 - Ictericia (ojos/piel amarillos).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "diarrea": {
-      "_comment": "Extra útil: diarrea (si quieres separarlo de cambios_ritmo_intestinal).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_gu": "GENITOURINARIO (GU_*)",
-    "disuria": {
-      "_comment": "GU_01 - Disuria.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "polaquiuria": {
-      "_comment": "GU_02 - Polaquiuria (orinar más veces).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "nicturia": {
-      "_comment": "GU_02 - Nicturia (levantarse por la noche a orinar).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "hematuria": {
-      "_comment": "GU_03 - Hematuria.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "incontinencia_urinaria": {
-      "_comment": "GU_04 - Incontinencia urinaria.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "urgencia_miccional": {
-      "_comment": "GU_05 - Urgencia miccional.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "dolor_lumbar_flancos": {
-      "_comment": "GU_06 - Dolor lumbar o en flancos.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "secrecion_genital": {
-      "_comment": "GU_07 - Secreción genital.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "sintomas_prostaticos": {
-      "_comment": "GU_08 - Síntomas prostáticos (si hombre).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_neuro": "NEUROLÓGICO (NEURO_*)",
-    "cefalea": {
-      "_comment": "NEURO_01 - Cefalea.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "cefalea_patron": {
-      "_comment": "NEURO_02 - Patrón de cefalea (localización, tipo, duración, desencadenantes...).",
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "focalidad_neurologica": {
-      "_comment": "NEURO_03 - Focalidad neurológica (debilidad, hormigueos, pérdida de sensibilidad...).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR (opcional)"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "debilidad_focal": {
-      "_comment": "Extra: ¿debilidad en un brazo/pierna concreto?",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "parestesias": {
-      "_comment": "Extra: hormigueo/adormecimiento.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "mareo_vertigo": {
-      "_comment": "NEURO_04 - Mareo o vértigo.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alteracion_nivel_conciencia": {
-      "_comment": "NEURO_05 - Alteración del nivel de conciencia (confusión, somnolencia, pérdida de conciencia).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "signos_meningeos": {
-      "_comment": "NEURO_06 - Signos meníngeos (rigidez de nuca, fotofobia...).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "rigidez_nuca": {
-      "_comment": "Extra: rigidez de cuello.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "fotofobia": {
-      "_comment": "Extra: molestia con la luz.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alteracion_lenguaje": {
-      "_comment": "NEURO_07 - Alteración del lenguaje (hablar/entender).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "convulsiones": {
-      "_comment": "NEURO_08 - Convulsiones.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alteracion_memoria": {
-      "_comment": "NEURO_09 - Alteraciones de memoria.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "alteracion_vision": {
-      "_comment": "NEURO_10 - Alteraciones visuales (visión doble, pérdida visión...).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-
-    "_comment_osteo": "OSTEOMUSCULAR (OSTEO_*)",
-    "dolor_articular": {
-      "_comment": "OSTEO_01 - Dolor articular (cuáles).",
-      "tiene": null,
-      "lista": [
-        "COMPLETAR: rodilla/codo/etc"
-      ],
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "rigidez_matutina": {
-      "_comment": "OSTEO_02 - Rigidez matutina (duración).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "tumefaccion_articular": {
-      "_comment": "OSTEO_03 - Tumefacción articular.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "debilidad_muscular": {
-      "_comment": "OSTEO_04 - Debilidad muscular (general).",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "limitacion_movilidad": {
-      "_comment": "OSTEO_05 - Limitación de movilidad.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
-    },
-    "traumatismo_reciente": {
-      "_comment": "OSTEO_06 - Traumatismos recientes.",
-      "tiene": null,
-      "respuesta_corta": "COMPLETAR",
-      "respuesta_detalle": "COMPLETAR"
+    "checklist_overrides": {
+      "_comment": "Opcional: forzar un hecho por ID (RESP_07) o por clave (hemoptisis) si no está en hechos.",
+      "_example": {
+        "RESP_07": false,
+        "hemoptisis": false
+      }
     }
   },
 
-  "contexto_generado": "OPCIONAL: Narrativa del caso para el paciente (NO duplica datos_paciente).",
-  "personalidad_generada": "OPCIONAL: Cómo habla/actúa el paciente (NO contradigas datos_paciente ni reglas de respuestas cortas).",
-
+  "contexto_generado": "",
   "multimedia": [],
-  "instrucciones": "OPCIONAL: objetivos del caso, instrucciones para el estudiante, etc.",
-
-  "items_activos": [],
-  "version": "3.1"
+  "instrucciones": "",
+  "version": "4.0"
 }
-
