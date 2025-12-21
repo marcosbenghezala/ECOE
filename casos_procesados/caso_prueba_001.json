@@ -12,6 +12,31 @@
     "ocupacion": "Profesor"
   },
   "datos_paciente": {
+    "motivo_consulta": {
+      "respuesta_corta": "Me duele el pecho.",
+      "respuesta_detalle": "Me duele el pecho desde hace un par de horas."
+    },
+    "relato_libre": {
+      "respuesta_corta": "Me empezó un dolor fuerte en el pecho y no se me quita.",
+      "respuesta_detalle": "Me empezó un dolor fuerte en el pecho hace un par de horas y sigo igual."
+    },
+    "situacion_familiar": {
+      "respuesta_corta": "Vivo con mi mujer.",
+      "respuesta_detalle": "Vivo con mi mujer; mis hijos ya son mayores."
+    },
+    "situacion_laboral": {
+      "respuesta_corta": "Trabajo de profesor, estoy en activo.",
+      "respuesta_detalle": "Sigo trabajando como profesor."
+    },
+    "vivienda": {
+      "respuesta_corta": "Vivo en un piso con ascensor.",
+      "respuesta_detalle": "Vivo en un piso y hay ascensor."
+    },
+    "estres_reciente": {
+      "tiene": false,
+      "respuesta_corta": "No, nada especial.",
+      "respuesta_detalle": "No, estrés fuera de lo normal no."
+    },
     "tiempo_evolucion": {
       "respuesta_corta": "Desde hace unas dos horas.",
       "respuesta_detalle": "Empezó hace un par de horas y no se me ha pasado."
@@ -43,6 +68,15 @@
       "respuesta_corta": "No sabría decirte, está ahí todo el rato.",
       "respuesta_detalle": "No he notado nada concreto que lo empeore, es continuo."
     },
+    "dolor_toracico": {
+      "tiene": true,
+      "respuesta_corta": "Sí, me duele el pecho.",
+      "respuesta_detalle": "Sí, dolor en el pecho."
+    },
+    "relacion_dolor_esfuerzo": {
+      "respuesta_corta": "No, me empezó estando tranquilo, sin esfuerzo.",
+      "respuesta_detalle": "Me empezó sin hacer esfuerzo y no mejora aunque me quede en reposo."
+    },
     "sintomas_asociados": {
       "tiene": true,
       "lista": [
@@ -52,6 +86,15 @@
       ],
       "respuesta_corta": "Sí, estoy sudando y con náuseas.",
       "respuesta_detalle": "Sí, sudo mucho, tengo náuseas y me falta un poco el aire."
+    },
+    "sintomas_vegetativos": {
+      "tiene": true,
+      "lista": [
+        "Sudoración profusa",
+        "Náuseas"
+      ],
+      "respuesta_corta": "Sí, sudo mucho y tengo náuseas.",
+      "respuesta_detalle": "Sí, sudo un montón y me dan náuseas."
     },
     "antecedentes_personales": {
       "tiene": true,

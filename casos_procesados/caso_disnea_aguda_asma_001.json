@@ -18,6 +18,31 @@
     "sibilancias"
   ],
   "datos_paciente": {
+    "motivo_consulta": {
+      "respuesta_corta": "Me falta el aire.",
+      "respuesta_detalle": "Me falta el aire desde esta tarde."
+    },
+    "relato_libre": {
+      "respuesta_corta": "Estaba limpiando, levanté polvo y empecé a ahogarme.",
+      "respuesta_detalle": "Estaba limpiando en casa, levanté polvo y me empezó a faltar el aire, como una crisis."
+    },
+    "situacion_familiar": {
+      "respuesta_corta": "Vivo con mis padres.",
+      "respuesta_detalle": "Vivo con mis padres y me han traído a urgencias."
+    },
+    "situacion_laboral": {
+      "respuesta_corta": "Soy estudiante.",
+      "respuesta_detalle": "Estoy estudiando y ahora mismo no trabajo."
+    },
+    "vivienda": {
+      "respuesta_corta": "Vivo en un piso.",
+      "respuesta_detalle": "Vivo en un piso normal."
+    },
+    "estres_reciente": {
+      "tiene": true,
+      "respuesta_corta": "Sí, llevo unos días con estrés por exámenes.",
+      "respuesta_detalle": "Sí, estoy con exámenes y llevo bastante estrés."
+    },
     "tiempo_evolucion": {
       "respuesta_corta": "Desde esta tarde, hace unas tres horas.",
       "respuesta_detalle": "Empezó hace unas tres horas y ha ido a peor."
@@ -129,6 +154,35 @@
       "respuesta_corta": "No, no echo flemas.",
       "respuesta_detalle": "No, es tos seca."
     },
+    "tos": {
+      "tiene": true,
+      "respuesta_corta": "Sí, tos seca.",
+      "respuesta_detalle": "Sí, tos seca, sobre todo con la falta de aire."
+    },
+    "caracteristicas_tos": {
+      "respuesta_corta": "Es seca, sin flemas.",
+      "respuesta_detalle": "Es una tos seca, sin flemas, y me entra cuando me ahogo."
+    },
+    "sibilancias": {
+      "tiene": true,
+      "respuesta_corta": "Sí, me silba el pecho.",
+      "respuesta_detalle": "Sí, noto pitidos al respirar."
+    },
+    "hemoptisis": {
+      "tiene": false,
+      "respuesta_corta": "No, no he echado sangre.",
+      "respuesta_detalle": "No, nada de sangre al toser."
+    },
+    "exposicion_laboral_respiratoria": {
+      "tiene": false,
+      "respuesta_corta": "No, no trabajo con humos ni polvo.",
+      "respuesta_detalle": "No, fue en casa por polvo al limpiar, no por el trabajo."
+    },
+    "antecedentes_tuberculosis": {
+      "tiene": false,
+      "respuesta_corta": "No, que yo sepa no.",
+      "respuesta_detalle": "No, no he tenido tuberculosis ni contacto que yo sepa."
+    },
     "palpitaciones": {
       "tiene": false,
       "respuesta_corta": "No, no.",
@@ -160,4 +214,3 @@
   "multimedia": [],
   "instrucciones": "Objetivo: realizar anamnesis orientada a crisis asmática, desencadenantes, gravedad, tratamiento habitual y signos de alarma."
 }
-
