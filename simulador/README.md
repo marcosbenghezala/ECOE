@@ -284,7 +284,7 @@ Los casos se pueden crear en formato **JSON** (recomendado) o **pickle** (legacy
 }
 ```
 
-Ver `casos_procesados/demo_case_golden.json` como ejemplo completo.
+Ver `casos_procesados/caso_prueba_001.json` como ejemplo completo.
 
 ---
 
@@ -312,7 +312,7 @@ simulador/
 │   ├── package.json
 │   └── vite.config.ts
 ├── casos_procesados/             # Casos clínicos (JSON + pickle)
-│   ├── demo_case_golden.json     # Caso demo/testing (JSON)
+│   ├── caso_prueba_001.json      # Caso de ejemplo (JSON)
 │   └── *.bin                     # Casos legacy (pickle)
 ├── data/                         # Checklist master y embeddings
 │   ├── master-checklist-v2.json  # Checklist 180 ítems
