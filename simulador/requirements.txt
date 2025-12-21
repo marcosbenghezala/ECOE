@@ -27,4 +27,5 @@ requests==2.31.0
 
 # Production Server (for Railway deployment)
 gunicorn==21.2.0
-eventlet==0.33.3
+gevent==24.2.1
+gevent-websocket==0.10.1

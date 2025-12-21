@@ -1,5 +1,5 @@
 # Use Python 3.11 slim image
-# Force rebuild: 2025-12-19-v4-eventlet
+# Force rebuild: 2025-12-21-v1-gevent
 FROM python:3.11-slim
 
 # Install Node.js 18
@@ -10,9 +10,6 @@ RUN apt-get update && apt-get install -y curl && \
 
 # Set working directory
 WORKDIR /app
-
-# Disable Eventlet's greendns (dnspython) to avoid DNS conflicts in production
-ENV EVENTLET_NO_GREENDNS=yes
 
 # Copy dependency files first (better layer caching)
 COPY simulador/requirements.txt simulador/
@@ -34,5 +31,5 @@ WORKDIR /app/simulador
 # Expose port
 EXPOSE 8080
 
-# Start command - use Gunicorn with eventlet for WebSocket support (compatible with Flask-Sock)
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--worker-class", "eventlet", "--workers", "1", "--timeout", "300", "colab_server:app"]
+# Start command - Gunicorn + Gevent WebSocket worker (compatible with Flask-Sock)
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--worker-class", "geventwebsocket.gunicorn.workers.GeventWebSocketWorker", "--workers", "1", "--timeout", "300", "colab_server:app"]

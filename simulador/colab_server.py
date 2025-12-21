@@ -25,20 +25,16 @@ from dotenv import load_dotenv
 # Cargar .env del directorio padre (TO_GITHUB/)
 load_dotenv(Path(__file__).parent.parent / '.env')
 
-# Evitar que Eventlet use greendns (dnspython), que puede causar fallos de DNS en producción.
-# Nota: en Docker también se fija con EVENTLET_NO_GREENDNS=yes.
-os.environ.setdefault("EVENTLET_NO_GREENDNS", "yes")
-
-# Monkey patch eventlet para resolver problemas de DNS
+# Monkey patch gevent para soporte robusto de WebSockets en Gunicorn.
 # Debe hacerse ANTES de importar requests/urllib3
 try:
-    import eventlet
-    eventlet.monkey_patch(socket=True, select=True, thread=False)
-    print("✅ Eventlet monkey patched (DNS fix)")
+    from gevent import monkey
+    monkey.patch_all()
+    print("✅ Gevent monkey patched")
 except ImportError:
-    print("⚠️  Eventlet no disponible, usando DNS estándar")
+    print("⚠️  Gevent no disponible, usando stdlib")
 except Exception as e:
-    print(f"⚠️  Error monkey patching eventlet: {e}")
+    print(f"⚠️  Error monkey patching gevent: {e}")
 
 # Voz por género (Realtime)
 VOICE_MAPPING = {
