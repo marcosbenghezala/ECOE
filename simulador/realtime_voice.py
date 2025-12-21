@@ -179,6 +179,19 @@ class RealtimeVoiceManager:
     def _build_system_instructions(self) -> str:
         """Construye el system prompt del paciente simulado."""
 
+        # Si el caso trae `datos_paciente`, usamos un prompt canónico para evitar contradicciones.
+        # Backward compatible: si falta o falla, usamos el prompt legacy.
+        datos_paciente = self.case_data.get("datos_paciente")
+        if isinstance(datos_paciente, dict) and any(
+            str(k) and not str(k).startswith("_") for k in datos_paciente.keys()
+        ):
+            try:
+                from patient_prompt import generar_prompt_paciente
+
+                return generar_prompt_paciente(self.case_data)
+            except Exception as e:
+                print(f"⚠️ Error generando prompt desde datos_paciente (fallback legacy): {e}")
+
         info_paciente = self.case_data.get('informacion_paciente', {}) or {}
         nombre = info_paciente.get('nombre', 'Paciente')
         edad_val = info_paciente.get('edad')
