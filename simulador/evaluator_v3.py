@@ -22,7 +22,105 @@ from typing import Dict, List, Optional
 
 from checklist_loader_v2 import ChecklistLoaderV2, load_checklist_v2
 from case_adapter_v2 import CaseAdapterV2
-from text_utils import extract_student_lines, normalize_text
+from text_utils import extract_student_lines, normalize_text, preprocess_transcript_by_role
+
+HABITOS_TABACO_STUDENT = (
+    "fumas",
+    "fuma",
+    "tabaco",
+    "cigarr",
+    "fumador",
+)
+HABITOS_TABACO_PATIENT = (
+    "fumo",
+    "fumador",
+    "cigarr",
+    "tabaco",
+    "paquete",
+)
+HABITOS_ALCOHOL_STUDENT = (
+    "bebes",
+    "bebe",
+    "beber",
+    "alcohol",
+    "cerveza",
+    "vino",
+)
+HABITOS_ALCOHOL_PATIENT = (
+    "bebo",
+    "bebe",
+    "alcohol",
+    "cerveza",
+    "vino",
+    "copas",
+    "whisky",
+)
+FAMILIA_STUDENT = (
+    "antecedentes familiares",
+    "familia",
+    "familiares",
+    "historia familiar",
+)
+FAMILIA_PATIENT = (
+    "padre",
+    "madre",
+    "hermano",
+    "hermana",
+    "familia",
+)
+FAMILIA_EVENTOS = (
+    "infarto",
+    "ictus",
+    "muerte",
+    "fallecio",
+    "murio",
+    "cardiaco",
+    "cardiaca",
+)
+B2_LOCALIZACION_STUDENT = (
+    "donde",
+    "que parte",
+    "zona",
+    "sitio",
+    "localizacion",
+)
+B2_LOCALIZACION_PATIENT = (
+    "pecho",
+    "torax",
+    "brazo",
+    "espalda",
+    "hombro",
+    "costado",
+)
+B2_CARACTERISTICAS_STUDENT = (
+    "como es",
+    "que tipo",
+    "que sensacion",
+    "opresivo",
+    "punzante",
+    "quemazon",
+)
+B2_CARACTERISTICAS_PATIENT = (
+    "opresivo",
+    "punzante",
+    "quemazon",
+    "ardor",
+)
+B2_IRRADIACION_STUDENT = (
+    "irrad",
+    "se extiende",
+    "hacia",
+    "baja",
+    "sube",
+)
+B2_IRRADIACION_PATIENT = (
+    "irrad",
+    "brazo",
+    "mandibula",
+    "cuello",
+    "espalda",
+    "hombro",
+)
 
 
 class EvaluatorV3:
@@ -46,7 +144,66 @@ class EvaluatorV3:
         self.loader = load_checklist_v2(checklist_path)
         self.adapter = CaseAdapterV2(checklist_path)
 
-    def evaluate_item(self, item: Dict, student_text: str) -> Dict:
+    def _contains_any(self, text: str, keywords: tuple) -> bool:
+        for kw in keywords:
+            if kw and kw in text:
+                return True
+        return False
+
+    def _has_age_reference(self, text: str) -> bool:
+        if re.search(r"\b\d{2}\b", text):
+            return True
+        return "anos" in text
+
+    def _special_match(self, item_id: str, student_text: str, patient_text: str) -> bool:
+        if not student_text or not patient_text:
+            return False
+
+        if item_id == "B5_006":
+            return self._contains_any(student_text, HABITOS_TABACO_STUDENT) and self._contains_any(
+                patient_text, HABITOS_TABACO_PATIENT
+            )
+        if item_id == "B5_007":
+            numeric_smoke = bool(re.search(r"\b\d+\b", patient_text)) and self._contains_any(
+                patient_text, ("cigarr", "paquete", "dia")
+            )
+            return self._contains_any(student_text, HABITOS_TABACO_STUDENT) and numeric_smoke
+        if item_id == "B5_008":
+            return self._contains_any(student_text, HABITOS_ALCOHOL_STUDENT) and self._contains_any(
+                patient_text, HABITOS_ALCOHOL_PATIENT
+            )
+        if item_id == "B5_009":
+            numeric_alcohol = bool(re.search(r"\b\d+\b", patient_text)) or self._contains_any(
+                patient_text, ("semana", "fines", "diario", "copas", "cerveza")
+            )
+            return self._contains_any(student_text, HABITOS_ALCOHOL_STUDENT) and numeric_alcohol
+        if item_id == "B6_001":
+            return self._contains_any(student_text, FAMILIA_STUDENT) and self._contains_any(
+                patient_text, FAMILIA_PATIENT
+            )
+        if item_id == "B6_002":
+            return self._contains_any(student_text, FAMILIA_STUDENT) and self._contains_any(
+                patient_text, FAMILIA_PATIENT
+            ) and self._contains_any(patient_text, FAMILIA_EVENTOS)
+        if item_id == "B6_008":
+            return self._contains_any(student_text, FAMILIA_STUDENT) and self._contains_any(
+                patient_text, FAMILIA_EVENTOS
+            ) and self._has_age_reference(patient_text)
+        if item_id == "B2_004":
+            if self._contains_any(student_text, B2_LOCALIZACION_STUDENT):
+                return True
+            return self._contains_any(patient_text, B2_LOCALIZACION_PATIENT) and "dolor" in student_text
+        if item_id == "B2_005":
+            if self._contains_any(student_text, B2_CARACTERISTICAS_STUDENT):
+                return True
+            return self._contains_any(patient_text, B2_CARACTERISTICAS_PATIENT) and "dolor" in student_text
+        if item_id == "B2_006":
+            if self._contains_any(student_text, B2_IRRADIACION_STUDENT):
+                return True
+            return self._contains_any(patient_text, B2_IRRADIACION_PATIENT) and "dolor" in student_text
+        return False
+
+    def evaluate_item(self, item: Dict, student_text: str, patient_text: str = "") -> Dict:
         """
         Evalúa un item contra el texto del estudiante.
 
@@ -98,7 +255,18 @@ class EvaluatorV3:
                     "match_details": f"keyword: {keyword}"
                 }
 
-        # 3. No match
+        # 3. Heurística mínima con paciente para ítems clave
+        if patient_text and self._special_match(item_id, student_text, patient_text):
+            return {
+                "item_id": item_id,
+                "label": item_label,
+                "matched": True,
+                "points": max_points,
+                "method": "heuristic",
+                "match_details": "override_by_patient"
+            }
+
+        # 4. No match
         return {
             "item_id": item_id,
             "label": item_label,  # NUEVO: Agregar label legible
@@ -145,17 +313,19 @@ class EvaluatorV3:
         min_points_case = adapted["min_points_case"]
         subsections_b7 = adapted["subsections_b7_activas"]
 
-        # 2. Extraer solo líneas del estudiante
-        student_lines = extract_student_lines(transcript)
+        # 2. Extraer líneas por rol (estudiante + paciente)
+        preprocessed = preprocess_transcript_by_role(transcript)
+        student_lines = preprocessed.get("student_lines") or extract_student_lines(transcript)
         student_text = " ".join(student_lines)
-        student_text_normalized = normalize_text(student_text)
+        student_text_normalized = preprocessed.get("student_text_normalized") or normalize_text(student_text)
+        patient_text_normalized = preprocessed.get("patient_text_normalized") or ""
 
         # 3. Evaluar cada item activo
         items_evaluated = []
         points_obtained = 0
 
         for item in items_activos:
-            result = self.evaluate_item(item, student_text_normalized)
+            result = self.evaluate_item(item, student_text_normalized, patient_text_normalized)
             items_evaluated.append(result)
             points_obtained += result["points"]
 

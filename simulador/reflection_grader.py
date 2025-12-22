@@ -9,6 +9,13 @@ from typing import Dict, Any
 from text_utils import normalize_text
 
 MIN_WORDS_PER_ANSWER = int(os.getenv("REFLECTION_MIN_WORDS", "6"))
+MIN_WORDS_BY_FIELD = {
+    "resumen_caso": int(os.getenv("REFLECTION_MIN_WORDS_RESUMEN", "6")),
+    "diagnostico_principal": int(os.getenv("REFLECTION_MIN_WORDS_DIAGNOSTICO", "2")),
+    "diagnosticos_diferenciales": int(os.getenv("REFLECTION_MIN_WORDS_DIFERENCIALES", "3")),
+    "pruebas_diagnosticas": int(os.getenv("REFLECTION_MIN_WORDS_PRUEBAS", "3")),
+    "plan_manejo": int(os.getenv("REFLECTION_MIN_WORDS_PLAN", "3")),
+}
 
 _INVALID_ANSWERS_RAW = {
     "",
@@ -61,24 +68,26 @@ def count_words(text: str) -> int:
     return len(re.findall(r"\b\w+\b", cleaned))
 
 
-def analyze_answer(text: str) -> Dict[str, Any]:
+def analyze_answer(text: str, min_words: int = MIN_WORDS_PER_ANSWER) -> Dict[str, Any]:
     normalized = normalize_text(text or "")
     word_count = count_words(normalized)
     is_invalid = normalized in INVALID_ANSWERS
-    is_too_short = word_count < MIN_WORDS_PER_ANSWER
+    is_too_short = word_count < min_words
     return {
         "normalized": normalized,
         "word_count": word_count,
         "is_invalid": is_invalid,
         "is_too_short": is_too_short,
+        "min_words": min_words,
     }
 
 
 def analyze_reflection_answers(reflection: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    return {
-        field: analyze_answer(reflection.get(field, ""))
-        for field in ANSWER_FIELDS
-    }
+    out: Dict[str, Dict[str, Any]] = {}
+    for field in ANSWER_FIELDS:
+        min_words = MIN_WORDS_BY_FIELD.get(field, MIN_WORDS_PER_ANSWER)
+        out[field] = analyze_answer(reflection.get(field, ""), min_words=min_words)
+    return out
 
 
 def apply_quality_rules(
@@ -101,9 +110,16 @@ def apply_quality_rules(
 
 def build_quality_instructions() -> str:
     invalid_examples = ", ".join(sorted(_INVALID_ANSWERS_RAW))
+    per_field = (
+        f"- Resumen del caso: mínimo {MIN_WORDS_BY_FIELD['resumen_caso']} palabras.\n"
+        f"- Diagnóstico principal: mínimo {MIN_WORDS_BY_FIELD['diagnostico_principal']} palabras.\n"
+        f"- Diagnósticos diferenciales: mínimo {MIN_WORDS_BY_FIELD['diagnosticos_diferenciales']} palabras.\n"
+        f"- Pruebas diagnósticas: mínimo {MIN_WORDS_BY_FIELD['pruebas_diagnosticas']} palabras.\n"
+        f"- Plan de manejo: mínimo {MIN_WORDS_BY_FIELD['plan_manejo']} palabras.\n"
+    )
     return (
         "REGLAS GENERALES (OBLIGATORIAS):\n"
-        f"- Si la respuesta tiene menos de {MIN_WORDS_PER_ANSWER} palabras, la puntuación debe ser 0.\n"
+        f"- Longitud mínima por sección:\n{per_field}"
         f"- Si la respuesta es vacía o coincide con respuestas no válidas ({invalid_examples}), puntuación 0.\n"
         "- Respuestas muy cortas o sin contenido nunca pueden superar 10/100.\n"
         "- Valora claridad, estructura mínima y cobertura de información clave del caso.\n"
