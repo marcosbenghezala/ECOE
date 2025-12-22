@@ -143,6 +143,7 @@ class EvaluatorV3:
         """
         self.loader = load_checklist_v2(checklist_path)
         self.adapter = CaseAdapterV2(checklist_path)
+        self._strict_items = {"B9_003", "B9_004"}
 
     def _contains_any(self, text: str, keywords: tuple) -> bool:
         for kw in keywords:
@@ -207,6 +208,21 @@ class EvaluatorV3:
             return False
         return False
 
+    def _strict_match(self, item_id: str, student_text: str) -> bool:
+        if not student_text:
+            return False
+        if item_id == "B9_003":
+            return any(
+                phrase in student_text
+                for phrase in ("ya veo", "comprendo", "entiendo que", "entiendo lo")
+            )
+        if item_id == "B9_004":
+            return any(
+                phrase in student_text
+                for phrase in ("si le entiendo bien", "entonces lo que me dice", "entonces lo que dice")
+            )
+        return False
+
     def evaluate_item(self, item: Dict, student_text: str, patient_text: str = "") -> Dict:
         """
         Evalúa un item contra el texto del estudiante.
@@ -228,6 +244,25 @@ class EvaluatorV3:
         item_id = item["id"]
         max_points = item.get("points", 0)
         item_label = item.get("label", item.get("description", item_id))  # Usar label o description
+
+        if item_id in self._strict_items:
+            if self._strict_match(item_id, student_text):
+                return {
+                    "item_id": item_id,
+                    "label": item_label,
+                    "matched": True,
+                    "points": max_points,
+                    "method": "strict",
+                    "match_details": "strict_rule",
+                }
+            return {
+                "item_id": item_id,
+                "label": item_label,
+                "matched": False,
+                "points": 0,
+                "method": "none",
+                "match_details": "",
+            }
 
         # 1. Intentar match con regex (compilados)
         compiled_patterns = self.loader.get_compiled_regex(item_id)

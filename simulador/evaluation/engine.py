@@ -14,6 +14,7 @@ from evaluation.items_registry import load_item_mappings
 
 
 DEFAULT_WEIGHTS = {"checklist": 0.7, "development": 0.3}
+V2_STRICT_MATCH_TYPES = {"keyword"}
 
 
 def build_unified_evaluation(
@@ -163,7 +164,13 @@ def _apply_v2_boosts(
         return eval_v3, {"items_added": 0, "points_added": 0, "boosted_item_ids": []}
 
     boosted = copy.deepcopy(eval_v3)
-    done_ids = {item["id"] for item in v2_items if item.get("done") and item.get("id")}
+    done_ids = {
+        item["id"]
+        for item in v2_items
+        if item.get("done")
+        and item.get("id")
+        and (item.get("match_type") in V2_STRICT_MATCH_TYPES)
+    }
 
     boost_targets = set()
     for v2_id in done_ids:
@@ -308,6 +315,8 @@ def _build_item_entry(
     for v2_id in v3_to_v2.get(item_id, []):
         v2_item = v2_by_id.get(v2_id)
         if not v2_item or not v2_item.get("done"):
+            continue
+        if critical and v2_item.get("match_type") not in V2_STRICT_MATCH_TYPES:
             continue
         evidence.append(
             {

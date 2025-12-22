@@ -76,14 +76,13 @@ class SheetsLogger:
         worksheet = self._get_or_raise(detail_sheet_name)
         values = worksheet.get_all_values()
         survey_row = _find_row(values, ["encuesta de satisfaccion", "encuesta"])
+        likert, abiertas, media = _split_survey_responses(survey_responses)
+        rows: List[List[str]] = []
         if survey_row:
             start_row = survey_row + 1
         else:
             start_row = len(values) + 1
-
-        likert, abiertas, media = _split_survey_responses(survey_responses)
-        rows: List[List[str]] = []
-        rows.append(["⭐ ENCUESTA DE SATISFACCIÓN"])
+            rows.append(["⭐ ENCUESTA DE SATISFACCIÓN"])
         rows.append(["Media general:", f"{_as_float(media, default=0.0)} / 5"])
         rows.append([""])
         rows.append(["Pregunta", "Respuesta"])
@@ -95,6 +94,7 @@ class SheetsLogger:
             rows.append([_as_str(item.get("respuesta")) or ""])
         worksheet.update(f"A{start_row}", rows, value_input_option="USER_ENTERED")
         _update_summary_satisfaction(worksheet, media)
+        self._update_resumen_encuesta_by_gid(int(worksheet.id), media)
         try:
             formatear_hoja_detalle(worksheet)
         except Exception:
@@ -205,6 +205,23 @@ class SheetsLogger:
         except Exception as e:
             print(f"[Sheets] ⚠️ No se pudieron asegurar cabeceras RESUMEN: {e}")
         return worksheet
+
+    def _update_resumen_encuesta_by_gid(self, detail_gid: int, media: float) -> None:
+        try:
+            resumen_ws = self._get_or_create_resumen()
+            values = resumen_ws.get_all_values()
+        except Exception:
+            return
+
+        target = f"gid={detail_gid}"
+        for idx, row in enumerate(values, 1):
+            if any(target in (cell or "") for cell in row):
+                resumen_ws.update(
+                    f"J{idx}",
+                    [[_as_float(media, default=0.0)]],
+                    value_input_option="USER_ENTERED",
+                )
+                return
 
     def _create_unique_worksheet(self, base_title: str) -> "gspread.Worksheet":
         title = base_title[:90]

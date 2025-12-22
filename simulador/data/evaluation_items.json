@@ -3,47 +3,58 @@
   "mappings": [
     {
       "v2_id": "SOCR_01",
-      "v3_ids": ["B2_004"]
+      "v3_ids": ["B2_004"],
+      "critical": true
     },
     {
       "v2_id": "SOCR_02",
-      "v3_ids": ["B2_001"]
+      "v3_ids": ["B2_001"],
+      "critical": true
     },
     {
       "v2_id": "SOCR_03",
-      "v3_ids": ["B2_005"]
+      "v3_ids": ["B2_005"],
+      "critical": true
     },
     {
       "v2_id": "SOCR_04",
-      "v3_ids": ["B2_006"]
+      "v3_ids": ["B2_006"],
+      "critical": true
     },
     {
       "v2_id": "SOCR_05",
-      "v3_ids": ["B2_007"]
+      "v3_ids": ["B2_007"],
+      "critical": true
     },
     {
       "v2_id": "HAB_01",
-      "v3_ids": ["B5_006", "B5_007"]
+      "v3_ids": ["B5_006", "B5_007"],
+      "critical": true
     },
     {
       "v2_id": "HAB_02",
-      "v3_ids": ["B5_008", "B5_009"]
+      "v3_ids": ["B5_008", "B5_009"],
+      "critical": true
     },
     {
       "v2_id": "AF_01",
-      "v3_ids": ["B6_001", "B6_002"]
+      "v3_ids": ["B6_001", "B6_002"],
+      "critical": true
     },
     {
       "v2_id": "AP_01",
-      "v3_ids": ["B3_001", "B3_002"]
+      "v3_ids": ["B3_001", "B3_002"],
+      "critical": true
     },
     {
       "v2_id": "AP_11",
-      "v3_ids": ["B4_001"]
+      "v3_ids": ["B4_001"],
+      "critical": true
     },
     {
       "v2_id": "CARDIO_01",
-      "v3_ids": ["B7_014"]
+      "v3_ids": ["B7_014"],
+      "critical": true
     }
   ]
 }
