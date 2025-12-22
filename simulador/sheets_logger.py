@@ -57,6 +57,7 @@ class SheetsLogger:
             - development_questions: list (opcional)
             - survey_responses: list | dict (opcional)
             - transcript: str | list[str] (opcional)
+            - evaluation_unified: dict (opcional)
         """
         ok, _detail = self._log_simulation_internal(simulation_data)
         try:
@@ -431,6 +432,13 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(eval_result, dict):
         eval_result = {}
 
+    evaluation_unified = (
+        data.get("evaluation_unified")
+        or eval_result.get("evaluation_unified")
+    )
+    if not isinstance(evaluation_unified, dict):
+        evaluation_unified = {}
+
     eval_transcript = (
         data.get("eval_transcript")
         or data.get("conversation_evaluation")
@@ -501,9 +509,37 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     )
     media_desarrollo = _media_desarrollo(preguntas_desarrollo, data, eval_result)
 
+    if evaluation_unified:
+        unified_scores = evaluation_unified.get("scores") or {}
+        unified_global = unified_scores.get("global") or {}
+        unified_dev = unified_scores.get("development") or {}
+
+        score_total = _as_int(unified_global.get("score"), default=score_total)
+        score_max = _as_int(unified_global.get("max"), default=score_max)
+        pct_conversacion = int(round(_as_float(unified_global.get("percentage"), default=pct_conversacion)))
+
+        unified_criticos = _extract_items_criticos_unified(evaluation_unified)
+        if unified_criticos:
+            items_criticos = unified_criticos
+            criticos_hechos = _count_criticos_done(items_criticos)
+            criticos_total = len(items_criticos)
+
+        unified_preguntas = _build_preguntas_desarrollo_unified(evaluation_unified)
+        if unified_preguntas:
+            preguntas_desarrollo = unified_preguntas
+
+        media_desarrollo = _as_int(unified_dev.get("score"), default=media_desarrollo)
+
     encuesta_likert, encuesta_abiertas, media_encuesta = _split_survey_responses(
         data.get("survey_responses") or data.get("survey") or data.get("encuesta") or eval_result.get("survey")
     )
+
+    if evaluation_unified:
+        unified_survey = evaluation_unified.get("survey") or {}
+        if unified_survey:
+            encuesta_likert = unified_survey.get("likert") or []
+            encuesta_abiertas = unified_survey.get("open") or []
+            media_encuesta = _as_float(unified_survey.get("average"), default=media_encuesta)
 
     transcripcion = _parse_transcripcion(data.get("transcript") or data.get("transcripcion"))
 
@@ -542,6 +578,29 @@ def _extract_items_criticos(eval_transcript: Dict[str, Any]) -> List[Dict[str, A
                     "id": _as_str(item.get("id")) or "-",
                     "descripcion": _as_str(item.get("item")) or "-",
                     "capa": _as_str(capa) or "-",
+                    "done": bool(item.get("done")),
+                    "score": _as_int(item.get("score"), default=0),
+                    "max_score": _as_int(item.get("max_score"), default=0),
+                }
+            )
+    return out
+
+
+def _extract_items_criticos_unified(unified: Dict[str, Any]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    blocks = unified.get("blocks") or []
+    if isinstance(blocks, dict):
+        blocks = list(blocks.values())
+    for block in blocks or []:
+        block_id = _as_str(block.get("id")) or "-"
+        for item in block.get("items", []) or []:
+            if not item.get("critical"):
+                continue
+            out.append(
+                {
+                    "id": _as_str(item.get("id")) or "-",
+                    "descripcion": _as_str(item.get("text")) or "-",
+                    "capa": block_id,
                     "done": bool(item.get("done")),
                     "score": _as_int(item.get("score"), default=0),
                     "max_score": _as_int(item.get("max_score"), default=0),
@@ -604,6 +663,26 @@ def _build_preguntas_desarrollo(
                     "pregunta": label,
                     "respuesta": respuesta,
                     "score": _as_int(score, default=0),
+                }
+            )
+    return out
+
+
+def _build_preguntas_desarrollo_unified(unified: Dict[str, Any]) -> List[Dict[str, Any]]:
+    questions = (unified.get("development") or {}).get("questions") or []
+    out: List[Dict[str, Any]] = []
+    for item in questions:
+        if not isinstance(item, dict):
+            continue
+        pregunta = _as_str(item.get("question") or item.get("pregunta"))
+        respuesta = _as_str(item.get("answer") or item.get("respuesta"))
+        score = _as_int(item.get("score"), default=0)
+        if pregunta or respuesta or score:
+            out.append(
+                {
+                    "pregunta": pregunta or "-",
+                    "respuesta": respuesta,
+                    "score": score,
                 }
             )
     return out

@@ -56,17 +56,58 @@ export function ResultsScreenV3({ caseData, studentData, evaluationResults, onBa
 // Vista para evaluación V3
 function ResultsV3View({ caseData, studentData, evaluationResults, onBackToDashboard, onGoToSurvey }: ResultsScreenV3Props) {
   const [expandedBlocks, setExpandedBlocks] = useState<Record<string, boolean>>({})
+  const [showDebug, setShowDebug] = useState(false)
+  const isUnified = evaluationResults?.schema_version?.startsWith("evaluation.")
 
   // Datos de evaluación V3
-  const percentage = Math.round(evaluationResults?.percentage || 0)
-  const pointsObtained = evaluationResults?.points_obtained || 0
-  const maxPointsCase = evaluationResults?.max_points_case || 0
-  const minPointsCase = evaluationResults?.min_points_case || 0
-  const passed = evaluationResults?.passed || false
-  const blocks = evaluationResults?.blocks || {}
-  const b7Subsections = evaluationResults?.b7_subsections || {}
-  const summary = evaluationResults?.summary || {}
-  const itemsEvaluated = evaluationResults?.items_evaluated || []
+  const percentage = Math.round(
+    isUnified ? evaluationResults?.scores?.global?.percentage || 0 : evaluationResults?.percentage || 0
+  )
+  const pointsObtained = isUnified ? evaluationResults?.scores?.checklist?.score || 0 : evaluationResults?.points_obtained || 0
+  const maxPointsCase = isUnified ? evaluationResults?.scores?.checklist?.max || 0 : evaluationResults?.max_points_case || 0
+  const minPointsCase = isUnified
+    ? evaluationResults?.legacy?.v3?.min_points_case || 0
+    : evaluationResults?.min_points_case || 0
+  const passed = isUnified
+    ? evaluationResults?.legacy?.v3?.passed ?? percentage >= 60
+    : evaluationResults?.passed || false
+  const blocksRaw = evaluationResults?.blocks || (isUnified ? [] : {})
+  const b7Subsections = isUnified ? evaluationResults?.legacy?.v3?.b7_subsections || {} : evaluationResults?.b7_subsections || {}
+  const itemsEvaluated = isUnified ? [] : evaluationResults?.items_evaluated || []
+
+  const blocksList = Array.isArray(blocksRaw)
+    ? blocksRaw
+    : Object.entries(blocksRaw).map(([blockId, blockData]: [string, any]) => ({
+        id: blockId,
+        ...blockData,
+      }))
+
+  const summary = (() => {
+    if (!isUnified) {
+      return evaluationResults?.summary || {}
+    }
+    const totalItems = blocksList.reduce(
+      (sum: number, block: any) => sum + ((block.items || []).length || 0),
+      0
+    )
+    const matchedItems = blocksList.reduce(
+      (sum: number, block: any) =>
+        sum + (block.items || []).filter((item: any) => item.done).length,
+      0
+    )
+    return {
+      total_items_evaluated: totalItems,
+      total_items_matched: matchedItems,
+      match_rate: totalItems ? Math.round((matchedItems / totalItems) * 10) / 10 : 0,
+      student_lines_count: evaluationResults?.legacy?.v3?.summary?.student_lines_count || 0,
+      student_text_length: evaluationResults?.legacy?.v3?.summary?.student_text_length || 0,
+    }
+  })()
+
+  const unifiedScore = evaluationResults?.scores?.global
+  const legacyV3 = evaluationResults?.legacy?.v3 || {}
+  const legacyV2 = evaluationResults?.legacy?.v2 || {}
+  const legacyV2Score = legacyV2?.puntuacion || {}
 
   const toggleBlock = (blockId: string) => {
     setExpandedBlocks((prev) => ({ ...prev, [blockId]: !prev[blockId] }))
@@ -177,18 +218,21 @@ function ResultsV3View({ caseData, studentData, evaluationResults, onBackToDashb
         <div className="space-y-4 mb-8">
           <h2 className="text-xl font-semibold text-foreground mb-4">Resultados por Bloque</h2>
 
-          {Object.entries(blocks).map(([blockId, blockData]: [string, any]) => {
+          {blocksList.map((block: any) => {
+            const blockId = block.id
             // Filtrar items de este bloque
             // blockId = "B0_INTRODUCCION" → extraer "B0" → buscar items que empiecen con "B0_"
             const blockNumber = blockId.split('_')[0]  // "B0_INTRODUCCION" → "B0"
-            const blockItems = itemsEvaluated.filter((item: any) => item.item_id.startsWith(blockNumber + '_'))
+            const blockItems = isUnified
+              ? block.items || []
+              : itemsEvaluated.filter((item: any) => item.item_id.startsWith(blockNumber + '_'))
 
             return (
               <BlockResultCard
                 key={blockId}
                 blockId={blockId}
-                blockName={blockNames[blockId] || blockId}
-                blockData={blockData}
+                blockName={block.name || blockNames[blockId] || blockId}
+                blockData={block}
                 blockItems={blockItems}
                 isExpanded={expandedBlocks[blockId] || false}
                 onToggle={() => toggleBlock(blockId)}
@@ -200,11 +244,12 @@ function ResultsV3View({ caseData, studentData, evaluationResults, onBackToDashb
         </div>
 
         {/* Subsecciones B7 Activadas (info) */}
-        {evaluationResults?.subsections_b7_activas && evaluationResults.subsections_b7_activas.length > 0 && (
+        {(isUnified ? evaluationResults?.legacy?.v3?.subsections_b7_activas : evaluationResults?.subsections_b7_activas)
+          && (isUnified ? evaluationResults?.legacy?.v3?.subsections_b7_activas : evaluationResults?.subsections_b7_activas).length > 0 && (
           <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 mb-8">
             <h3 className="text-sm font-medium text-foreground mb-2">Subsecciones Activadas (Anamnesis por Aparatos)</h3>
             <div className="flex flex-wrap gap-2">
-              {evaluationResults.subsections_b7_activas.map((subsection: string) => (
+              {(isUnified ? evaluationResults?.legacy?.v3?.subsections_b7_activas : evaluationResults?.subsections_b7_activas).map((subsection: string) => (
                 <Badge key={subsection} variant="outline">{subsection}</Badge>
               ))}
             </div>
@@ -212,8 +257,50 @@ function ResultsV3View({ caseData, studentData, evaluationResults, onBackToDashb
         )}
 
         {/* Preguntas de Desarrollo */}
-        {evaluationResults?.reflection && (
+        {isUnified && evaluationResults?.development?.questions?.length > 0 && (
+          <DevelopmentQuestionsSection questions={evaluationResults.development.questions} />
+        )}
+        {!isUnified && evaluationResults?.reflection && (
           <DevelopmentQuestionsSection reflection={evaluationResults.reflection} />
+        )}
+
+        {/* Debug Legacy */}
+        {isUnified && (
+          <div className="bg-card rounded-2xl p-6 border border-border mb-8">
+            <button
+              onClick={() => setShowDebug((prev) => !prev)}
+              className="w-full flex items-center justify-between text-left"
+            >
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Debug legacy (interno)</h3>
+                <p className="text-xs text-muted-foreground mt-1">Comparativa rápida unificado vs legacy</p>
+              </div>
+              {showDebug ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            </button>
+
+            {showDebug && (
+              <div className="mt-4 space-y-3 text-sm text-foreground">
+                <div className="flex items-center justify-between">
+                  <span>Unificado (global)</span>
+                  <span className="font-semibold">
+                    {unifiedScore?.score || 0}/{unifiedScore?.max || 100} ({unifiedScore?.percentage || 0}%)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Legacy V3 (checklist)</span>
+                  <span>
+                    {legacyV3.points_obtained || 0}/{legacyV3.max_points_case || 0} ({legacyV3.percentage || 0}%)
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Legacy V2 (checklist)</span>
+                  <span>
+                    {legacyV2Score.total_score || 0}/{legacyV2Score.max_score || 0} ({legacyV2Score.porcentaje || 0}%)
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Action Buttons */}
@@ -249,15 +336,23 @@ function BlockResultCard({
   onToggle: () => void
   subsections?: Record<string, any>
 }) {
+  const normalizedItems = (blockItems || []).map((item: any) => ({
+    id: item.item_id || item.id,
+    label: item.label || item.text || item.item_id || item.id,
+    matched: item.matched ?? item.done ?? false,
+    points: item.points ?? item.score ?? 0,
+    maxPoints: item.max_score ?? item.max_points ?? 1,
+  }))
+
   const percentage = blockData.percentage || 0
-  const pointsObtained = blockData.points_obtained || 0
-  const maxPoints = blockData.max_points || 0
-  const itemsMatched = blockData.items_matched || 0
-  const itemsTotal = blockData.items_total || 0
+  const pointsObtained = blockData.points_obtained ?? blockData.score ?? 0
+  const maxPoints = blockData.max_points ?? blockData.max ?? 0
+  const itemsMatched = blockData.items_matched ?? normalizedItems.filter((item: any) => item.matched).length
+  const itemsTotal = blockData.items_total ?? normalizedItems.length
 
   // Separar items cumplidos y no cumplidos
-  const itemsCumplidos = blockItems.filter((item: any) => item.matched)
-  const itemsNoCumplidos = blockItems.filter((item: any) => !item.matched)
+  const itemsCumplidos = normalizedItems.filter((item: any) => item.matched)
+  const itemsNoCumplidos = normalizedItems.filter((item: any) => !item.matched)
 
   return (
     <div className="bg-card rounded-2xl border border-border overflow-hidden">
@@ -317,11 +412,11 @@ function BlockResultCard({
                 </h4>
                 <div className="space-y-1">
                   {itemsCumplidos.map((item: any) => (
-                    <div key={item.item_id} className="flex items-start gap-2 text-sm bg-success/5 rounded p-2">
+                    <div key={item.id} className="flex items-start gap-2 text-sm bg-success/5 rounded p-2">
                       <CheckCircle2 className="w-4 h-4 text-success mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <div className="font-medium text-foreground">{item.label || item.item_id}</div>
-                        <div className="text-xs text-muted-foreground">ID: {item.item_id}</div>
+                        <div className="font-medium text-foreground">{item.label || item.id}</div>
+                        <div className="text-xs text-muted-foreground">ID: {item.id}</div>
                       </div>
                       <Badge variant="outline" className="text-xs">{item.points} pts</Badge>
                     </div>
@@ -339,11 +434,11 @@ function BlockResultCard({
                 </h4>
                 <div className="space-y-1">
                   {itemsNoCumplidos.map((item: any) => (
-                    <div key={item.item_id} className="flex items-start gap-2 text-sm bg-destructive/5 rounded p-2">
+                    <div key={item.id} className="flex items-start gap-2 text-sm bg-destructive/5 rounded p-2">
                       <XCircle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
                       <div className="flex-1">
-                        <div className="text-muted-foreground">{item.label || item.item_id}</div>
-                        <div className="text-xs text-muted-foreground/70">ID: {item.item_id}</div>
+                        <div className="text-muted-foreground">{item.label || item.id}</div>
+                        <div className="text-xs text-muted-foreground/70">ID: {item.id}</div>
                       </div>
                       <Badge variant="outline" className="text-xs opacity-50">{item.points} pts</Badge>
                     </div>
@@ -359,50 +454,67 @@ function BlockResultCard({
 }
 
 // Componente para Preguntas de Desarrollo (con toggles)
-function DevelopmentQuestionsSection({ reflection }: { reflection: any }) {
+function DevelopmentQuestionsSection({
+  reflection,
+  questions,
+}: {
+  reflection?: any
+  questions?: any[]
+}) {
   const [expandedQuestions, setExpandedQuestions] = useState<Record<number, boolean>>({})
 
   const toggleQuestion = (questionId: number) => {
     setExpandedQuestions((prev) => ({ ...prev, [questionId]: !prev[questionId] }))
   }
 
-  // Definir las 4 preguntas con sus datos
-  const questions = [
-    {
-      id: 1,
-      title: "Resumen del Caso",
-      answer: reflection.resumen_caso,
-      score: reflection.puntuacion_resumen || 0,
-      feedback: reflection.resumen_feedback
-    },
-    {
-      id: 2,
-      title: "Diagnóstico Principal",
-      answer: reflection.diagnostico_principal,
-      score: reflection.puntuacion_diagnostico || 0,
-      feedback: reflection.diagnostico_feedback
-    },
-    {
-      id: 3,
-      title: "Diagnósticos Diferenciales",
-      answer: reflection.diagnosticos_diferenciales,
-      score: reflection.puntuacion_diferenciales || 0,
-      feedback: reflection.diferenciales_feedback
-    },
-    {
-      id: 4,
-      title: "Pruebas Complementarias",
-      answer: reflection.pruebas_diagnosticas,
-      score: reflection.puntuacion_pruebas || 0,
-      feedback: reflection.pruebas_feedback
-    }
-  ].filter(q => q.answer) // Solo mostrar preguntas con respuesta
+  const normalizedQuestions = questions?.length
+    ? questions.map((q, idx) => ({
+        id: idx + 1,
+        title: q.question || q.titulo || `Pregunta ${idx + 1}`,
+        answer: q.answer || q.respuesta || "",
+        score: q.score || q.puntuacion || 0,
+        feedback: q.feedback || q.comentario || "",
+      }))
+    : [
+        {
+          id: 1,
+          title: "Resumen del Caso",
+          answer: reflection?.resumen_caso,
+          score: reflection?.puntuacion_resumen || 0,
+          feedback: reflection?.resumen_feedback
+        },
+        {
+          id: 2,
+          title: "Diagnóstico Principal",
+          answer: reflection?.diagnostico_principal,
+          score: reflection?.puntuacion_diagnostico || 0,
+          feedback: reflection?.diagnostico_feedback
+        },
+        {
+          id: 3,
+          title: "Diagnósticos Diferenciales",
+          answer: reflection?.diagnosticos_diferenciales,
+          score: reflection?.puntuacion_diferenciales || 0,
+          feedback: reflection?.diferenciales_feedback
+        },
+        {
+          id: 4,
+          title: "Pruebas Complementarias",
+          answer: reflection?.pruebas_diagnosticas,
+          score: reflection?.puntuacion_pruebas || 0,
+          feedback: reflection?.pruebas_feedback
+        }
+      ]
 
-  if (questions.length === 0) return null
+  const questionsList = normalizedQuestions.filter(
+    (q) => q.answer || q.feedback || q.score > 0
+  )
+
+  if (questionsList.length === 0) return null
 
   // Calcular nota global de preguntas
-  const totalScore = questions.reduce((sum, q) => sum + q.score, 0)
-  const avgScore = Math.round(totalScore / questions.length)
+  const totalScore = questionsList.reduce((sum, q) => sum + q.score, 0)
+  const avgScore = Math.round(totalScore / questionsList.length)
 
   return (
     <div className="bg-card rounded-2xl p-6 border border-border mb-8">
@@ -420,7 +532,7 @@ function DevelopmentQuestionsSection({ reflection }: { reflection: any }) {
 
       {/* Accordions de preguntas */}
       <div className="space-y-3">
-        {questions.map((q) => (
+        {questionsList.map((q) => (
           <div key={q.id} className="border border-border rounded-lg overflow-hidden">
             {/* Header del accordion */}
             <button

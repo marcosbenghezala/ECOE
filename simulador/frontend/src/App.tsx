@@ -15,100 +15,6 @@ import type { SimulationStep, CaseData, StudentData } from "@/types"
 // Use empty string for relative URLs (works in both localhost and production)
 const API_BASE_URL = import.meta.env.VITE_API_URL || ""
 
-const V2_TO_V3_ITEM_MAP: Record<string, string[]> = {
-  SOCR_02: ["B2_001"],
-  HAB_01: ["B5_006"],
-  HAB_02: ["B5_008"],
-  AF_01: ["B6_001", "B6_002"],
-}
-
-function applyV2SignalsToV3(resultsV3: any, resultsV2: any) {
-  const evalTranscript = resultsV2?.eval_transcript
-  if (!evalTranscript || !resultsV3?.items_evaluated) {
-    return resultsV3
-  }
-
-  const doneIds = new Set<string>()
-  const capas = evalTranscript.evaluacion_por_capas || {}
-  Object.values(capas).forEach((capa: any) => {
-    ;(capa.items || []).forEach((item: any) => {
-      if (item?.done && item?.id) {
-        doneIds.add(item.id)
-      }
-    })
-  })
-
-  const boostTargets = new Set<string>()
-  doneIds.forEach((id) => {
-    const mapped = V2_TO_V3_ITEM_MAP[id]
-    if (mapped) {
-      mapped.forEach((target) => boostTargets.add(target))
-    }
-  })
-  if (boostTargets.size === 0) {
-    return resultsV3
-  }
-
-  let pointsAdded = 0
-  let itemsAdded = 0
-  const itemsEvaluated = resultsV3.items_evaluated.map((item: any) => {
-    if (!item?.item_id || !boostTargets.has(item.item_id) || item.matched) {
-      return item
-    }
-    itemsAdded += 1
-    pointsAdded += 1
-    return {
-      ...item,
-      matched: true,
-      points: 1,
-      method: "v2_signal",
-      match_details: "from_v2",
-    }
-  })
-
-  if (pointsAdded === 0) {
-    return resultsV3
-  }
-
-  const blocks = { ...(resultsV3.blocks || {}) }
-  itemsEvaluated.forEach((item: any) => {
-    if (item?.method !== "v2_signal") {
-      return
-    }
-    const prefix = item.item_id.split("_")[0]
-    const blockKey = Object.keys(blocks).find((key) => key.startsWith(prefix + "_"))
-    if (!blockKey) {
-      return
-    }
-    const block = blocks[blockKey]
-    block.points_obtained = (block.points_obtained || 0) + 1
-    block.items_matched = (block.items_matched || 0) + 1
-    if (block.max_points) {
-      block.percentage = Math.round((block.points_obtained / block.max_points) * 1000) / 10
-    }
-  })
-
-  const pointsObtained = (resultsV3.points_obtained || 0) + pointsAdded
-  const maxPoints = resultsV3.max_points_case || 0
-  const percentage = maxPoints > 0 ? Math.round((pointsObtained / maxPoints) * 1000) / 10 : 0
-  const passed = pointsObtained >= (resultsV3.min_points_case || 0)
-  const summary = { ...(resultsV3.summary || {}) }
-  summary.total_items_matched = (summary.total_items_matched || 0) + itemsAdded
-  if (summary.total_items_evaluated) {
-    summary.match_rate = Math.round((summary.total_items_matched / summary.total_items_evaluated) * 1000) / 10
-  }
-
-  return {
-    ...resultsV3,
-    points_obtained: pointsObtained,
-    percentage,
-    passed,
-    blocks,
-    summary,
-    items_evaluated: itemsEvaluated,
-  }
-}
-
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<SimulationStep>("dashboard")
   const [selectedCase, setSelectedCase] = useState<CaseData | null>(null)
@@ -267,29 +173,15 @@ export default function Home() {
 
       console.log('📝 Enviando reflexión para evaluación:', reflectionData)
 
-      // Llamar AMBOS endpoints (V2 y V3) en paralelo
-      const [responseV2, responseV3] = await Promise.all([
-        // V2 (legacy): evaluación con embeddings + reflexión clínica
-        fetch(`${API_BASE_URL}/api/simulation/evaluate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionId,
-            reflection: reflectionData
-          }),
+      // Evaluación principal (backend calcula V2 + V3 + desarrollo)
+      const responseV2 = await fetch(`${API_BASE_URL}/api/simulation/evaluate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          session_id: sessionId,
+          reflection: reflectionData
         }),
-        // V3 (nuevo): evaluación con checklist v2
-        fetch(`${API_BASE_URL}/api/evaluate_checklist_v3`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionId
-          }),
-        }).catch(err => {
-          console.warn('⚠️ V3 endpoint falló (esperado si no está disponible):', err)
-          return null
-        })
-      ])
+      })
 
       if (!responseV2.ok) {
         throw new Error('Error al evaluar la simulación')
@@ -297,27 +189,34 @@ export default function Home() {
 
       const resultsV2 = await responseV2.json()
 
-      // Intentar obtener resultados V3 si el endpoint respondió
-      let resultsV3 = null
-      if (responseV3 && responseV3.ok) {
-        resultsV3 = await responseV3.json()
-        console.log('✅ Evaluación V3 recibida:', resultsV3)
+      // Intentar obtener evaluación unificada (nuevo endpoint)
+      let unifiedResults = null
+      try {
+        const responseUnified = await fetch(`${API_BASE_URL}/api/evaluation/unified`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: sessionId,
+            eval_transcript: resultsV2?.eval_transcript,
+            eval_reflection: resultsV2?.eval_reflection,
+            reflection: reflectionData,
+          }),
+        })
+
+        if (responseUnified.ok) {
+          unifiedResults = await responseUnified.json()
+          console.log('✅ Evaluación unificada recibida:', unifiedResults)
+        } else {
+          console.warn('⚠️ Evaluación unificada no disponible, usando legacy')
+        }
+      } catch (err) {
+        console.warn('⚠️ Error solicitando evaluación unificada:', err)
       }
 
-      // COMBINAR ambos resultados (V3 tiene checklist, V2 tiene reflexión)
-      const boostedV3 = resultsV3 ? applyV2SignalsToV3(resultsV3, resultsV2) : null
-      const combinedResults = boostedV3 ? {
-        ...boostedV3,
-        // Agregar datos de reflexión de V2
-        reflection: resultsV2.reflection,
-        reflectionScore: resultsV2.reflectionScore,
-        // Mantener compatibilidad con V2
-        completedItems: resultsV2.completedItems,
-        missedItems: resultsV2.missedItems,
-      } : resultsV2
-
-      setEvaluationResults(combinedResults)
-      console.log('✅ Evaluación final combinada:', combinedResults)
+      // Fallback legacy si el unificado no está disponible
+      const finalResults = unifiedResults || resultsV2
+      setEvaluationResults(finalResults)
+      console.log('✅ Evaluación final seleccionada:', finalResults)
 
       // Esperar mínimo 2 segundos para la animación de carga
       await new Promise(resolve => setTimeout(resolve, 2000))

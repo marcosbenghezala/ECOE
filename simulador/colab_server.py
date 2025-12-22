@@ -73,6 +73,7 @@ def get_voice_for_case(case_data: dict) -> str:
 # Importar módulos del proyecto
 from evaluator_v2 import EvaluatorV2
 from evaluator_v3 import EvaluatorV3
+from evaluation.engine import build_unified_evaluation
 from realtime_voice import RealtimeVoiceManager
 from google_sheets_integration import GoogleSheetsIntegration
 from reflection_grader import (
@@ -832,6 +833,18 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
         eval_reflection = apply_quality_rules(eval_reflection, reflection, reflection_analysis)
 
         # 3. Combinar resultados
+        eval_v3 = session.get('evaluation_v3') or {}
+        if not eval_v3 and evaluator_v3 and transcript.strip():
+            try:
+                eval_v3 = evaluator_v3.evaluate_transcript(
+                    transcript=transcript,
+                    case_data=case_data,
+                    caso_id=case_data.get('id', session_id),
+                )
+                session['evaluation_v3'] = eval_v3
+            except Exception as e:
+                print(f"⚠️ EvaluatorV3 no disponible en evaluación unificada: {e}")
+
         transcript_score = eval_transcript.get('score', 0)
         transcript_max = eval_transcript.get('max_score', 100)
         transcript_percentage = (transcript_score / transcript_max * 100) if transcript_max > 0 else 0
@@ -905,8 +918,18 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
             'reflectionScore': round(reflection_score, 1)
         }
 
+        evaluation_unified = build_unified_evaluation(
+            case_data=case_data,
+            eval_transcript=eval_transcript,
+            eval_reflection=eval_reflection,
+            eval_v3=eval_v3,
+            reflection_answers=reflection,
+            survey=session.get('survey') or {},
+        )
+
         # Guardar en sesión
         session['evaluation'] = result
+        session['evaluation_unified'] = evaluation_unified
         save_session_to_disk(session_id)
 
         # Auto-guardado opcional en Google Sheets (logger gspread -> pestaña RESUMEN + detalle)
@@ -950,6 +973,7 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
                         "total_score": total_score,
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                         "evaluation_result": result,
+                        "evaluation_unified": evaluation_unified,
                         "eval_transcript": eval_transcript,
                         "eval_reflection": eval_reflection,
                         "reflection_answers": reflection,
@@ -975,6 +999,77 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
 
     except Exception as e:
         print(f"❌ Error en /api/simulation/evaluate: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/evaluation/unified', methods=['POST'])
+@rate_limit(max_requests=20, window=60)
+def evaluate_unified():
+    """
+    Evaluacion unificada (V2 + V3 + desarrollo) sin romper endpoints actuales.
+
+    Request body:
+    {
+        "session_id": str,
+        "eval_transcript": dict (opcional),
+        "eval_reflection": dict (opcional),
+        "evaluation_v3": dict (opcional),
+        "reflection": dict (opcional),
+        "survey": dict (opcional)
+    }
+    """
+    try:
+        data = request.json or {}
+        session_id = data.get('session_id')
+
+        if not session_id or session_id not in sessions:
+            return jsonify({'error': 'Sesión no encontrada'}), 404
+
+        session = sessions[session_id]
+        case_data = data.get('case_data') or session.get('case_data') or {}
+
+        eval_transcript = (
+            data.get('eval_transcript')
+            or (session.get('evaluation') or {}).get('eval_transcript')
+            or session.get('eval_transcript')
+            or {}
+        )
+        eval_reflection = (
+            data.get('eval_reflection')
+            or (session.get('evaluation') or {}).get('eval_reflection')
+            or session.get('eval_reflection')
+            or {}
+        )
+        eval_v3 = (
+            data.get('evaluation_v3')
+            or session.get('evaluation_v3')
+            or {}
+        )
+        reflection_answers = (
+            data.get('reflection')
+            or (session.get('evaluation') or {}).get('reflection')
+            or {}
+        )
+        survey = data.get('survey') or session.get('survey') or {}
+
+        result = build_unified_evaluation(
+            case_data=case_data,
+            eval_transcript=eval_transcript,
+            eval_v3=eval_v3,
+            eval_reflection=eval_reflection,
+            reflection_answers=reflection_answers,
+            survey=survey,
+        )
+
+        session['evaluation_unified'] = result
+        save_session_to_disk(session_id)
+
+        return jsonify(result)
+
+    except Exception as e:
+        print(f"❌ Error en /api/evaluation/unified: {e}")
         import traceback
         traceback.print_exc()
         return jsonify({'error': str(e)}), 500
@@ -1070,6 +1165,35 @@ def evaluate_checklist_v3():
 
         # Guardar resultado en sesión (con prefijo v3_ para no sobreescribir V2)
         session['evaluation_v3'] = result
+
+        try:
+            eval_transcript = (
+                (session.get('evaluation') or {}).get('eval_transcript')
+                or session.get('eval_transcript')
+                or {}
+            )
+            eval_reflection = (
+                (session.get('evaluation') or {}).get('eval_reflection')
+                or session.get('eval_reflection')
+                or {}
+            )
+            reflection_answers = (
+                (session.get('evaluation') or {}).get('reflection')
+                or {}
+            )
+            survey = session.get('survey') or {}
+
+            session['evaluation_unified'] = build_unified_evaluation(
+                case_data=case_data,
+                eval_transcript=eval_transcript,
+                eval_reflection=eval_reflection,
+                eval_v3=result,
+                reflection_answers=reflection_answers,
+                survey=survey,
+            )
+        except Exception as e:
+            print(f"⚠️ No se pudo actualizar evaluación unificada con V3: {e}")
+
         save_session_to_disk(session_id)
 
         print(f"✅ Evaluación V3 completada: {result['points_obtained']}/{result['max_points_case']} pts ({result['percentage']}%)")
