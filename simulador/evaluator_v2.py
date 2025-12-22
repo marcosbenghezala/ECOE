@@ -33,6 +33,90 @@ CRITICAL_ITEM_IDS = {
     "HAB_01",
 }
 
+HABIT_QUESTION_KEYWORDS = (
+    "habitos",
+    "consumo",
+    "fumas",
+    "fumar",
+    "tabaco",
+    "alcohol",
+    "bebes",
+    "bebe",
+    "beber",
+    "drogas",
+)
+
+SMOKING_PATIENT_KEYWORDS = (
+    "fumo",
+    "fumador",
+    "fumadora",
+    "cigarr",
+    "tabaco",
+    "paquete",
+    "pitillo",
+)
+
+FAMILY_QUESTION_KEYWORDS = (
+    "antecedentes familiares",
+    "familia",
+    "familiares",
+    "padre",
+    "madre",
+    "hermano",
+    "hermana",
+)
+
+FAMILY_PATIENT_KEYWORDS = (
+    "padre",
+    "madre",
+    "hermano",
+    "hermana",
+    "familia",
+    "familiar",
+)
+
+FAMILY_EVENT_KEYWORDS = (
+    "infarto",
+    "cardiaco",
+    "cardiaca",
+    "muerte",
+    "fallecio",
+)
+
+CHRONIC_QUESTION_KEYWORDS = (
+    "enfermedades cronicas",
+    "enfermedades personales",
+    "antecedentes personales",
+    "problemas de salud",
+)
+
+CHRONIC_PATIENT_KEYWORDS = (
+    "hta",
+    "hipertension",
+    "tension alta",
+    "diabetes",
+    "colesterol",
+    "dislipemia",
+)
+
+MEDICATION_QUESTION_KEYWORDS = (
+    "medicacion",
+    "tratamiento",
+    "pastillas",
+    "tomas",
+    "toma",
+)
+
+MEDICATION_PATIENT_KEYWORDS = (
+    "enalapril",
+    "atorvastatina",
+    "atorcan",
+    "estatinas",
+    "statina",
+    "medicacion",
+    "tomo",
+)
+
 QUESTION_PREFIXES = (
     "pregunta por",
     "preguntar por",
@@ -134,6 +218,47 @@ class EvaluatorV2:
                         expanded = f"{expanded} {addition}"
         return expanded.strip()
 
+    def _contains_any(self, text: str, keywords: Tuple[str, ...]) -> bool:
+        if not text:
+            return False
+        for kw in keywords:
+            if kw and kw in text:
+                return True
+        return False
+
+    def _special_item_match(self, item_id: str, student_text: str, patient_text: str) -> Optional[str]:
+        student_norm = self.normalize_text_with_synonyms(student_text)
+        patient_norm = self.normalize_text_with_synonyms(patient_text)
+
+        if item_id == "HAB_01":
+            patient_smoking = self._contains_any(patient_norm, SMOKING_PATIENT_KEYWORDS)
+            student_habits = self._contains_any(student_norm, HABIT_QUESTION_KEYWORDS)
+            if patient_smoking and student_habits:
+                return "keyword"
+
+        if item_id == "AF_01":
+            student_family = self._contains_any(student_norm, FAMILY_QUESTION_KEYWORDS)
+            patient_family = (
+                self._contains_any(patient_norm, FAMILY_PATIENT_KEYWORDS)
+                and self._contains_any(patient_norm, FAMILY_EVENT_KEYWORDS)
+            )
+            if student_family and patient_family:
+                return "keyword"
+
+        if item_id == "AP_01":
+            student_chronic = self._contains_any(student_norm, CHRONIC_QUESTION_KEYWORDS)
+            patient_chronic = self._contains_any(patient_norm, CHRONIC_PATIENT_KEYWORDS)
+            if student_chronic and patient_chronic:
+                return "keyword"
+
+        if item_id == "AP_11":
+            student_med = self._contains_any(student_norm, MEDICATION_QUESTION_KEYWORDS)
+            patient_med = self._contains_any(patient_norm, MEDICATION_PATIENT_KEYWORDS)
+            if student_med and patient_med:
+                return "keyword"
+
+        return None
+
     def _is_question_item(self, item_text: str) -> bool:
         normalized = self.normalize_text(item_text)
         return normalized.startswith(QUESTION_PREFIXES)
@@ -231,6 +356,9 @@ class EvaluatorV2:
             embedding_match = max_similarity >= embedding_threshold
 
         student_match = keyword_match or embedding_match
+        special_match = self._special_item_match(item_id, student_text, patient_text)
+        if special_match:
+            return True, special_match
 
         if is_question_item and not student_match:
             return False, None

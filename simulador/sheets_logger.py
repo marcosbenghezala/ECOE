@@ -112,7 +112,10 @@ class SheetsLogger:
         Añade una fila a 'RESUMEN' y devuelve el número de fila.
         """
         worksheet = self._get_or_create_resumen()
-        formatear_hoja_resumen(worksheet)
+        try:
+            formatear_hoja_resumen(worksheet)
+        except Exception as e:
+            print(f"[Sheets] ⚠️ No se pudo aplicar formato RESUMEN: {e}")
 
         detail_url = f"https://docs.google.com/spreadsheets/d/{self.config.spreadsheet_id}/edit#gid={detail_gid}"
         formula = f'=HYPERLINK("{detail_url}"{FORMULA_SEPARATOR} "Ver →")'
@@ -131,10 +134,19 @@ class SheetsLogger:
             formula,
         ]
 
-        resp = worksheet.append_row(values, value_input_option="USER_ENTERED")
-        row_number = _extract_row_number_from_append_response(resp)
-        if row_number is None:
-            row_number = len(worksheet.get_all_values())
+        try:
+            resp = worksheet.append_row(values, value_input_option="USER_ENTERED")
+            row_number = _extract_row_number_from_append_response(resp)
+            if row_number is None:
+                row_number = len(worksheet.get_all_values())
+        except Exception as e:
+            print(f"[Sheets] ⚠️ append_row falló, usando update directo: {e}")
+            row_number = len(worksheet.get_all_values()) + 1
+            worksheet.update(
+                f"A{row_number}:K{row_number}",
+                [values],
+                value_input_option="USER_ENTERED",
+            )
 
         return row_number
 
@@ -186,7 +198,10 @@ class SheetsLogger:
                 rows=200,
                 cols=11,
             )
-        _ensure_resumen_headers(worksheet)
+        try:
+            _ensure_resumen_headers(worksheet)
+        except Exception as e:
+            print(f"[Sheets] ⚠️ No se pudieron asegurar cabeceras RESUMEN: {e}")
         return worksheet
 
     def _create_unique_worksheet(self, base_title: str) -> "gspread.Worksheet":
@@ -628,6 +643,9 @@ def _split_survey_responses(survey: Any) -> Tuple[List[Dict[str, Any]], List[Dic
                 continue
             pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
             valor = item.get("valor") or item.get("score") or item.get("value")
+            respuesta = item.get("respuesta")
+            if valor is None and isinstance(respuesta, str) and respuesta.strip().isdigit():
+                valor = respuesta.strip()
             if valor is not None and isinstance(valor, (int, float, str)):
                 likert.append({"pregunta": pregunta or "-", "valor": _as_int(valor, default=0)})
                 continue

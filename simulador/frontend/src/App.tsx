@@ -328,13 +328,23 @@ export default function Home() {
       {currentStep === "loading" && <LoadingResults />}
 
       {currentStep === "results" && selectedCase && studentData && (
-        <ResultsScreenV3
-          caseData={selectedCase}
-          studentData={studentData}
-          evaluationResults={evaluationResults}
-          onBackToDashboard={handleBackToDashboard}
-          onGoToSurvey={handleGoToSurvey}
-        />
+        evaluationResults?.blocks ? (
+          <ResultsScreenV3
+            caseData={selectedCase}
+            studentData={studentData}
+            evaluationResults={evaluationResults}
+            onBackToDashboard={handleBackToDashboard}
+            onGoToSurvey={handleGoToSurvey}
+          />
+        ) : (
+          <ResultsScreen
+            caseData={selectedCase}
+            studentData={studentData}
+            evaluationResults={evaluationResults}
+            onBackToDashboard={handleBackToDashboard}
+            onGoToSurvey={handleGoToSurvey}
+          />
+        )
       )}
 
       {currentStep === "survey" && (
