@@ -667,6 +667,13 @@ def _build_preguntas_desarrollo(
     reflection_structured: Dict[str, Any],
     eval_reflection: Dict[str, Any],
 ) -> List[Dict[str, Any]]:
+    if not isinstance(reflection_answers, dict):
+        reflection_answers = {}
+    if not isinstance(reflection_structured, dict):
+        reflection_structured = {}
+    if not isinstance(eval_reflection, dict):
+        eval_reflection = {}
+
     if isinstance(development_questions, list) and development_questions:
         rows = []
         has_scores = False

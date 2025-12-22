@@ -173,6 +173,10 @@ class EvaluatorProduction:
         score_anamnesis = round(anamnesis_pct * WEIGHT_ANAMNESIS, 1)
 
         development = self._evaluate_development(reflection_answers or {}, case_metadata or {})
+        if not isinstance(development, dict):
+            development = {"questions": [], "percentage": 0.0}
+        if not isinstance(development.get("questions"), list):
+            development["questions"] = []
         dev_pct = development.get("percentage", 0.0)
         score_desarrollo = round(dev_pct * WEIGHT_DESARROLLO, 1)
 

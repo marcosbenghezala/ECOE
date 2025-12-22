@@ -625,6 +625,9 @@ def evaluate_simulation():
             return jsonify({'error': 'Session incomplete or expired'}), 400
         transcript = session.get('transcript', '')
         reflection = data.get('reflection', {})
+        if not isinstance(reflection, dict):
+            print("⚠️  reflection no es dict, usando objeto vacío")
+            reflection = {}
 
         print(f"📊 Evaluando simulación {session_id}")
         print(f"   - Transcript: {len(transcript)} chars")
