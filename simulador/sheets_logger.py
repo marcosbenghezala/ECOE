@@ -449,12 +449,10 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(eval_result, dict):
         eval_result = {}
 
-    production_eval = (
-        eval_result
-        if isinstance(eval_result.get("schema_version"), str)
-        and eval_result.get("schema_version", "").startswith("evaluation.production")
-        else {}
-    )
+    schema_version = eval_result.get("schema_version")
+    if schema_version != "evaluation.production.v1":
+        raise ValueError(f"Unsupported schema_version: {schema_version!r}")
+    production_eval = eval_result
 
     evaluation_unified = (
         data.get("evaluation_unified")

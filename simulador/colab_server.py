@@ -612,13 +612,17 @@ def evaluate_simulation():
     """
     try:
         data = request.json
+        if not isinstance(data, dict):
+            return jsonify({'error': 'Invalid request body'}), 400
         session_id = data.get('session_id')
 
         if not session_id or session_id not in sessions:
             return jsonify({'error': 'Sesión no encontrada'}), 404
 
         session = sessions[session_id]
-        case_data = session['case_data']
+        case_data = session.get('case_data')
+        if not case_data:
+            return jsonify({'error': 'Session incomplete or expired'}), 400
         transcript = session.get('transcript', '')
         reflection = data.get('reflection', {})
 
@@ -629,17 +633,24 @@ def evaluate_simulation():
         if not evaluator_production:
             raise ValueError("EvaluatorProduction no disponible")
 
-        result = evaluator_production.evaluate(
-            transcription=transcript,
-            case_metadata=case_data,
-            reflection_answers=reflection,
-            survey=session.get("survey") or {},
-        )
+        try:
+            result = evaluator_production.evaluate(
+                transcription=transcript,
+                case_metadata=case_data,
+                reflection_answers=reflection,
+                survey=session.get("survey") or {},
+            )
+        except Exception as e:
+            print(f"❌ Error en EvaluatorProduction para sesión {session_id}: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({'error': f"Evaluation failed: {e}", 'traceback': traceback.format_exc()}), 500
 
         session["evaluation"] = result
         save_session_to_disk(session_id)
 
         if os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() == "true":
+            print("📤 Saving to Sheets...")
             try:
                 from sheets_logger import get_sheets_logger
 
@@ -688,8 +699,12 @@ def evaluate_simulation():
                     session["sheets_detail_title"] = detail_info.get("title")
                     session["sheets_detail_gid"] = detail_info.get("gid")
                     save_session_to_disk(session_id)
+                print("✅ Sheets saved successfully")
             except Exception as e:
-                print(f"[Sheets] Error guardando en Google Sheets: {e}")
+                print(f"❌ Sheets save failed: {e}")
+                import traceback
+                traceback.print_exc()
+                return jsonify({'error': f"Failed to save to Sheets: {e}", 'traceback': traceback.format_exc()}), 500
 
         print(f"✅ Evaluación completada: {result.get('score_total', 0):.1f}%")
 
