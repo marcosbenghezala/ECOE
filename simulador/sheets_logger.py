@@ -93,6 +93,7 @@ class SheetsLogger:
             rows.append([_as_str(item.get("pregunta")) or "-"])
             rows.append([_as_str(item.get("respuesta")) or ""])
         worksheet.update(f"A{start_row}", rows, value_input_option="USER_ENTERED")
+        _update_summary_satisfaction(worksheet, media)
         try:
             formatear_hoja_detalle(worksheet)
         except Exception:
@@ -831,6 +832,22 @@ def _ratio_pct(value: Any, total: Any) -> int:
     if total_val <= 0:
         return 0
     return int(round((_as_float(value, default=0.0) / total_val) * 100))
+
+
+def _update_summary_satisfaction(worksheet: "gspread.Worksheet", media: float) -> None:
+    try:
+        values = worksheet.get_all_values()
+    except Exception:
+        return
+    row = _find_row(values, ["satisfaccion"])
+    if not row:
+        return
+    percent = _ratio_pct(media, 5)
+    worksheet.update(
+        f"B{row}:C{row}",
+        [[f"{_as_float(media, default=0.0)}/5", f"{percent}%"]],
+        value_input_option="USER_ENTERED",
+    )
 
 
 def _format_conversation_eval(conversation_eval: Any) -> List[List[str]]:

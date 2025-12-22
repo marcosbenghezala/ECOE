@@ -200,7 +200,11 @@ class EvaluatorV3:
         if item_id == "B2_006":
             if self._contains_any(student_text, B2_IRRADIACION_STUDENT):
                 return True
-            return self._contains_any(patient_text, B2_IRRADIACION_PATIENT) and "dolor" in student_text
+            if self._contains_any(patient_text, B2_IRRADIACION_PATIENT):
+                if self._contains_any(patient_text, ("brazo", "mandibula")):
+                    return True
+                return "dolor" in student_text
+            return False
         return False
 
     def evaluate_item(self, item: Dict, student_text: str, patient_text: str = "") -> Dict:
