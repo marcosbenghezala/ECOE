@@ -449,6 +449,13 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     if not isinstance(eval_result, dict):
         eval_result = {}
 
+    production_eval = (
+        eval_result
+        if isinstance(eval_result.get("schema_version"), str)
+        and eval_result.get("schema_version", "").startswith("evaluation.production")
+        else {}
+    )
+
     evaluation_unified = (
         data.get("evaluation_unified")
         or eval_result.get("evaluation_unified")
@@ -526,7 +533,26 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     )
     media_desarrollo = _media_desarrollo(preguntas_desarrollo, data, eval_result)
 
-    if evaluation_unified:
+    if production_eval:
+        score_total = _as_int(production_eval.get("score_total"), default=score_total)
+        score_max = _as_int(production_eval.get("scores", {}).get("global", {}).get("max"), default=100)
+        pct_conversacion = _as_int(production_eval.get("percentage"), default=pct_conversacion)
+
+        items_criticos = []
+        criticos_hechos = 0
+        criticos_total = 0
+
+        prod_preguntas = _build_preguntas_desarrollo_unified(production_eval)
+        if prod_preguntas:
+            preguntas_desarrollo = prod_preguntas
+
+        media_desarrollo = _as_int(
+            production_eval.get("scores", {}).get("development", {}).get("percentage")
+            or production_eval.get("development", {}).get("percentage"),
+            default=media_desarrollo,
+        )
+
+    if evaluation_unified and not production_eval:
         unified_scores = evaluation_unified.get("scores") or {}
         unified_global = unified_scores.get("global") or {}
         unified_dev = unified_scores.get("development") or {}
@@ -551,7 +577,14 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
         data.get("survey_responses") or data.get("survey") or data.get("encuesta") or eval_result.get("survey")
     )
 
-    if evaluation_unified:
+    if production_eval:
+        prod_survey = production_eval.get("survey") or {}
+        if prod_survey:
+            encuesta_likert = prod_survey.get("likert") or []
+            encuesta_abiertas = prod_survey.get("open") or []
+            media_encuesta = _as_float(prod_survey.get("average"), default=media_encuesta)
+
+    if evaluation_unified and not production_eval:
         unified_survey = evaluation_unified.get("survey") or {}
         if unified_survey:
             encuesta_likert = unified_survey.get("likert") or []
