@@ -14,7 +14,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MAX_RESPONSE_OUTPUT_TOKENS = int(os.getenv("OPENAI_REALTIME_MAX_RESPONSE_OUTPUT_TOKENS", "420"))
+MIN_RESPONSE_OUTPUT_TOKENS = 80
+MAX_RESPONSE_OUTPUT_TOKENS = max(
+    int(os.getenv("OPENAI_REALTIME_MAX_RESPONSE_OUTPUT_TOKENS", "420")),
+    MIN_RESPONSE_OUTPUT_TOKENS,
+)
 TURN_DETECTION_THRESHOLD = float(os.getenv("OPENAI_REALTIME_VAD_THRESHOLD", "0.45"))
 TURN_DETECTION_PREFIX_MS = int(os.getenv("OPENAI_REALTIME_VAD_PREFIX_MS", "300"))
 TURN_DETECTION_SILENCE_MS = int(os.getenv("OPENAI_REALTIME_VAD_SILENCE_MS", "700"))
@@ -579,7 +583,11 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
         }
 
         await self.ws.send(json.dumps(config))
-        print("⚙️  Session configured")
+        print(
+            "⚙️  Session configured "
+            f"(max_tokens={MAX_RESPONSE_OUTPUT_TOKENS}, vad_threshold={TURN_DETECTION_THRESHOLD}, "
+            f"vad_silence_ms={TURN_DETECTION_SILENCE_MS})"
+        )
 
     async def _listen_loop(self):
         """Loop para escuchar eventos de OpenAI"""
@@ -634,6 +642,7 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
 
         elif event_type == 'response.audio_transcript.done':
             transcript = event.get('transcript', '')
+            print(f"🧾 response.audio_transcript.done ({len(transcript)} chars): {transcript}")
             if transcript and self.on_transcript:
                 self.on_transcript(f"[PACIENTE]: {transcript}")
 
@@ -644,6 +653,13 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
                 self.on_event({'type': 'agent_audio', 'audio': audio_b64})
 
         elif event_type == 'response.done':
+            response = event.get('response', {}) or {}
+            status = response.get('status') or event.get('status')
+            response_id = response.get('id') or event.get('id')
+            if status:
+                print(f"✅ response.done (id={response_id}, status={status})")
+            else:
+                print(f"✅ response.done (id={response_id})")
             if self.on_event:
                 self.on_event({'type': 'response_done'})
 
