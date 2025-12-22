@@ -184,7 +184,14 @@ export default function Home() {
       })
 
       if (!responseV2.ok) {
-        throw new Error('Error al evaluar la simulación')
+        let detail = 'Error al evaluar la simulación'
+        try {
+          const errBody = await responseV2.json()
+          detail = errBody?.error || errBody?.message || detail
+        } catch (parseErr) {
+          // Mantener mensaje por defecto
+        }
+        throw new Error(detail)
       }
 
       const resultsV2 = await responseV2.json()
@@ -224,9 +231,9 @@ export default function Home() {
       setCurrentStep("results")
     } catch (err) {
       console.error('Error evaluating simulation:', err)
-      setError('Error al evaluar la simulación. Verifica tu conexión.')
-      // Aún así mostrar resultados (con datos de fallback)
-      setTimeout(() => setCurrentStep("results"), 1000)
+      const message = err instanceof Error ? err.message : 'Error al evaluar la simulación.'
+      setError(message)
+      setCurrentStep("reflection")
     } finally {
       setIsLoading(false)
     }
@@ -279,6 +286,19 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background">
+      {error && !isLoading && currentStep !== "dashboard" && (
+        <div className="bg-destructive/10 border-b border-destructive/30 text-destructive px-4 py-3">
+          <div className="max-w-5xl mx-auto flex items-center justify-between gap-4">
+            <span className="text-sm">{error}</span>
+            <button
+              onClick={() => setError(null)}
+              className="text-xs font-medium underline"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
       {(currentStep === "dashboard" || isPreviewOpen) && (
         <div className={`transition-all duration-300 ${isPreviewOpen ? "pointer-events-none opacity-50" : ""}`}>
           <Dashboard cases={cases} onSelectCase={handleSelectCase} />

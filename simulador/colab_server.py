@@ -652,7 +652,11 @@ def evaluate_simulation():
         session["evaluation"] = result
         save_session_to_disk(session_id)
 
-        if os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() == "true":
+        sheets_status = {
+            "enabled": os.getenv("GOOGLE_SHEETS_ENABLED", "false").lower() == "true",
+            "saved": False,
+        }
+        if sheets_status["enabled"]:
             print("📤 Saving to Sheets...")
             try:
                 from sheets_logger import get_sheets_logger
@@ -702,12 +706,18 @@ def evaluate_simulation():
                     session["sheets_detail_title"] = detail_info.get("title")
                     session["sheets_detail_gid"] = detail_info.get("gid")
                     save_session_to_disk(session_id)
-                print("✅ Sheets saved successfully")
+                    sheets_status["saved"] = True
+                    sheets_status["detail"] = detail_info
+                else:
+                    sheets_status["error"] = "Sheets logger returned no detail info"
+                print("✅ Sheets saved successfully" if sheets_status["saved"] else "⚠️ Sheets not saved")
             except Exception as e:
                 print(f"❌ Sheets save failed: {e}")
                 import traceback
                 traceback.print_exc()
-                return jsonify({'error': f"Failed to save to Sheets: {e}", 'traceback': traceback.format_exc()}), 500
+                sheets_status["error"] = str(e)
+
+        result["sheets_status"] = sheets_status
 
         print(f"✅ Evaluación completada: {result.get('score_total', 0):.1f}%")
 
