@@ -16,12 +16,12 @@ from text_utils import (
     extract_student_lines,
 )
 
-KEYWORD_MIN_RATIO_DEFAULT = 0.34
-KEYWORD_MIN_RATIO_STRICT = 0.5
-KEYWORD_MIN_RATIO_CRITICAL = 0.25
-EMBEDDING_THRESHOLD_DEFAULT = 0.75
-EMBEDDING_THRESHOLD_STRICT = 0.82
-EMBEDDING_THRESHOLD_CRITICAL = 0.72
+KEYWORD_MIN_RATIO_DEFAULT = 0.3
+KEYWORD_MIN_RATIO_STRICT = 0.45
+KEYWORD_MIN_RATIO_CRITICAL = 0.2
+EMBEDDING_THRESHOLD_DEFAULT = 0.72
+EMBEDDING_THRESHOLD_STRICT = 0.8
+EMBEDDING_THRESHOLD_CRITICAL = 0.68
 STRONG_KEYWORD_MARGIN = 0.1
 STRONG_EMBEDDING_MARGIN = 0.05
 
@@ -111,6 +111,8 @@ class EvaluatorV2:
             (re.compile(r"\bdislipemia\b|\bcolesterol alto\b|\bcolesterol\b"), ["enfermedades cronicas"]),
             (re.compile(r"\bmedicacion\b|\btratamiento actual\b|\benalapril\b|\batorvastatina\b|\batorcan\b"), ["medicacion actual"]),
             (re.compile(r"\bfumas\b|\bfumador\b|\btabaco\b|\bcigarr"), ["habitos tabaco"]),
+            (re.compile(r"\bbebes\b|\bbebe\b|\bbeber\b|\bcerveza\b|\bvino\b|\bwhisky\b|\bginebra\b|\bvodka\b"), ["alcohol", "habitos alcohol"]),
+            (re.compile(r"\bconsumo de alcohol\b|\balcohol\b"), ["habitos alcohol"]),
         ]
 
     def normalize_text(self, text: str) -> str:
