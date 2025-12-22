@@ -949,6 +949,10 @@ IMPORTANTE - FORMATO DEL FEEDBACK:
                         "duration_seconds": duration_seconds,
                         "total_score": total_score,
                         "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "evaluation_result": result,
+                        "eval_transcript": eval_transcript,
+                        "eval_reflection": eval_reflection,
+                        "reflection_answers": reflection,
                         "conversation_evaluation": result.get("eval_transcript"),
                         "development_questions": _build_development_questions_for_log(
                             case_data.get("id") or session.get("case_id"),

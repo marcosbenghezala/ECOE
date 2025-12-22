@@ -15,6 +15,7 @@ PALETTE = {
     "header_dark": "#1F4E79",
     "header_medium": "#2E75B6",
     "header_light": "#5B9BD5",
+    "section": "#D6DCE5",
     "green_light": "#C6EFCE",
     "yellow_light": "#FFEB9C",
     "red_light": "#FFC7CE",
@@ -26,27 +27,25 @@ PALETTE = {
 }
 
 RESUMEN_COLUMN_WIDTHS = {
-    "A": 18.0,
-    "B": 25.0,
-    "C": 28.0,
-    "D": 20.0,
-    "E": 10.0,
-    "F": 12.0,
-    "G": 10.0,
-    "H": 12.0,
-    "I": 12.0,
-    "J": 10.0,
-    "K": 12.0,
+    "A": 16.0,
+    "B": 22.0,
+    "C": 26.0,
+    "D": 18.0,
+    "E": 6.0,
+    "F": 10.0,
+    "G": 8.0,
+    "H": 10.0,
+    "I": 10.0,
+    "J": 9.0,
+    "K": 10.0,
 }
 
 DETAIL_COLUMN_WIDTHS = {
-    "A": 12.0,
+    "A": 6.0,
     "B": 45.0,
     "C": 50.0,
     "D": 12.0,
-    "E": 12.0,
-    "F": 12.0,
-    "G": 12.0,
+    "E": 10.0,
 }
 
 RAW_JSON_COLUMN_WIDTHS = {
@@ -350,69 +349,38 @@ def _build_ratio_formula(row: int) -> str:
 
 def formatear_hoja_resumen(
     worksheet: "gspread.Worksheet",
-    start_row: int = 5,
+    start_row: int = 2,
     end_row: Optional[int] = None,
 ) -> None:
     end_row = end_row or DEFAULT_END_ROW
-    title = "📊 DASHBOARD DE SIMULACIONES ECOE"
-    subtitle = "Resumen de resultados por estudiante | Generado automáticamente"
-
-    _merge_safe(worksheet, "A1:K1")
-    _merge_safe(worksheet, "A2:K2")
-
-    worksheet.update("A1", [[title]])
-    worksheet.update("A2", [[subtitle]])
-
     headers = [
         "Timestamp",
         "Estudiante",
         "Email",
         "Caso",
-        "Duración\n(min)",
-        "Puntuación\nTotal",
-        "% Conv.",
+        "Min",
+        "Score",
+        "%Conv",
         "Críticos",
-        "Media\nDesarrollo",
-        "Media\nEncuesta",
-        "Detalles",
+        "Desarrollo",
+        "Encuesta",
+        "Ver",
     ]
-    worksheet.update("A4:K4", [headers])
+    worksheet.update("A1:K1", [headers])
 
     header_fmt = {
         "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
         "textFormat": {
             "bold": True,
             "foregroundColor": _hex_to_color(PALETTE["white"]),
-            "fontSize": 11,
+            "fontSize": 10,
         },
         "horizontalAlignment": "CENTER",
         "verticalAlignment": "MIDDLE",
         "wrapStrategy": "WRAP",
     }
-    title_fmt = {
-        "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-        "textFormat": {
-            "bold": True,
-            "foregroundColor": _hex_to_color(PALETTE["white"]),
-            "fontSize": 16,
-        },
-        "horizontalAlignment": "CENTER",
-        "verticalAlignment": "MIDDLE",
-    }
-    subtitle_fmt = {
-        "backgroundColor": _hex_to_color(PALETTE["header_medium"]),
-        "textFormat": {
-            "bold": False,
-            "foregroundColor": _hex_to_color(PALETTE["white"]),
-            "fontSize": 10,
-        },
-        "horizontalAlignment": "CENTER",
-        "verticalAlignment": "MIDDLE",
-    }
-    worksheet.format("A1:K1", title_fmt)
-    worksheet.format("A2:K2", subtitle_fmt)
-    worksheet.format("A4:K4", header_fmt)
-    _apply_common_border(worksheet, "A4:K4")
+    worksheet.format("A1:K1", header_fmt)
+    _apply_common_border(worksheet, "A1:K1")
 
     data_fmt = {
         "textFormat": {"fontSize": 10},
@@ -422,9 +390,11 @@ def formatear_hoja_resumen(
     data_range = f"A{start_row}:K{end_row}"
     worksheet.format(data_range, data_fmt)
     _apply_common_border(worksheet, data_range)
+    worksheet.format(f"E{start_row}:J{end_row}", {"horizontalAlignment": "CENTER"})
+    worksheet.format("A1:K1", {"horizontalAlignment": "CENTER"})
 
     number_formats = {
-        f"E{start_row}:E{end_row}": "0.0",
+        f"E{start_row}:E{end_row}": "0",
         f"G{start_row}:G{end_row}": "0",
         f"I{start_row}:I{end_row}": "0",
         f"J{start_row}:J{end_row}": "0.0",
@@ -437,14 +407,10 @@ def formatear_hoja_resumen(
 
     _set_column_widths_from_letters(worksheet, RESUMEN_COLUMN_WIDTHS)
 
-    _set_row_heights(worksheet, {1: 35, 2: 20, 3: 10, 4: 35})
+    _set_row_heights(worksheet, {1: 28})
     _set_row_height_range(worksheet, start_row, end_row, 22)
-    worksheet.freeze(rows=4)
-    _set_basic_filter(worksheet, f"A4:K{end_row}")
-
-    ratio_formulas = [[_build_ratio_formula(row)] for row in range(start_row, end_row + 1)]
-    worksheet.update(f"L{start_row}:L{end_row}", ratio_formulas, value_input_option="USER_ENTERED")
-    _hide_column(worksheet, 12)
+    worksheet.freeze(rows=1)
+    _set_basic_filter(worksheet, f"A1:K{end_row}")
 
     _clear_conditional_formatting(worksheet)
     rules = [
@@ -455,9 +421,6 @@ def formatear_hoja_resumen(
         _number_rule(worksheet, f"I{start_row}:I{end_row}", "NUMBER_LESS", ["40"], PALETTE["red_light"]),
         _number_rule(worksheet, f"I{start_row}:I{end_row}", "NUMBER_BETWEEN", ["40", "70"], PALETTE["yellow_light"]),
         _number_rule(worksheet, f"I{start_row}:I{end_row}", "NUMBER_GREATER_THAN", ["70"], PALETTE["green_light"]),
-        _custom_formula_rule(worksheet, f"H{start_row}:H{end_row}", f"=$L{start_row}<0.4", PALETTE["red_light"]),
-        _custom_formula_rule(worksheet, f"H{start_row}:H{end_row}", f"=($L{start_row}>=0.4)*($L{start_row}<0.7)", PALETTE["yellow_light"]),
-        _custom_formula_rule(worksheet, f"H{start_row}:H{end_row}", f"=$L{start_row}>=0.7", PALETTE["green_light"]),
         _color_scale_rule(
             worksheet,
             f"J{start_row}:J{end_row}",
@@ -473,138 +436,58 @@ def formatear_hoja_resumen(
 
 
 def formatear_hoja_detalle(worksheet: "gspread.Worksheet") -> None:
-    _merge_safe(worksheet, "A1:G1")
-    _merge_safe(worksheet, "A2:G2")
-    _merge_safe(worksheet, "B3:G7")
-    _merge_safe(worksheet, "A9:G9")
-    _merge_safe(worksheet, "A14:G14")
-    _merge_safe(worksheet, "A26:G26")
-    _merge_safe(worksheet, "A34:G34")
-    _merge_safe(worksheet, "A46:G46")
-    _merge_safe(worksheet, "A57:B57")
-    _merge_safe(worksheet, "A60:B60")
-    _merge_safe(worksheet, "A63:G63")
-    _merge_safe(worksheet, "A64:C69")
-
+    _set_column_widths_from_letters(worksheet, DETAIL_COLUMN_WIDTHS)
     worksheet.format(
-        "A1:G1",
-        {
-            "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-            "textFormat": {
-                "bold": True,
-                "foregroundColor": _hex_to_color(PALETTE["white"]),
-                "fontSize": 14,
-            },
-            "horizontalAlignment": "CENTER",
-            "verticalAlignment": "MIDDLE",
-        },
-    )
-    worksheet.format(
-        "A2:G2",
-        {
-            "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-            "textFormat": {"bold": True, "fontSize": 12},
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "MIDDLE",
-        },
-    )
-    worksheet.format(
-        "A3:A7",
-        {
-            "textFormat": {"bold": True, "fontSize": 10},
-            "horizontalAlignment": "RIGHT",
-            "verticalAlignment": "MIDDLE",
-        },
-    )
-    worksheet.format(
-        "B3:G7",
+        "A:E",
         {
             "textFormat": {"fontSize": 10},
-            "horizontalAlignment": "LEFT",
             "verticalAlignment": "MIDDLE",
             "wrapStrategy": "WRAP",
         },
     )
-
-    worksheet.format(
-        "A9:G9",
-        {
-            "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-            "textFormat": {"bold": True, "fontSize": 12},
-            "horizontalAlignment": "LEFT",
-            "verticalAlignment": "MIDDLE",
-        },
-    )
-    worksheet.format(
-        "A10:G10",
-        {
-            "backgroundColor": _hex_to_color(PALETTE["header_light"]),
-            "textFormat": {
-                "bold": True,
-                "foregroundColor": _hex_to_color(PALETTE["white"]),
-                "fontSize": 10,
-            },
-            "horizontalAlignment": "CENTER",
-            "verticalAlignment": "MIDDLE",
-            "wrapStrategy": "WRAP",
-        },
-    )
-    worksheet.format(
-        "A11:G11",
-        {
-            "textFormat": {"bold": True, "fontSize": 12},
-            "horizontalAlignment": "CENTER",
-            "verticalAlignment": "MIDDLE",
-        },
-    )
-
-    _set_column_widths_from_letters(worksheet, DETAIL_COLUMN_WIDTHS)
-    _set_row_heights(
-        worksheet,
-        {
-            1: 30,
-            3: 18,
-            4: 18,
-            5: 18,
-            6: 18,
-            7: 18,
-            10: 30,
-            11: 35,
-            15: 25,
-            16: 22,
-            17: 22,
-            18: 22,
-            19: 22,
-            20: 22,
-            21: 22,
-            22: 22,
-            23: 22,
-            27: 25,
-            28: 45,
-            29: 45,
-            30: 45,
-            31: 45,
-            35: 25,
-            36: 35,
-            37: 35,
-            38: 35,
-            39: 35,
-            40: 35,
-            41: 35,
-            42: 35,
-            43: 35,
-            49: 25,
-            50: 22,
-            51: 22,
-            52: 22,
-            53: 22,
-            54: 22,
-            57: 45,
-            60: 45,
-        },
-    )
+    worksheet.format("A:A", {"horizontalAlignment": "CENTER"})
+    worksheet.format("D:E", {"horizontalAlignment": "CENTER"})
 
     values = worksheet.get_all_values()
+    if not values:
+        return
+
+    section_fmt = {
+        "backgroundColor": _hex_to_color(PALETTE["section"]),
+        "textFormat": {"bold": True, "fontSize": 11, "foregroundColor": _hex_to_color(PALETTE["header_dark"])},
+        "horizontalAlignment": "LEFT",
+        "verticalAlignment": "MIDDLE",
+    }
+    header_fmt = {
+        "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
+        "textFormat": {
+            "bold": True,
+            "foregroundColor": _hex_to_color(PALETTE["white"]),
+            "fontSize": 10,
+        },
+        "horizontalAlignment": "CENTER",
+        "verticalAlignment": "MIDDLE",
+        "wrapStrategy": "WRAP",
+    }
+
+    for label in [
+        "datos de la simulacion",
+        "resumen de resultados",
+        "items criticos",
+        "preguntas de desarrollo",
+        "transcripcion",
+        "encuesta",
+    ]:
+        row = _find_row(values, [label])
+        if row:
+            worksheet.format(f"A{row}:E{row}", section_fmt)
+
+    header_keywords = {"métrica", "metrica", "id", "#", "pregunta"}
+    for idx, row in enumerate(values, 1):
+        cell = normalize_text(row[0]) if row else ""
+        if cell in header_keywords:
+            worksheet.format(f"A{idx}:E{idx}", header_fmt)
+
     critical_row = _find_row(values, ["items criticos", "items críticos"])
     dev_row = _find_row(values, ["preguntas de desarrollo", "desarrollo"])
     transcript_row = _find_row(values, ["transcripcion", "transcripción"])
@@ -615,52 +498,12 @@ def formatear_hoja_detalle(worksheet: "gspread.Worksheet") -> None:
 
     if critical_row:
         header_row = critical_row + 1
-        worksheet.format(
-            f"A{critical_row}:G{critical_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 12},
-            },
-        )
-        worksheet.format(
-            f"A{header_row}:E{header_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-                "textFormat": {
-                    "bold": True,
-                    "foregroundColor": _hex_to_color(PALETTE["white"]),
-                    "fontSize": 10,
-                },
-                "horizontalAlignment": "CENTER",
-                "verticalAlignment": "MIDDLE",
-            },
-        )
+        _apply_common_border(worksheet, f"A{header_row}:E{header_row}")
 
     if dev_row:
         header_row = dev_row + 1
         data_start = header_row + 1
-        data_end = _find_section_end(values, data_start, ["transcripcion", "encuesta", "json"])
-        worksheet.format(
-            f"A{dev_row}:G{dev_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 12},
-            },
-        )
-        worksheet.format(
-            f"A{header_row}:D{header_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-                "textFormat": {
-                    "bold": True,
-                    "foregroundColor": _hex_to_color(PALETTE["white"]),
-                    "fontSize": 10,
-                },
-                "horizontalAlignment": "CENTER",
-                "verticalAlignment": "MIDDLE",
-                "wrapStrategy": "WRAP",
-            },
-        )
+        data_end = _find_section_end(values, data_start, ["transcripcion", "encuesta"])
         worksheet.format(
             f"B{data_start}:C{data_end}",
             {"wrapStrategy": "WRAP", "verticalAlignment": "TOP"},
@@ -676,27 +519,7 @@ def formatear_hoja_detalle(worksheet: "gspread.Worksheet") -> None:
     if transcript_row:
         header_row = transcript_row + 1
         data_start = header_row + 1
-        data_end = _find_section_end(values, data_start, ["encuesta", "json"])
-        worksheet.format(
-            f"A{transcript_row}:G{transcript_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 12},
-            },
-        )
-        worksheet.format(
-            f"A{header_row}:C{header_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-                "textFormat": {
-                    "bold": True,
-                    "foregroundColor": _hex_to_color(PALETTE["white"]),
-                    "fontSize": 10,
-                },
-                "horizontalAlignment": "CENTER",
-                "verticalAlignment": "MIDDLE",
-            },
-        )
+        data_end = _find_section_end(values, data_start, ["encuesta"])
         rules.extend(
             [
                 _custom_formula_rule(
@@ -725,28 +548,7 @@ def formatear_hoja_detalle(worksheet: "gspread.Worksheet") -> None:
         if header_row is None:
             header_row = survey_row + 3
         data_start = header_row + 1
-        data_end = _find_section_end(values, data_start, ["json"])
-        worksheet.format(
-            f"A{survey_row}:G{survey_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 12},
-            },
-        )
-        worksheet.format(
-            f"A{header_row}:B{header_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["header_dark"]),
-                "textFormat": {
-                    "bold": True,
-                    "foregroundColor": _hex_to_color(PALETTE["white"]),
-                    "fontSize": 10,
-                },
-                "horizontalAlignment": "CENTER",
-                "verticalAlignment": "MIDDLE",
-                "wrapStrategy": "WRAP",
-            },
-        )
+        data_end = _find_section_end(values, data_start, [])
         rules.append(
             _color_scale_rule(
                 worksheet,
@@ -758,48 +560,6 @@ def formatear_hoja_detalle(worksheet: "gspread.Worksheet") -> None:
                 PALETTE["yellow_light"],
                 PALETTE["green_light"],
             )
-        )
-
-    comment_row = _find_row(values, ["comentario abierto"])
-    if comment_row:
-        worksheet.format(
-            f"A{comment_row}:B{comment_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 10},
-                "horizontalAlignment": "LEFT",
-                "verticalAlignment": "MIDDLE",
-            },
-        )
-
-    improve_row = _find_row(values, ["que mejorarias", "qué mejorarías"])
-    if improve_row:
-        worksheet.format(
-            f"A{improve_row}:B{improve_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 10},
-                "horizontalAlignment": "LEFT",
-                "verticalAlignment": "MIDDLE",
-            },
-        )
-
-    json_row = _find_row(values, ["datos tecnicos", "datos técnicos", "json"])
-    if json_row:
-        worksheet.format(
-            f"A{json_row}:G{json_row}",
-            {
-                "backgroundColor": _hex_to_color(PALETTE["gray_light"]),
-                "textFormat": {"bold": True, "fontSize": 11},
-            },
-        )
-        worksheet.format(
-            f"A{json_row + 1}:C{json_row + 6}",
-            {
-                "textFormat": {"fontFamily": "Consolas", "fontSize": 9},
-                "wrapStrategy": "WRAP",
-                "verticalAlignment": "TOP",
-            },
         )
 
     if rules:

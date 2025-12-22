@@ -73,117 +73,89 @@ class SheetsLogger:
         if not self.config.enabled:
             return
         worksheet = self._get_or_raise(detail_sheet_name)
-        start_row = len(worksheet.get_all_values()) + 1
+        values = worksheet.get_all_values()
+        survey_row = _find_row(values, ["encuesta de satisfaccion", "encuesta"])
+        if survey_row:
+            start_row = survey_row + 1
+        else:
+            start_row = len(values) + 1
+
+        likert, abiertas, media = _split_survey_responses(survey_responses)
         rows: List[List[str]] = []
+        rows.append(["⭐ ENCUESTA DE SATISFACCIÓN"])
+        rows.append(["Media general:", f"{_as_float(media, default=0.0)} / 5"])
         rows.append([""])
-        rows.append(["🗳️ ENCUESTA FINAL"])
-        rows.extend(_format_survey_responses(survey_responses))
+        rows.append(["Pregunta", "Respuesta"])
+        for item in likert:
+            rows.append([_as_str(item.get("pregunta")) or "-", f"{_as_int(item.get('valor'), default=0)} / 5"])
+        for item in abiertas:
+            rows.append([""])
+            rows.append([_as_str(item.get("pregunta")) or "-"])
+            rows.append([_as_str(item.get("respuesta")) or ""])
         worksheet.update(f"A{start_row}", rows, value_input_option="USER_ENTERED")
+        try:
+            formatear_hoja_detalle(worksheet)
+        except Exception:
+            pass
 
     def _log_simulation_internal(self, simulation_data: Dict[str, Any]) -> Tuple[bool, Optional[Dict[str, Any]]]:
         if not self.config.enabled:
             return False, None
 
-        detail_sheet_name, detail_gid = self._create_detail_sheet(simulation_data)
-        row_number = self._add_summary_row(simulation_data, detail_sheet_name)
-        self._write_detail_link(row_number, detail_gid)
+        sim = _build_simulation_report(simulation_data)
+        detail_sheet_name, detail_gid = self._create_detail_sheet(sim)
+        self._add_summary_row(sim, detail_gid)
         return True, {"title": detail_sheet_name, "gid": detail_gid}
 
-    def _add_summary_row(self, data: Dict[str, Any], detail_sheet_name: str) -> int:
+    def _add_summary_row(self, sim: Dict[str, Any], detail_gid: int) -> int:
         """
         Añade una fila a 'RESUMEN' y devuelve el número de fila.
         """
-        worksheet = self._get_or_raise(self.config.resumen_sheet_name)
+        worksheet = self._get_or_create_resumen()
         formatear_hoja_resumen(worksheet)
 
-        timestamp = _as_str(data.get("timestamp")) or datetime.now(timezone.utc).isoformat()
-        student_name = _as_str(data.get("student_name")) or "Sin nombre"
-        student_email = _as_str(data.get("student_email")) or "sin-email"
-        case_name = _as_str(data.get("case_name")) or "caso"
-
-        duration_seconds = _as_int(data.get("duration_seconds"), default=0)
-        duration_min = round(duration_seconds / 60.0, 1)
-        score = _as_int(data.get("total_score"), default=0)
+        detail_url = f"https://docs.google.com/spreadsheets/d/{self.config.spreadsheet_id}/edit#gid={detail_gid}"
+        formula = f'=HYPERLINK("{detail_url}"{FORMULA_SEPARATOR} "Ver →")'
 
         values = [
-            timestamp,
-            student_name,
-            student_email,
-            case_name,
-            duration_min,
-            score,
-            "Ver Detalles",
+            _as_str(sim.get("timestamp")) or datetime.now(timezone.utc).isoformat(),
+            _as_str(sim.get("estudiante")) or "Sin nombre",
+            _as_str(sim.get("email")) or "sin-email",
+            _as_str(sim.get("caso")) or "caso",
+            _as_int(sim.get("duracion"), default=0),
+            f"{_as_int(sim.get('score_total'), default=0)}/{_as_int(sim.get('score_max'), default=0)}",
+            _as_int(sim.get("pct_conversacion"), default=0),
+            f"{_as_int(sim.get('criticos_hechos'), default=0)}/{_as_int(sim.get('criticos_total'), default=0)}",
+            _as_int(sim.get("media_desarrollo"), default=0),
+            _as_float(sim.get("media_encuesta"), default=0.0),
+            formula,
         ]
 
-        # Append row and parse updatedRange to get row number.
         resp = worksheet.append_row(values, value_input_option="USER_ENTERED")
         row_number = _extract_row_number_from_append_response(resp)
         if row_number is None:
-            # Fallback: safest guess is last non-empty row.
             row_number = len(worksheet.get_all_values())
 
         return row_number
 
-    def _create_detail_sheet(self, data: Dict[str, Any]) -> Tuple[str, int]:
+    def _create_detail_sheet(self, sim: Dict[str, Any]) -> Tuple[str, int]:
         """
         Crea una pestaña de detalle, escribe el contenido base y devuelve (nombre, gid).
         """
-        student_name = _as_str(data.get("student_name")) or "Sin_nombre"
-        ts = _as_str(data.get("timestamp")) or datetime.now(timezone.utc).isoformat()
+        student_name = _as_str(sim.get("estudiante")) or "Sin_nombre"
+        ts = _as_str(sim.get("timestamp")) or datetime.now(timezone.utc).isoformat()
         dt = _parse_dt(ts) or datetime.now(timezone.utc)
 
         sheet_name = _build_detail_sheet_name(student_name, dt)
         worksheet = self._create_unique_worksheet(sheet_name)
-        self._format_detail_sheet(worksheet, data)
+        self._format_detail_sheet(worksheet, sim)
         return worksheet.title, int(worksheet.id)
 
-    def _format_detail_sheet(self, worksheet: "gspread.Worksheet", data: Dict[str, Any]) -> None:
+    def _format_detail_sheet(self, worksheet: "gspread.Worksheet", sim: Dict[str, Any]) -> None:
         """
         Escribe el contenido base y aplica un formato básico.
         """
-        student_name = _as_str(data.get("student_name")) or "Sin nombre"
-        student_email = _as_str(data.get("student_email")) or "sin-email"
-        case_name = _as_str(data.get("case_name")) or "caso"
-        timestamp = _as_str(data.get("timestamp")) or datetime.now(timezone.utc).isoformat()
-
-        duration_seconds = _as_int(data.get("duration_seconds"), default=0)
-        duration_min = round(duration_seconds / 60.0, 1)
-        score = _as_int(data.get("total_score"), default=0)
-
-        conversation_eval = data.get("conversation_evaluation")
-        development_questions = data.get("development_questions")
-        survey_responses = (
-            data.get("survey_responses")
-            or data.get("survey")
-            or data.get("encuesta")
-        )
-        transcript = data.get("transcript")
-
-        rows: List[List[str]] = []
-        rows.append(["RESULTADO SIMULACIÓN ECOE"])
-        rows.append([""])
-        rows.append(["📋 INFORMACIÓN GENERAL"])
-        rows.append([f"Estudiante: {student_name}"])
-        rows.append([f"Email: {student_email}"])
-        rows.append([f"Fecha: {timestamp}"])
-        rows.append([f"Caso: {case_name}"])
-        rows.append([f"Duración: {duration_min} min"])
-        rows.append([""])
-        rows.append([f"🎯 PUNTUACIÓN TOTAL: {score}/100"])
-        rows.append([""])
-        rows.append(["💬 EVALUACIÓN DE CONVERSACIÓN"])
-        rows.extend(_format_conversation_eval(conversation_eval))
-        rows.append([""])
-        rows.append(["📝 PREGUNTAS DE DESARROLLO"])
-        rows.extend(_format_development_questions(development_questions))
-        rows.append([""])
-        if survey_responses:
-            rows.append(["🗳️ ENCUESTA FINAL"])
-            rows.extend(_format_survey_responses(survey_responses))
-            rows.append([""])
-        rows.append(["🧾 TRANSCRIPCIÓN"])
-        rows.extend(_format_transcript(transcript))
-
+        rows = _build_detail_rows(sim)
         worksheet.update("A1", rows, value_input_option="USER_ENTERED")
 
         try:
@@ -194,8 +166,8 @@ class SheetsLogger:
     def _write_detail_link(self, resumen_row_number: int, detail_gid: int) -> None:
         worksheet = self._get_or_raise(self.config.resumen_sheet_name)
         detail_url = f"https://docs.google.com/spreadsheets/d/{self.config.spreadsheet_id}/edit#gid={detail_gid}"
-        formula = f'=HYPERLINK("{detail_url}"{FORMULA_SEPARATOR} "Ver Detalles")'
-        worksheet.update(f"G{resumen_row_number}", [[formula]], value_input_option="USER_ENTERED")
+        formula = f'=HYPERLINK("{detail_url}"{FORMULA_SEPARATOR} "Ver →")'
+        worksheet.update(f"K{resumen_row_number}", [[formula]], value_input_option="USER_ENTERED")
 
     def _get_or_raise(self, sheet_name: str) -> "gspread.Worksheet":
         try:
@@ -204,6 +176,18 @@ class SheetsLogger:
             raise RuntimeError(
                 f"No existe la pestaña '{sheet_name}'. Crea la hoja con cabeceras antes de usar SheetsLogger."
             ) from e
+
+    def _get_or_create_resumen(self) -> "gspread.Worksheet":
+        try:
+            worksheet = self.spreadsheet.worksheet(self.config.resumen_sheet_name)
+        except Exception:
+            worksheet = self.spreadsheet.add_worksheet(
+                title=self.config.resumen_sheet_name,
+                rows=200,
+                cols=11,
+            )
+        _ensure_resumen_headers(worksheet)
+        return worksheet
 
     def _create_unique_worksheet(self, base_title: str) -> "gspread.Worksheet":
         title = base_title[:90]
@@ -336,6 +320,20 @@ def _as_int(value: Any, default: int = 0) -> int:
         return default
 
 
+def _as_float(value: Any, default: float = 0.0) -> float:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return float(int(value))
+    if isinstance(value, (int, float)):
+        return float(value)
+    s = _as_str(value)
+    try:
+        return float(s)
+    except Exception:
+        return default
+
+
 def _parse_dt(value: str) -> Optional[datetime]:
     v = (value or "").strip()
     if not v:
@@ -365,6 +363,456 @@ def _extract_row_number_from_append_response(resp: Any) -> Optional[int]:
         return int(match.group(1))
     except Exception:
         return None
+
+
+def _ensure_resumen_headers(worksheet: "gspread.Worksheet") -> None:
+    headers = [
+        "Timestamp",
+        "Estudiante",
+        "Email",
+        "Caso",
+        "Min",
+        "Score",
+        "%Conv",
+        "Críticos",
+        "Desarrollo",
+        "Encuesta",
+        "Ver",
+    ]
+    existing = worksheet.row_values(1)
+    if existing[: len(headers)] != headers:
+        worksheet.update("A1:K1", [headers], value_input_option="USER_ENTERED")
+
+
+def _looks_like_structured_reflection(value: Any) -> bool:
+    if not isinstance(value, dict):
+        return False
+    return any(key.startswith("puntuacion_") for key in value.keys())
+
+
+def _normalize_text(value: Any) -> str:
+    text = _as_str(value).lower()
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
+
+
+def _find_row(values: List[List[str]], labels: List[str]) -> Optional[int]:
+    normalized_labels = [_normalize_text(label) for label in labels]
+    for idx, row in enumerate(values, 1):
+        if not row:
+            continue
+        cell = _normalize_text(row[0])
+        for label in normalized_labels:
+            if label and label in cell:
+                return idx
+    return None
+
+
+def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
+    eval_result = data.get("evaluation_result") or {}
+    if not isinstance(eval_result, dict):
+        eval_result = {}
+
+    eval_transcript = (
+        data.get("eval_transcript")
+        or data.get("conversation_evaluation")
+        or eval_result.get("eval_transcript")
+        or {}
+    )
+    if not isinstance(eval_transcript, dict):
+        eval_transcript = {}
+
+    eval_reflection = data.get("eval_reflection") or eval_result.get("eval_reflection") or {}
+    if not isinstance(eval_reflection, dict):
+        eval_reflection = {}
+
+    reflection_structured = (
+        data.get("reflection_structured")
+        or eval_result.get("reflection")
+        or data.get("reflection")
+    )
+    reflection_answers = data.get("reflection_answers") or data.get("reflection") or {}
+
+    if reflection_structured and not _looks_like_structured_reflection(reflection_structured):
+        reflection_answers = reflection_structured
+        reflection_structured = {}
+    if not reflection_structured and _looks_like_structured_reflection(reflection_answers):
+        reflection_structured = reflection_answers
+        reflection_answers = data.get("reflection_answers") or {}
+
+    timestamp = _as_str(data.get("timestamp") or eval_result.get("timestamp")) or datetime.now(timezone.utc).isoformat()
+    estudiante = _as_str(data.get("student_name") or data.get("estudiante") or "")
+    email = _as_str(data.get("student_email") or data.get("email") or "")
+    caso = _as_str(data.get("case_name") or data.get("caso") or "")
+
+    duration_seconds = _as_int(data.get("duration_seconds"), default=0)
+    duracion = int(round(duration_seconds / 60.0)) if duration_seconds else _as_int(data.get("duracion"), default=0)
+
+    puntuacion = eval_transcript.get("puntuacion") or {}
+    score_total = _as_int(
+        puntuacion.get("total_score"),
+        default=_as_int(data.get("score_total") or data.get("total_score"), default=0),
+    )
+    score_max = _as_int(
+        puntuacion.get("max_score"),
+        default=_as_int(data.get("score_max") or data.get("max_score"), default=100),
+    )
+    pct_raw = puntuacion.get("porcentaje")
+    if pct_raw is None:
+        pct_raw = data.get("pct_conversacion")
+    if pct_raw is None and score_max:
+        pct_raw = (score_total / score_max) * 100
+    pct_conversacion = int(round(_as_float(pct_raw, default=0.0)))
+
+    items_criticos = _extract_items_criticos(eval_transcript)
+    criticos_stats = eval_transcript.get("estadisticas") or {}
+    criticos_hechos = _as_int(
+        criticos_stats.get("items_criticos_completados"),
+        default=_count_criticos_done(items_criticos),
+    )
+    criticos_total = _as_int(
+        criticos_stats.get("items_criticos_totales"),
+        default=len(items_criticos),
+    )
+
+    preguntas_desarrollo = _build_preguntas_desarrollo(
+        data.get("development_questions"),
+        reflection_answers,
+        reflection_structured,
+        eval_reflection,
+    )
+    media_desarrollo = _media_desarrollo(preguntas_desarrollo, data, eval_result)
+
+    encuesta_likert, encuesta_abiertas, media_encuesta = _split_survey_responses(
+        data.get("survey_responses") or data.get("survey") or data.get("encuesta") or eval_result.get("survey")
+    )
+
+    transcripcion = _parse_transcripcion(data.get("transcript") or data.get("transcripcion"))
+
+    return {
+        "timestamp": timestamp,
+        "estudiante": estudiante or "Sin nombre",
+        "email": email or "sin-email",
+        "caso": caso or "caso",
+        "duracion": duracion,
+        "score_total": score_total,
+        "score_max": score_max,
+        "pct_conversacion": pct_conversacion,
+        "criticos_hechos": criticos_hechos,
+        "criticos_total": criticos_total,
+        "media_desarrollo": media_desarrollo,
+        "media_encuesta": media_encuesta,
+        "items_criticos": items_criticos,
+        "preguntas_desarrollo": preguntas_desarrollo,
+        "transcripcion": transcripcion,
+        "encuesta_likert": encuesta_likert,
+        "encuesta_abiertas": encuesta_abiertas,
+    }
+
+
+def _extract_items_criticos(eval_transcript: Dict[str, Any]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    capas = eval_transcript.get("evaluacion_por_capas") or {}
+    if not isinstance(capas, dict):
+        return out
+    for capa, capa_data in capas.items():
+        for item in capa_data.get("items", []) or []:
+            if not isinstance(item, dict) or not item.get("critico"):
+                continue
+            out.append(
+                {
+                    "id": _as_str(item.get("id")) or "-",
+                    "descripcion": _as_str(item.get("item")) or "-",
+                    "capa": _as_str(capa) or "-",
+                    "done": bool(item.get("done")),
+                    "score": _as_int(item.get("score"), default=0),
+                    "max_score": _as_int(item.get("max_score"), default=0),
+                }
+            )
+    return out
+
+
+def _count_criticos_done(items: List[Dict[str, Any]]) -> int:
+    return sum(1 for item in items if item.get("done"))
+
+
+def _build_preguntas_desarrollo(
+    development_questions: Any,
+    reflection_answers: Dict[str, Any],
+    reflection_structured: Dict[str, Any],
+    eval_reflection: Dict[str, Any],
+) -> List[Dict[str, Any]]:
+    if isinstance(development_questions, list) and development_questions:
+        rows = []
+        has_scores = False
+        for item in development_questions:
+            if not isinstance(item, dict):
+                continue
+            pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
+            respuesta = _as_str(item.get("respuesta") or item.get("answer") or item.get("respuesta_estudiante"))
+            score = item.get("score")
+            if score is None:
+                score = item.get("puntuacion")
+            if score is not None:
+                has_scores = True
+            score_val = _as_int(score, default=0)
+            if pregunta or respuesta:
+                rows.append({"pregunta": pregunta or "-", "respuesta": respuesta, "score": score_val})
+        has_reflection_scores = any(
+            key.startswith("puntuacion_") for key in {**reflection_structured, **eval_reflection}.keys()
+        )
+        if rows and (has_scores or not has_reflection_scores):
+            return rows
+
+    field_map = [
+        ("resumen_caso", "Resumen del caso", "puntuacion_resumen"),
+        ("diagnostico_principal", "Diagnóstico principal", "puntuacion_diagnostico"),
+        ("diagnosticos_diferenciales", "Diagnósticos diferenciales", "puntuacion_diferenciales"),
+        ("pruebas_diagnosticas", "Pruebas diagnósticas", "puntuacion_pruebas"),
+        ("plan_manejo", "Plan de manejo", "puntuacion_plan"),
+    ]
+    out: List[Dict[str, Any]] = []
+    for field, label, score_key in field_map:
+        respuesta = _as_str(
+            reflection_answers.get(field)
+            or reflection_structured.get(field)
+        )
+        score = reflection_structured.get(score_key)
+        if score is None:
+            score = eval_reflection.get(score_key)
+        if respuesta or score is not None:
+            out.append(
+                {
+                    "pregunta": label,
+                    "respuesta": respuesta,
+                    "score": _as_int(score, default=0),
+                }
+            )
+    return out
+
+
+def _media_desarrollo(
+    preguntas_desarrollo: List[Dict[str, Any]],
+    data: Dict[str, Any],
+    eval_result: Dict[str, Any],
+) -> int:
+    scores = [q.get("score") for q in preguntas_desarrollo if isinstance(q.get("score"), (int, float))]
+    if scores:
+        return int(round(sum(scores) / len(scores)))
+    return _as_int(data.get("media_desarrollo") or eval_result.get("reflectionScore"), default=0)
+
+
+def _split_survey_responses(survey: Any) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], float]:
+    if not survey:
+        return [], [], 0.0
+
+    if isinstance(survey, dict):
+        media = _as_float(survey.get("media_satisfaccion"), default=0.0)
+        likert = survey.get("likert") or survey.get("likert_responses") or []
+        abiertas = survey.get("abiertas") or survey.get("open") or []
+    else:
+        media = 0.0
+        likert = []
+        abiertas = []
+
+    if isinstance(survey, dict) and not likert and not abiertas:
+        payload = survey.get("responses") or survey.get("respuestas")
+        if payload:
+            survey = payload
+
+    if isinstance(survey, list):
+        for item in survey:
+            if not isinstance(item, dict):
+                continue
+            pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
+            valor = item.get("valor") or item.get("score") or item.get("value")
+            if valor is not None and isinstance(valor, (int, float, str)):
+                likert.append({"pregunta": pregunta or "-", "valor": _as_int(valor, default=0)})
+                continue
+            respuesta = _as_str(item.get("respuesta") or item.get("answer") or item.get("texto"))
+            if pregunta or respuesta:
+                abiertas.append({"pregunta": pregunta or "-", "respuesta": respuesta})
+
+    if isinstance(likert, list) and likert:
+        cleaned = []
+        for item in likert:
+            if not isinstance(item, dict):
+                continue
+            pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
+            valor = _as_int(item.get("valor") or item.get("value") or item.get("score"), default=0)
+            cleaned.append({"pregunta": pregunta or "-", "valor": valor})
+        likert = cleaned
+
+    if isinstance(abiertas, list) and abiertas:
+        cleaned = []
+        for item in abiertas:
+            if not isinstance(item, dict):
+                continue
+            pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
+            respuesta = _as_str(item.get("respuesta") or item.get("answer") or item.get("texto"))
+            if pregunta or respuesta:
+                cleaned.append({"pregunta": pregunta or "-", "respuesta": respuesta})
+        abiertas = cleaned
+
+    if media <= 0 and likert:
+        media = round(sum(item.get("valor", 0) for item in likert) / max(len(likert), 1), 2)
+
+    return likert, abiertas, media
+
+
+def _parse_transcripcion(transcript: Any) -> List[Dict[str, Any]]:
+    if not transcript:
+        return []
+
+    if isinstance(transcript, list):
+        if all(isinstance(item, dict) for item in transcript):
+            out = []
+            for idx, item in enumerate(transcript, 1):
+                rol = _as_str(item.get("rol") or item.get("role") or "")
+                texto = _as_str(item.get("texto") or item.get("text") or "")
+                out.append({"turno": idx, "rol": rol or "DESCONOCIDO", "texto": texto})
+            return out
+        lines = [_as_str(item) for item in transcript if _as_str(item)]
+    else:
+        text = _as_str(transcript)
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+
+    out: List[Dict[str, Any]] = []
+    for idx, line in enumerate(lines, 1):
+        rol, texto = _split_role_line(line)
+        out.append({"turno": idx, "rol": rol, "texto": texto})
+    return out
+
+
+def _split_role_line(line: str) -> Tuple[str, str]:
+    raw = line.strip()
+    if not raw:
+        return "DESCONOCIDO", ""
+    variants = [
+        ("[ESTUDIANTE]", "ESTUDIANTE"),
+        ("[PACIENTE]", "PACIENTE"),
+        ("ESTUDIANTE:", "ESTUDIANTE"),
+        ("PACIENTE:", "PACIENTE"),
+        ("ESTUDIANTE", "ESTUDIANTE"),
+        ("PACIENTE", "PACIENTE"),
+    ]
+    upper = raw.upper()
+    for prefix, role in variants:
+        if upper.startswith(prefix):
+            texto = raw[len(prefix):].lstrip(" :-")
+            return role, texto or raw
+    return "DESCONOCIDO", raw
+
+
+def _build_detail_rows(sim: Dict[str, Any]) -> List[List[Any]]:
+    rows: List[List[Any]] = []
+    width = 5
+
+    def pad(values: List[Any]) -> List[Any]:
+        return values + [""] * (width - len(values))
+
+    rows.append(pad(["📋 DATOS DE LA SIMULACIÓN"]))
+    ficha = [
+        ("Estudiante", sim.get("estudiante")),
+        ("Email", sim.get("email")),
+        ("Fecha", sim.get("timestamp")),
+        ("Caso", sim.get("caso")),
+        ("Duración", f"{_as_int(sim.get('duracion'), default=0)} minutos"),
+    ]
+    for label, value in ficha:
+        rows.append(pad([label, _as_str(value)]))
+    rows.append(pad([""]))
+
+    rows.append(pad(["📊 RESUMEN DE RESULTADOS"]))
+    rows.append(pad(["Métrica", "Valor", "Porcentaje"]))
+    resultados = [
+        ("Puntuación Total", f"{_as_int(sim.get('score_total'), default=0)}/{_as_int(sim.get('score_max'), default=0)}",
+         _as_int(sim.get("pct_conversacion"), default=0)),
+        ("Ítems Críticos", f"{_as_int(sim.get('criticos_hechos'), default=0)}/{_as_int(sim.get('criticos_total'), default=0)}",
+         _ratio_pct(sim.get("criticos_hechos"), sim.get("criticos_total"))),
+        ("Media Desarrollo", f"{_as_int(sim.get('media_desarrollo'), default=0)}/100",
+         _as_int(sim.get("media_desarrollo"), default=0)),
+        ("Satisfacción", f"{_as_float(sim.get('media_encuesta'), default=0.0)}/5",
+         _ratio_pct(sim.get("media_encuesta"), 5)),
+    ]
+    for metrica, valor, pct in resultados:
+        rows.append(pad([metrica, valor, f"{pct}%"]))
+
+    rows.append(pad([""]))
+    rows.append(pad(["🔴 ÍTEMS CRÍTICOS"]))
+    rows.append(pad(["ID", "Descripción", "Capa", "¿Hecho?", "Puntos"]))
+    for item in sim.get("items_criticos", []) or []:
+        hecho = "✔" if item.get("done") else "✖"
+        rows.append(
+            pad(
+                [
+                    _as_str(item.get("id")) or "-",
+                    _as_str(item.get("descripcion")) or "-",
+                    _as_str(item.get("capa")) or "-",
+                    hecho,
+                    f"{_as_int(item.get('score'), default=0)}/{_as_int(item.get('max_score'), default=0)}",
+                ]
+            )
+        )
+
+    rows.append(pad([""]))
+    rows.append(pad(["📝 PREGUNTAS DE DESARROLLO"]))
+    rows.append(pad(["#", "Pregunta", "Respuesta", "Score"]))
+    for idx, item in enumerate(sim.get("preguntas_desarrollo", []) or [], 1):
+        rows.append(
+            pad(
+                [
+                    idx,
+                    _as_str(item.get("pregunta")) or "-",
+                    _as_str(item.get("respuesta")) or "",
+                    _as_int(item.get("score"), default=0),
+                ]
+            )
+        )
+
+    rows.append(pad([""]))
+    rows.append(pad(["💬 TRANSCRIPCIÓN"]))
+    rows.append(pad(["#", "Rol", "Texto"]))
+    for turno in sim.get("transcripcion", []) or []:
+        rows.append(
+            pad(
+                [
+                    _as_int(turno.get("turno"), default=0),
+                    _as_str(turno.get("rol")) or "DESCONOCIDO",
+                    _as_str(turno.get("texto")),
+                ]
+            )
+        )
+
+    rows.append(pad([""]))
+    rows.append(pad(["⭐ ENCUESTA DE SATISFACCIÓN"]))
+    rows.append(pad(["Media general:", f"{_as_float(sim.get('media_encuesta'), default=0.0)} / 5"]))
+    rows.append(pad([""]))
+    rows.append(pad(["Pregunta", "Respuesta"]))
+    for item in sim.get("encuesta_likert", []) or []:
+        rows.append(
+            pad(
+                [
+                    _as_str(item.get("pregunta")) or "-",
+                    f"{_as_int(item.get('valor'), default=0)} / 5",
+                ]
+            )
+        )
+    for item in sim.get("encuesta_abiertas", []) or []:
+        rows.append(pad([""]))
+        rows.append(pad([_as_str(item.get("pregunta")) or "-"]))
+        rows.append(pad([_as_str(item.get("respuesta")) or ""]))
+
+    return rows
+
+
+def _ratio_pct(value: Any, total: Any) -> int:
+    total_val = _as_float(total, default=0.0)
+    if total_val <= 0:
+        return 0
+    return int(round((_as_float(value, default=0.0) / total_val) * 100))
 
 
 def _format_conversation_eval(conversation_eval: Any) -> List[List[str]]:
