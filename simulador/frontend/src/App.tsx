@@ -7,7 +7,6 @@ import { CaseInstructions } from "@/components/case-instructions"
 import { SimulationInterface } from "@/components/simulation-interface"
 import { ClinicalReflection } from "@/components/clinical-reflection"
 import { LoadingResults } from "@/components/loading-results"
-import { ResultsScreen } from "@/components/results-screen"
 import { ResultsScreenV3 } from "@/components/results-screen-v3"
 import { SurveyScreen } from "@/components/survey-screen"
 import type { SimulationStep, CaseData, StudentData } from "@/types"
@@ -52,13 +51,13 @@ export default function Home() {
       const backendCases = await response.json()
 
       // Adaptar formato backend a formato frontend
-      const adaptedCases: CaseData[] = backendCases.map((c: any) => ({
+      const adaptedCases: CaseData[] = backendCases.map((c: any, idx: number) => ({
         id: c.id,
-        title: c.titulo,
-        description: c.descripcion_corta || c.motivo_consulta || 'Sin descripción',
+        title: `Caso ${idx + 1}`,
+        description: c.motivo_consulta || c.descripcion_corta || 'Sin descripción',
         difficulty: c.dificultad as "Básico" | "Intermedio" | "Avanzado",
         duration: `${c.duracion_estimada || 15} min`,
-        category: c.especialidad,
+        category: c.especialidad || "General",
         tags: [c.especialidad, c.dificultad].filter(Boolean),
         patientAge: c.informacion_paciente?.edad || 0,
         patientGender: c.informacion_paciente?.genero || "Desconocido",
@@ -86,7 +85,8 @@ export default function Home() {
       const response = await fetch(`${API_BASE_URL}/api/cases/${caseId}/questions`)
 
       if (!response.ok) {
-        console.warn('⚠️ Error cargando preguntas, usando fallback')
+        console.warn('⚠️ No hay preguntas configuradas para este caso')
+        setReflectionQuestions([])
         return
       }
 
@@ -95,7 +95,7 @@ export default function Home() {
       console.log(`✅ Preguntas cargadas: ${data.questions?.length || 0} (source: ${data.source})`)
     } catch (err) {
       console.error('Error loading reflection questions:', err)
-      // No bloqueamos la UI, solo usamos preguntas hardcoded en ClinicalReflection
+      // No bloqueamos la UI; si falla, mostramos que no hay preguntas configuradas.
     }
   }
 
@@ -173,8 +173,7 @@ export default function Home() {
 
       console.log('📝 Enviando reflexión para evaluación:', reflectionData)
 
-      // Evaluación principal (backend calcula V2 + V3 + desarrollo)
-      const responseV2 = await fetch(`${API_BASE_URL}/api/simulation/evaluate`, {
+      const responseEval = await fetch(`${API_BASE_URL}/api/simulation/evaluate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -183,10 +182,10 @@ export default function Home() {
         }),
       })
 
-      if (!responseV2.ok) {
+      if (!responseEval.ok) {
         let detail = 'Error al evaluar la simulación'
         try {
-          const errBody = await responseV2.json()
+          const errBody = await responseEval.json()
           detail = errBody?.error || errBody?.message || detail
         } catch (parseErr) {
           // Mantener mensaje por defecto
@@ -194,36 +193,9 @@ export default function Home() {
         throw new Error(detail)
       }
 
-      const resultsV2 = await responseV2.json()
-
-      // Intentar obtener evaluación unificada (nuevo endpoint)
-      let unifiedResults = null
-      try {
-        const responseUnified = await fetch(`${API_BASE_URL}/api/evaluation/unified`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: sessionId,
-            eval_transcript: resultsV2?.eval_transcript,
-            eval_reflection: resultsV2?.eval_reflection,
-            reflection: reflectionData,
-          }),
-        })
-
-        if (responseUnified.ok) {
-          unifiedResults = await responseUnified.json()
-          console.log('✅ Evaluación unificada recibida:', unifiedResults)
-        } else {
-          console.warn('⚠️ Evaluación unificada no disponible, usando legacy')
-        }
-      } catch (err) {
-        console.warn('⚠️ Error solicitando evaluación unificada:', err)
-      }
-
-      // Fallback legacy si el unificado no está disponible
-      const finalResults = unifiedResults || resultsV2
-      setEvaluationResults(finalResults)
-      console.log('✅ Evaluación final seleccionada:', finalResults)
+      const results = await responseEval.json()
+      setEvaluationResults(results)
+      console.log('✅ Evaluación recibida:', results)
 
       // Esperar mínimo 2 segundos para la animación de carga
       await new Promise(resolve => setTimeout(resolve, 2000))
@@ -341,24 +313,14 @@ export default function Home() {
 
       {currentStep === "loading" && <LoadingResults />}
 
-      {currentStep === "results" && selectedCase && studentData && (
-        evaluationResults?.blocks ? (
-          <ResultsScreenV3
-            caseData={selectedCase}
-            studentData={studentData}
-            evaluationResults={evaluationResults}
-            onBackToDashboard={handleBackToDashboard}
-            onGoToSurvey={handleGoToSurvey}
-          />
-        ) : (
-          <ResultsScreen
-            caseData={selectedCase}
-            studentData={studentData}
-            evaluationResults={evaluationResults}
-            onBackToDashboard={handleBackToDashboard}
-            onGoToSurvey={handleGoToSurvey}
-          />
-        )
+      {currentStep === "results" && selectedCase && studentData && evaluationResults && (
+        <ResultsScreenV3
+          caseData={selectedCase}
+          studentData={studentData}
+          evaluationResults={evaluationResults}
+          onBackToDashboard={handleBackToDashboard}
+          onGoToSurvey={handleGoToSurvey}
+        />
       )}
 
       {currentStep === "survey" && (

@@ -51,13 +51,10 @@ class SheetsLogger:
             - student_email: str
             - case_name: str
             - duration_seconds: int
-            - total_score: int (0-100 recomendado)
             - timestamp: str (ISO) (opcional)
-            - conversation_evaluation: dict (opcional)
-            - development_questions: list (opcional)
+            - evaluation_result: dict (schema evaluation.production.v1)
             - survey_responses: list | dict (opcional)
             - transcript: str | list[str] (opcional)
-            - evaluation_unified: dict (opcional)
         """
         ok, _detail = self._log_simulation_internal(simulation_data)
         try:
@@ -418,12 +415,6 @@ def _ensure_resumen_headers(worksheet: "gspread.Worksheet") -> None:
         worksheet.update("A1:K1", [headers], value_input_option="USER_ENTERED")
 
 
-def _looks_like_structured_reflection(value: Any) -> bool:
-    if not isinstance(value, dict):
-        return False
-    return any(key.startswith("puntuacion_") for key in value.keys())
-
-
 def _normalize_text(value: Any) -> str:
     text = _as_str(value).lower()
     text = unicodedata.normalize("NFKD", text)
@@ -452,41 +443,11 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     schema_version = eval_result.get("schema_version")
     if schema_version != "evaluation.production.v1":
         raise ValueError(f"Unsupported schema_version: {schema_version!r}")
-    production_eval = eval_result
 
-    evaluation_unified = (
-        data.get("evaluation_unified")
-        or eval_result.get("evaluation_unified")
-    )
-    if not isinstance(evaluation_unified, dict):
-        evaluation_unified = {}
-
-    eval_transcript = (
-        data.get("eval_transcript")
-        or data.get("conversation_evaluation")
-        or eval_result.get("eval_transcript")
-        or {}
-    )
-    if not isinstance(eval_transcript, dict):
-        eval_transcript = {}
-
-    eval_reflection = data.get("eval_reflection") or eval_result.get("eval_reflection") or {}
-    if not isinstance(eval_reflection, dict):
-        eval_reflection = {}
-
-    reflection_structured = (
-        data.get("reflection_structured")
-        or eval_result.get("reflection")
-        or data.get("reflection")
-    )
-    reflection_answers = data.get("reflection_answers") or data.get("reflection") or {}
-
-    if reflection_structured and not _looks_like_structured_reflection(reflection_structured):
-        reflection_answers = reflection_structured
-        reflection_structured = {}
-    if not reflection_structured and _looks_like_structured_reflection(reflection_answers):
-        reflection_structured = reflection_answers
-        reflection_answers = data.get("reflection_answers") or {}
+    scores = eval_result.get("scores") or {}
+    global_scores = scores.get("global") or {}
+    checklist_scores = scores.get("checklist") or {}
+    development_scores = scores.get("development") or {}
 
     timestamp = _as_str(data.get("timestamp") or eval_result.get("timestamp")) or datetime.now(timezone.utc).isoformat()
     estudiante = _as_str(data.get("student_name") or data.get("estudiante") or "")
@@ -496,98 +457,29 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     duration_seconds = _as_int(data.get("duration_seconds"), default=0)
     duracion = int(round(duration_seconds / 60.0)) if duration_seconds else _as_int(data.get("duracion"), default=0)
 
-    puntuacion = eval_transcript.get("puntuacion") or {}
-    score_total = _as_int(
-        puntuacion.get("total_score"),
-        default=_as_int(data.get("score_total") or data.get("total_score"), default=0),
+    score_total = _as_int(global_scores.get("score"), default=0)
+    score_max = _as_int(global_scores.get("max"), default=100)
+    pct_conversacion = _as_int(checklist_scores.get("percentage"), default=0)
+
+    items_criticos = _extract_items_criticos_production(eval_result)
+    criticos_hechos = _count_criticos_done(items_criticos)
+    criticos_total = len(items_criticos)
+
+    preguntas_desarrollo = _build_preguntas_desarrollo_production(eval_result)
+    media_desarrollo = _as_int(
+        development_scores.get("percentage"),
+        default=_media_desarrollo_from_questions(preguntas_desarrollo),
     )
-    score_max = _as_int(
-        puntuacion.get("max_score"),
-        default=_as_int(data.get("score_max") or data.get("max_score"), default=100),
-    )
-    pct_raw = puntuacion.get("porcentaje")
-    if pct_raw is None:
-        pct_raw = data.get("pct_conversacion")
-    if pct_raw is None and score_max:
-        pct_raw = (score_total / score_max) * 100
-    pct_conversacion = int(round(_as_float(pct_raw, default=0.0)))
-
-    items_criticos = _extract_items_criticos(eval_transcript)
-    criticos_stats = eval_transcript.get("estadisticas") or {}
-    criticos_hechos = _as_int(
-        criticos_stats.get("items_criticos_completados"),
-        default=_count_criticos_done(items_criticos),
-    )
-    criticos_total = _as_int(
-        criticos_stats.get("items_criticos_totales"),
-        default=len(items_criticos),
-    )
-
-    preguntas_desarrollo = _build_preguntas_desarrollo(
-        data.get("development_questions"),
-        reflection_answers,
-        reflection_structured,
-        eval_reflection,
-    )
-    media_desarrollo = _media_desarrollo(preguntas_desarrollo, data, eval_result)
-
-    if production_eval:
-        score_total = _as_int(production_eval.get("score_total"), default=score_total)
-        score_max = _as_int(production_eval.get("scores", {}).get("global", {}).get("max"), default=100)
-        pct_conversacion = _as_int(production_eval.get("percentage"), default=pct_conversacion)
-
-        items_criticos = []
-        criticos_hechos = 0
-        criticos_total = 0
-
-        prod_preguntas = _build_preguntas_desarrollo_unified(production_eval)
-        if prod_preguntas:
-            preguntas_desarrollo = prod_preguntas
-
-        media_desarrollo = _as_int(
-            production_eval.get("scores", {}).get("development", {}).get("percentage")
-            or production_eval.get("development", {}).get("percentage"),
-            default=media_desarrollo,
-        )
-
-    if evaluation_unified and not production_eval:
-        unified_scores = evaluation_unified.get("scores") or {}
-        unified_global = unified_scores.get("global") or {}
-        unified_dev = unified_scores.get("development") or {}
-
-        score_total = _as_int(unified_global.get("score"), default=score_total)
-        score_max = _as_int(unified_global.get("max"), default=score_max)
-        pct_conversacion = int(round(_as_float(unified_global.get("percentage"), default=pct_conversacion)))
-
-        unified_criticos = _extract_items_criticos_unified(evaluation_unified)
-        if unified_criticos:
-            items_criticos = unified_criticos
-            criticos_hechos = _count_criticos_done(items_criticos)
-            criticos_total = len(items_criticos)
-
-        unified_preguntas = _build_preguntas_desarrollo_unified(evaluation_unified)
-        if unified_preguntas:
-            preguntas_desarrollo = unified_preguntas
-
-        media_desarrollo = _as_int(unified_dev.get("score"), default=media_desarrollo)
 
     encuesta_likert, encuesta_abiertas, media_encuesta = _split_survey_responses(
         data.get("survey_responses") or data.get("survey") or data.get("encuesta") or eval_result.get("survey")
     )
 
-    if production_eval:
-        prod_survey = production_eval.get("survey") or {}
-        if prod_survey:
-            encuesta_likert = prod_survey.get("likert") or []
-            encuesta_abiertas = prod_survey.get("open") or []
-            media_encuesta = _as_float(prod_survey.get("average"), default=media_encuesta)
-
-    if evaluation_unified and not production_eval:
-        unified_survey = evaluation_unified.get("survey") or {}
-        if unified_survey:
-            encuesta_likert = unified_survey.get("likert") or []
-            encuesta_abiertas = unified_survey.get("open") or []
-            media_encuesta = _as_float(unified_survey.get("average"), default=media_encuesta)
+    prod_survey = eval_result.get("survey") or {}
+    if prod_survey:
+        encuesta_likert = prod_survey.get("likert") or []
+        encuesta_abiertas = prod_survey.get("open") or []
+        media_encuesta = _as_float(prod_survey.get("average"), default=media_encuesta)
 
     transcripcion = _parse_transcripcion(data.get("transcript") or data.get("transcripcion"))
 
@@ -612,48 +504,21 @@ def _build_simulation_report(data: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _extract_items_criticos(eval_transcript: Dict[str, Any]) -> List[Dict[str, Any]]:
+def _extract_items_criticos_production(eval_result: Dict[str, Any]) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
-    capas = eval_transcript.get("evaluacion_por_capas") or {}
-    if not isinstance(capas, dict):
-        return out
-    for capa, capa_data in capas.items():
-        for item in capa_data.get("items", []) or []:
-            if not isinstance(item, dict) or not item.get("critico"):
-                continue
-            out.append(
-                {
-                    "id": _as_str(item.get("id")) or "-",
-                    "descripcion": _as_str(item.get("item")) or "-",
-                    "capa": _as_str(capa) or "-",
-                    "done": bool(item.get("done")),
-                    "score": _as_int(item.get("score"), default=0),
-                    "max_score": _as_int(item.get("max_score"), default=0),
-                }
-            )
-    return out
-
-
-def _extract_items_criticos_unified(unified: Dict[str, Any]) -> List[Dict[str, Any]]:
-    out: List[Dict[str, Any]] = []
-    blocks = unified.get("blocks") or []
-    if isinstance(blocks, dict):
-        blocks = list(blocks.values())
-    for block in blocks or []:
-        block_id = _as_str(block.get("id")) or "-"
-        for item in block.get("items", []) or []:
-            if not item.get("critical"):
-                continue
-            out.append(
-                {
-                    "id": _as_str(item.get("id")) or "-",
-                    "descripcion": _as_str(item.get("text")) or "-",
-                    "capa": block_id,
-                    "done": bool(item.get("done")),
-                    "score": _as_int(item.get("score"), default=0),
-                    "max_score": _as_int(item.get("max_score"), default=0),
-                }
-            )
+    for item in eval_result.get("items", []) or []:
+        if not item.get("critical"):
+            continue
+        out.append(
+            {
+                "id": _as_str(item.get("id")) or "-",
+                "descripcion": _as_str(item.get("descripcion")) or "-",
+                "capa": _as_str(item.get("bloque")) or "-",
+                "done": bool(item.get("done")),
+                "score": _as_int(item.get("score"), default=0),
+                "max_score": _as_int(item.get("max_score"), default=0),
+            }
+        )
     return out
 
 
@@ -661,70 +526,8 @@ def _count_criticos_done(items: List[Dict[str, Any]]) -> int:
     return sum(1 for item in items if item.get("done"))
 
 
-def _build_preguntas_desarrollo(
-    development_questions: Any,
-    reflection_answers: Dict[str, Any],
-    reflection_structured: Dict[str, Any],
-    eval_reflection: Dict[str, Any],
-) -> List[Dict[str, Any]]:
-    if not isinstance(reflection_answers, dict):
-        reflection_answers = {}
-    if not isinstance(reflection_structured, dict):
-        reflection_structured = {}
-    if not isinstance(eval_reflection, dict):
-        eval_reflection = {}
-
-    if isinstance(development_questions, list) and development_questions:
-        rows = []
-        has_scores = False
-        for item in development_questions:
-            if not isinstance(item, dict):
-                continue
-            pregunta = _as_str(item.get("pregunta") or item.get("question") or item.get("titulo"))
-            respuesta = _as_str(item.get("respuesta") or item.get("answer") or item.get("respuesta_estudiante"))
-            score = item.get("score")
-            if score is None:
-                score = item.get("puntuacion")
-            if score is not None:
-                has_scores = True
-            score_val = _as_int(score, default=0)
-            if pregunta or respuesta:
-                rows.append({"pregunta": pregunta or "-", "respuesta": respuesta, "score": score_val})
-        has_reflection_scores = any(
-            key.startswith("puntuacion_") for key in {**reflection_structured, **eval_reflection}.keys()
-        )
-        if rows and (has_scores or not has_reflection_scores):
-            return rows
-
-    field_map = [
-        ("resumen_caso", "Resumen del caso", "puntuacion_resumen"),
-        ("diagnostico_principal", "Diagnóstico principal", "puntuacion_diagnostico"),
-        ("diagnosticos_diferenciales", "Diagnósticos diferenciales", "puntuacion_diferenciales"),
-        ("pruebas_diagnosticas", "Pruebas diagnósticas", "puntuacion_pruebas"),
-        ("plan_manejo", "Plan de manejo", "puntuacion_plan"),
-    ]
-    out: List[Dict[str, Any]] = []
-    for field, label, score_key in field_map:
-        respuesta = _as_str(
-            reflection_answers.get(field)
-            or reflection_structured.get(field)
-        )
-        score = reflection_structured.get(score_key)
-        if score is None:
-            score = eval_reflection.get(score_key)
-        if respuesta or score is not None:
-            out.append(
-                {
-                    "pregunta": label,
-                    "respuesta": respuesta,
-                    "score": _as_int(score, default=0),
-                }
-            )
-    return out
-
-
-def _build_preguntas_desarrollo_unified(unified: Dict[str, Any]) -> List[Dict[str, Any]]:
-    questions = (unified.get("development") or {}).get("questions") or []
+def _build_preguntas_desarrollo_production(eval_result: Dict[str, Any]) -> List[Dict[str, Any]]:
+    questions = (eval_result.get("development") or {}).get("questions") or []
     out: List[Dict[str, Any]] = []
     for item in questions:
         if not isinstance(item, dict):
@@ -743,15 +546,11 @@ def _build_preguntas_desarrollo_unified(unified: Dict[str, Any]) -> List[Dict[st
     return out
 
 
-def _media_desarrollo(
-    preguntas_desarrollo: List[Dict[str, Any]],
-    data: Dict[str, Any],
-    eval_result: Dict[str, Any],
-) -> int:
-    scores = [q.get("score") for q in preguntas_desarrollo if isinstance(q.get("score"), (int, float))]
-    if scores:
-        return int(round(sum(scores) / len(scores)))
-    return _as_int(data.get("media_desarrollo") or eval_result.get("reflectionScore"), default=0)
+def _media_desarrollo_from_questions(questions: List[Dict[str, Any]]) -> int:
+    if not questions:
+        return 0
+    scores = [_as_int(q.get("score"), default=0) for q in questions]
+    return int(round(sum(scores) / len(scores))) if scores else 0
 
 
 def _split_survey_responses(survey: Any) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], float]:

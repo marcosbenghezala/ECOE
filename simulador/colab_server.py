@@ -71,11 +71,8 @@ def get_voice_for_case(case_data: dict) -> str:
     return VOICE_MAPPING["default"]
 
 # Importar módulos del proyecto
-from evaluator_v2 import EvaluatorV2
-from evaluator_v3 import EvaluatorV3
 from evaluator_production import EvaluatorProduction
 from realtime_voice import RealtimeVoiceManager
-from google_sheets_integration import GoogleSheetsIntegration
 
 # Verificar que existe el frontend compilado
 FRONTEND_DIST = Path(__file__).parent / 'frontend' / 'dist'
@@ -125,30 +122,6 @@ except Exception as e:
         print(f"⚠️  Error inicializando OpenAI client: {e2}")
         openai_client = None
 
-# Inicializar componentes con parámetros correctos
-# EvaluatorV2 es legacy - solo se usa si no falla, pero no es crítico
-try:
-    evaluator = EvaluatorV2(
-        api_key=os.getenv('OPENAI_API_KEY'),
-        master_items_path=str(DATA_DIR / 'master_items.json'),
-        embeddings_path=str(DATA_DIR / 'master_items_embeddings.npz'),
-        index_path=str(DATA_DIR / 'master_items_index.json'),
-        learning_system=None
-    )
-    print("✅ EvaluatorV2 inicializado")
-except Exception as e:
-    # EvaluatorV2 no es crítico - solo log warning
-    print(f"⚠️  EvaluatorV2 no disponible (legacy): {e}")
-    evaluator = None
-
-# Inicializar EvaluatorV3 (nuevo sistema con checklist v2)
-try:
-    evaluator_v3 = EvaluatorV3()
-    print("✅ EvaluatorV3 inicializado")
-except Exception as e:
-    print(f"⚠️  Error inicializando evaluador V3: {e}")
-    evaluator_v3 = None
-
 try:
     evaluator_production = EvaluatorProduction()
     print("✅ EvaluatorProduction inicializado")
@@ -156,12 +129,6 @@ except Exception as e:
     print(f"⚠️  Error inicializando evaluador Production: {e}")
     evaluator_production = None
 
-try:
-    sheets_integration = GoogleSheetsIntegration()
-    print("✅ Google Sheets Integration inicializado")
-except Exception as e:
-    print(f"⚠️  Google Sheets no configurado (usará fallback): {e}")
-    sheets_integration = GoogleSheetsIntegration()
 
 # Almacenamiento de sesiones y conexiones WebSocket
 sessions = {}
@@ -205,48 +172,6 @@ def rate_limit(max_requests=RATE_LIMIT_MAX_REQUESTS, window=RATE_LIMIT_WINDOW):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
-
-
-def _build_development_questions_for_log(case_id: str, reflection: dict) -> list:
-    if not isinstance(reflection, dict) or not reflection:
-        return []
-
-    questions = []
-    try:
-        if sheets_integration:
-            questions = sheets_integration.get_case_questions(str(case_id))
-    except Exception as e:
-        print(f"⚠️  Error cargando preguntas para Sheets: {e}")
-        questions = []
-
-    out = []
-    for q in questions or []:
-        field_name = (q.get("field_name") or "").strip()
-        if not field_name:
-            continue
-        answer = reflection.get(field_name)
-        if not answer:
-            continue
-        question_text = q.get("question") or q.get("pregunta") or field_name
-        out.append({"pregunta": str(question_text).strip(), "respuesta": str(answer).strip()})
-
-    if out:
-        return out
-
-    fallback_fields = [
-        ("resumen_caso", "Resumen del caso"),
-        ("diagnostico_principal", "Diagnóstico principal"),
-        ("diagnosticos_diferenciales", "Diagnósticos diferenciales"),
-        ("pruebas_diagnosticas", "Pruebas diagnósticas"),
-        ("plan_manejo", "Plan de manejo"),
-    ]
-    for field_name, label in fallback_fields:
-        answer = reflection.get(field_name)
-        if not answer:
-            continue
-        out.append({"pregunta": label, "respuesta": str(answer).strip()})
-
-    return out
 
 
 # ========== PERSISTENCIA DE SESIONES ==========
@@ -375,10 +300,8 @@ def admin_test_sheets():
             "student_email": payload.get("student_email") or "test@example.com",
             "case_name": payload.get("case_name") or "TEST_SHEETS",
             "duration_seconds": int(payload.get("duration_seconds") or 437),
-            "total_score": int(payload.get("total_score") or 82),
             "timestamp": payload.get("timestamp") or now.isoformat(),
-            "conversation_evaluation": payload.get("conversation_evaluation") or {"ok": True},
-            "development_questions": payload.get("development_questions") or ["Pregunta 1", "Pregunta 2"],
+            "evaluation_result": payload.get("evaluation_result") or {"schema_version": "evaluation.production.v1"},
             "transcript": payload.get("transcript") or [
                 "[ESTUDIANTE] Hola, soy el doctor.",
                 "[PACIENTE] Hola, doctor.",
@@ -416,6 +339,8 @@ def get_cases():
         all_case_files = list(json_files) + list(bin_files)
 
         for case_file in all_case_files:
+            if case_file.stem.startswith("_"):
+                continue
             try:
                 # Cargar según extensión
                 if case_file.suffix == '.json':
@@ -425,6 +350,7 @@ def get_cases():
                     with open(case_file, 'rb') as f:
                         case_data = pickle.load(f)
 
+                descripcion_corta = case_data.get('descripcion_corta') or case_data.get('motivo_consulta') or ''
                 cases.append({
                     'id': case_file.stem,
                     'titulo': case_data.get('titulo', 'Sin título'),
@@ -432,7 +358,7 @@ def get_cases():
                     'dificultad': case_data.get('dificultad'),  # Opcional - no default
                     'duracion_estimada': case_data.get('duracion_estimada', 15),
                     'motivo_consulta': case_data.get('motivo_consulta', 'Sin motivo de consulta'),
-                    'descripcion_corta': case_data.get('motivo_consulta', '')[:100] + '...' if case_data.get('motivo_consulta') else 'Sin descripción',
+                    'descripcion_corta': descripcion_corta if descripcion_corta else 'Sin descripción',
                     'informacion_paciente': case_data.get('informacion_paciente', {})
                 })
             except Exception as e:
@@ -489,44 +415,32 @@ def get_case_questions(case_id):
     """
     Obtener preguntas de desarrollo para un caso específico.
 
-    Prioridad:
-    1. Google Sheets (si está configurado)
-    2. Fallback JSON local
-    3. Hardcoded
-
-    Returns:
-        JSON con array de preguntas:
-        {
-            "case_id": str,
-            "questions": [
-                {
-                    "id": int,
-                    "question": str,
-                    "field_name": str,
-                    "criteria": str,
-                    "max_score": int
-                },
-                ...
-            ],
-            "source": "sheets" | "fallback" | "hardcoded"
-        }
+    Las preguntas se definen en el propio caso (preguntas_reflexion).
     """
     try:
         if str(case_id).startswith('_'):
             return jsonify({'error': 'Case not found'}), 404
 
-        if not sheets_integration:
-            return jsonify({'error': 'Google Sheets integration not available'}), 503
+        case_file_json = CASES_DIR / f"{case_id}.json"
+        case_file_bin = CASES_DIR / f"{case_id}.bin"
 
-        questions = sheets_integration.get_case_questions(case_id)
+        if case_file_json.exists():
+            with open(case_file_json, 'r', encoding='utf-8') as f:
+                case_data = json.load(f)
+        elif case_file_bin.exists():
+            with open(case_file_bin, 'rb') as f:
+                case_data = pickle.load(f)
+        else:
+            return jsonify({'error': 'Case not found'}), 404
 
-        # Determinar source basado en logs (simplificado)
-        source = "fallback"  # Por defecto, ya que la mayoría usará fallback en desarrollo
+        questions = case_data.get("preguntas_reflexion") or []
+        if not isinstance(questions, list) or not questions:
+            return jsonify({'error': 'No hay preguntas configuradas para este caso'}), 404
 
         return jsonify({
             'case_id': case_id,
             'questions': questions,
-            'source': source,
+            'source': 'case',
             'count': len(questions)
         })
 
@@ -608,7 +522,7 @@ def start_simulation():
 def evaluate_simulation():
     """
     Evaluar simulación completa: transcript + reflexión clínica
-    Devuelve resultados detallados para mostrar en ResultsScreen
+    Devuelve resultados detallados para la pantalla de resultados
     """
     try:
         data = request.json
@@ -633,6 +547,18 @@ def evaluate_simulation():
         print(f"   - Transcript: {len(transcript)} chars")
         print(f"   - Reflexión: {reflection.keys()}")
 
+        # Analizar transcript con GPT-4 para detectar ítems preguntados
+        items_asked_by_ai = []
+        if openai_client and transcript:
+            try:
+                print("🤖 Analizando transcript con GPT-4 para detección inteligente de ítems...")
+                from transcript_analyzer import analyze_transcript_with_gpt4
+                items_asked_by_ai = analyze_transcript_with_gpt4(transcript, openai_client)
+                print(f"   ✅ GPT-4 detectó {len(items_asked_by_ai)} ítems")
+            except Exception as e:
+                print(f"   ⚠️ Error en análisis GPT-4: {e}")
+                items_asked_by_ai = []
+
         if not evaluator_production:
             raise ValueError("EvaluatorProduction no disponible")
 
@@ -642,6 +568,7 @@ def evaluate_simulation():
                 case_metadata=case_data,
                 reflection_answers=reflection,
                 survey=session.get("survey") or {},
+                items_asked_by_ai=items_asked_by_ai,
             )
         except Exception as e:
             print(f"❌ Error en EvaluatorProduction para sesión {session_id}: {e}")
@@ -730,201 +657,6 @@ def evaluate_simulation():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/api/evaluation/unified', methods=['POST'])
-@rate_limit(max_requests=20, window=60)
-def evaluate_unified():
-    """
-    Evaluacion principal usando el evaluador production (endpoint legacy).
-
-    Request body:
-    {
-        "session_id": str,
-        "reflection": dict (opcional)
-    }
-    """
-    try:
-        data = request.json or {}
-        session_id = data.get('session_id')
-
-        if not session_id or session_id not in sessions:
-            return jsonify({'error': 'Sesión no encontrada'}), 404
-
-        session = sessions[session_id]
-        if session.get("evaluation"):
-            return jsonify(session["evaluation"])
-
-        if not evaluator_production:
-            return jsonify({"error": "EvaluatorProduction no disponible"}), 503
-
-        case_data = data.get("case_data") or session.get("case_data") or {}
-        reflection_answers = data.get("reflection") or {}
-
-        result = evaluator_production.evaluate(
-            transcription=session.get("transcript") or "",
-            case_metadata=case_data,
-            reflection_answers=reflection_answers,
-            survey=session.get("survey") or {},
-        )
-        session["evaluation"] = result
-        save_session_to_disk(session_id)
-        return jsonify(result)
-
-    except Exception as e:
-        print(f"❌ Error en /api/evaluation/unified: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/evaluate_checklist_v3', methods=['POST'])
-@rate_limit(max_requests=20, window=60)
-def evaluate_checklist_v3():
-    """
-    NUEVO: Evaluación con EvaluatorV3 (checklist v2, regex + keywords)
-
-    Endpoint paralelo a /api/simulation/evaluate que usa el nuevo sistema V3:
-    - Evaluación determinista (sin embeddings/GPT-4)
-    - Output estructurado por bloques + subsecciones B7
-    - Activación dinámica de B7 según síntomas
-    - Solo evalúa líneas [ESTUDIANTE]
-
-    Request body:
-    {
-        "session_id": str,
-        "transcript": str (opcional, usa session.transcript si no se pasa),
-        "case_data": dict (opcional, usa session.case_data si no se pasa)
-    }
-
-    Response:
-    {
-        "caso_id": str,
-        "timestamp": str,
-        "max_points_case": int,
-        "min_points_case": int,
-        "points_obtained": int,
-        "percentage": float,
-        "passed": bool,
-        "subsections_b7_activas": list,
-        "blocks": dict,
-        "b7_subsections": dict,
-        "items_evaluated": list,
-        "summary": dict
-    }
-    """
-    try:
-        if not evaluator_v3:
-            return jsonify({'error': 'EvaluatorV3 no disponible'}), 503
-
-        data = request.json
-        session_id = data.get('session_id')
-
-        if not session_id or session_id not in sessions:
-            return jsonify({'error': 'Sesión no encontrada'}), 404
-
-        session = sessions[session_id]
-
-        # Permitir override de transcript y case_data (útil para testing)
-        transcript = data.get('transcript') or session.get('transcript', '')
-        case_data = data.get('case_data') or session.get('case_data', {})
-        caso_id = case_data.get('id', session_id)
-
-        # MODO DEBUG: Si transcript vacío, generar uno de prueba
-        if not transcript.strip():
-            print("⚠️  Transcript vacío, generando transcript de prueba para debug")
-            transcript = """
-[ESTUDIANTE]: Buenos días, mi nombre es Dr. García. ¿Cómo se encuentra usted?
-[PACIENTE]: Buenos días doctor, estoy preocupado.
-[ESTUDIANTE]: ¿Cuál es el motivo de su consulta hoy?
-[PACIENTE]: Tengo dolor en el pecho.
-[ESTUDIANTE]: Entiendo. ¿Desde cuándo tiene este dolor?
-[PACIENTE]: Desde hace unas 2 horas.
-[ESTUDIANTE]: ¿Puede describir cómo es el dolor?
-[PACIENTE]: Es un dolor opresivo, como si me apretaran el pecho.
-[ESTUDIANTE]: ¿El dolor se irradia a alguna parte?
-[PACIENTE]: Sí, me baja por el brazo izquierdo.
-[ESTUDIANTE]: ¿Tiene algún otro síntoma como sudoración o náuseas?
-[PACIENTE]: Sí, estoy sudando mucho.
-[ESTUDIANTE]: ¿Tiene antecedentes de problemas cardíacos?
-[PACIENTE]: Mi padre tuvo un infarto.
-[ESTUDIANTE]: ¿Toma alguna medicación habitualmente?
-[PACIENTE]: No tomo nada.
-[ESTUDIANTE]: ¿Tiene alergias a medicamentos?
-[PACIENTE]: No, ninguna alergia.
-[ESTUDIANTE]: Muy bien, voy a revisarle ahora. Gracias por la información.
-"""
-
-        print(f"📊 Evaluando con V3 - Sesión {session_id}")
-        print(f"   - Caso: {caso_id}")
-        print(f"   - Transcript: {len(transcript)} chars")
-
-        # Evaluar con EvaluatorV3
-        result = evaluator_v3.evaluate_transcript(
-            transcript=transcript,
-            case_data=case_data,
-            caso_id=caso_id
-        )
-
-        # Guardar resultado en sesión (con prefijo v3_ para no sobreescribir V2)
-        session['evaluation_v3'] = result
-
-        save_session_to_disk(session_id)
-
-        print(f"✅ Evaluación V3 completada: {result['points_obtained']}/{result['max_points_case']} pts ({result['percentage']}%)")
-
-        return jsonify(result)
-
-    except Exception as e:
-        print(f"❌ Error en /api/evaluate_checklist_v3: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({'error': str(e)}), 500
-
-
-@app.route('/api/save-session', methods=['POST'])
-@rate_limit(max_requests=30, window=60)  # Máximo 30 guardados por minuto
-def save_session():
-    """Guardar sesión completa en Google Sheets y disco"""
-    try:
-        data = request.json
-        session_id = data.get('session_id')
-
-        row_data = {
-            'timestamp': data.get('timestamp'),
-            'estudiante_nombre': data.get('estudiante_nombre'),
-            'estudiante_dni': data.get('estudiante_dni'),
-            'estudiante_matricula': data.get('estudiante_matricula'),
-            'caso_id': data.get('caso_id'),
-            'caso_titulo': data.get('caso_titulo'),
-            'especialidad': data.get('especialidad'),
-            'duracion_minutos': data.get('duracion_minutos'),
-            'transcripcion_completa': data.get('transcripcion_completa'),
-            'puntuacion_total': data.get('puntuacion_total'),
-            'puntuacion_maxima': data.get('puntuacion_maxima'),
-            'porcentaje': data.get('porcentaje'),
-            'calificacion': data.get('calificacion'),
-            'feedback_general': data.get('feedback_general'),
-            'items_evaluados': data.get('items_evaluados'),
-            'reflexion_pregunta_1': data.get('reflexion_pregunta_1'),
-            'reflexion_pregunta_2': data.get('reflexion_pregunta_2'),
-            'reflexion_pregunta_3': data.get('reflexion_pregunta_3'),
-            'reflexion_pregunta_4': data.get('reflexion_pregunta_4'),
-            'encuesta_valoracion': data.get('encuesta_valoracion'),
-            'encuesta_comentarios': data.get('encuesta_comentarios'),
-            'session_id': session_id
-        }
-
-        # Guardar en Google Sheets
-        result = sheets_integration.save_student_session(row_data)
-
-        # Guardar en disco si la sesión existe en memoria
-        if session_id and session_id in sessions:
-            save_session_to_disk(session_id)
-
-        return jsonify(result)
-
-    except Exception as e:
-        print(f"❌ Error en /api/save-session: {e}")
-        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/sessions', methods=['GET'])

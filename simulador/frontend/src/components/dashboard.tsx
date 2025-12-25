@@ -33,7 +33,7 @@ export function Dashboard({ cases, onSelectCase }: DashboardProps) {
   })
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-7xl mx-auto px-6 py-4">
@@ -113,7 +113,7 @@ export function Dashboard({ cases, onSelectCase }: DashboardProps) {
       </section>
 
       {/* Cases Grid */}
-      <section className="max-w-7xl mx-auto px-6 py-8">
+      <section className="max-w-7xl mx-auto px-6 py-8 flex-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCases.map((caseItem) => (
             <Card
@@ -138,7 +138,7 @@ export function Dashboard({ cases, onSelectCase }: DashboardProps) {
                   {caseItem.title}
                 </h3>
 
-                <p className="text-sm text-muted-foreground mb-4 line-clamp-3 leading-relaxed">
+                <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
                   {caseItem.description}
                 </p>
 
@@ -176,7 +176,7 @@ export function Dashboard({ cases, onSelectCase }: DashboardProps) {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card mt-auto">
+      <footer className="border-t border-border bg-card">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
             <p>© 2025 Universidad Miguel Hernández de Alicante</p>

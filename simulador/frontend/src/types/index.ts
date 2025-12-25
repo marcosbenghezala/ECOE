@@ -38,13 +38,8 @@ export interface AudioTestResult {
   timestamp: string
 }
 
-// Clinical Reflection Types
-export interface ClinicalReflection {
-  diagnostico_principal: string
-  diagnosticos_diferenciales: string
-  pruebas_diagnosticas: string
-  plan_manejo: string
-}
+// Clinical Reflection Types (dinámico por caso)
+export type ClinicalReflection = Record<string, string>
 
 // Simulation Types
 export interface SimulationState {
@@ -62,26 +57,62 @@ export interface ConversationEntry {
   timestamp: string
 }
 
-// Results Types
-export interface EvaluationResult {
-  overall_score: number
-  checklist_principal: ChecklistResult
-  checklist_diferencial: ChecklistResult
-  checklist_screening: ChecklistResult
-  clinical_reasoning_score: number
-  communication_score: number
-  strengths: string[]
-  areas_for_improvement: string[]
-  feedback: string
-  completed_items: string[]
-  missed_items: string[]
+// Results Types (schema evaluation.production.v1)
+export interface EvaluationItem {
+  id: string
+  bloque: string
+  descripcion: string
+  done: boolean
+  score: number
+  max_score: number
+  critical?: boolean
 }
 
-export interface ChecklistResult {
-  items_completed: string[]
-  items_missed: string[]
+export interface EvaluationBlock {
+  id: string
+  name: string
+  score: number
+  max: number
   percentage: number
-  total_items: number
+  items: EvaluationItem[]
+}
+
+export interface EvaluationDevelopmentQuestion {
+  question: string
+  answer: string
+  score: number
+  max_score: number
+  feedback: string
+}
+
+export interface EvaluationDevelopment {
+  percentage: number
+  questions: EvaluationDevelopmentQuestion[]
+}
+
+export interface EvaluationScoreBucket {
+  score?: number
+  max?: number
+  percentage?: number
+  weighted?: number
+  weight?: number
+}
+
+export interface EvaluationScores {
+  global: EvaluationScoreBucket
+  checklist: EvaluationScoreBucket
+  anamnesis?: EvaluationScoreBucket
+  development: EvaluationScoreBucket
+}
+
+export interface EvaluationResult {
+  schema_version: string
+  checklist_meta?: Record<string, any>
+  scores: EvaluationScores
+  items: EvaluationItem[]
+  blocks: EvaluationBlock[]
+  development: EvaluationDevelopment
+  survey?: Record<string, any>
 }
 
 // Survey Types

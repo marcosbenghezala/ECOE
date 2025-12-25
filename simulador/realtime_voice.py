@@ -14,9 +14,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MIN_RESPONSE_OUTPUT_TOKENS = 80
+MIN_RESPONSE_OUTPUT_TOKENS = 50
 MAX_RESPONSE_OUTPUT_TOKENS = max(
-    int(os.getenv("OPENAI_REALTIME_MAX_RESPONSE_OUTPUT_TOKENS", "420")),
+    int(os.getenv("OPENAI_REALTIME_MAX_RESPONSE_OUTPUT_TOKENS", "150")),
     MIN_RESPONSE_OUTPUT_TOKENS,
 )
 TURN_DETECTION_THRESHOLD = float(os.getenv("OPENAI_REALTIME_VAD_THRESHOLD", "0.45"))
@@ -569,7 +569,8 @@ Si el médico pregunta algo muy genérico como "¿Qué te pasa?", "¿Qué te tra
                 "output_audio_format": "pcm16",
                 "input_audio_transcription": {
                     "model": "whisper-1",
-                    "language": "es"
+                    "language": "es",
+                    "prompt": "Transcripción médica en español: dolor, irradia, brazo, fuma, bebes, drogas, intensidad, escala, antecedentes."
                 },
                 "turn_detection": {
                     "type": "server_vad",

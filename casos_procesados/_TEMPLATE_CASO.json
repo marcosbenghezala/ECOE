@@ -1,225 +1,67 @@
 {
-  "_comment": "Template de caso (esquema SIMPLE): hechos estructurados + pocas frases clave. Este fichero empieza por '_' y el backend lo ignora en /api/cases.",
-  "_comment_reglas": [
-    "Regla 1: el nombre del archivo DEBE coincidir con el campo 'id' (ej: caso_xxx_001.json y dentro id='caso_xxx_001').",
-    "Regla 2: rellena solo los hechos que apliquen. Lo que no esté definido se considera DESCONOCIDO (el paciente dirá 'no lo sé / no me he fijado').",
-    "Regla 3: para negativos importantes, usa false o {\"tiene\": false}.",
-    "Regla 4: NO hace falta escribir respuesta_corta/respuesta_detalle por cada ítem. (Soportado solo por compatibilidad legacy)."
-  ],
-  "_comment_fuente_checklist": "Checklist maestro: TO_GITHUB/data/master_items.json (130 ítems). El parser mapea IDs a claves dentro de datos_paciente (ver simulador/patient_prompt.py).",
-
-  "id": "caso_XXX_001",
-  "titulo": "COMPLETAR: Nombre descriptivo del caso",
-  "especialidad": "COMPLETAR: Cardiología/Neumología/Digestivo/etc",
-  "dificultad": "COMPLETAR: Fácil/Intermedio/Difícil",
-  "duracion_estimada": 15,
-
-  "motivo_consulta": "COMPLETAR: Frase corta del paciente (ej: \"Me duele el pecho\")",
-  "sintomas_principales": [
-    "COMPLETAR: lista breve (3–8) de síntomas/ideas clave para evaluadores (opcional pero recomendado)"
-  ],
+  "id": "caso_template",
+  "autor_profesor": "profesor@umh.es",
+  "titulo": "Titulo del caso",
+  "especialidad": "Medicina Interna",
+  "dificultad": "Intermedio",
+  "duracion_estimada": 12,
+  "motivo_consulta": "Descripcion breve del motivo de consulta.",
   "informacion_paciente": {
-    "nombre": "COMPLETAR: Nombre y apellidos",
-    "edad": 0,
-    "genero": "masculino",
-    "ocupacion": "COMPLETAR"
+    "nombre": "Nombre Apellido",
+    "edad": 50,
+    "genero": "male",
+    "ocupacion": "Ocupacion"
   },
-
-  "datos_paciente": {
-    "frases": {
-      "_comment": "Frases clave ESCRITAS por ti (3–4 frases total).",
-      "motivo_consulta": "COMPLETAR: 1 frase (ej: \"Me duele el pecho.\")",
-      "relato_libre": "COMPLETAR: 1–2 frases (si preguntan \"cuénteme\")",
-      "ice": {
-        "ideas": "COMPLETAR: 1 frase (opcional)",
-        "concerns": "COMPLETAR: 1 frase (opcional)",
-        "expectations": "COMPLETAR: 1 frase (opcional)"
-      }
-    },
-    "personalidad": {
-      "_comment": "Afecta al estilo del paciente (no inventa hechos).",
-      "rasgos": [
-        "COMPLETAR (ej: ansioso, colaborador)"
-      ],
-      "verbosidad": "baja",
-      "registro": "coloquial"
-    },
-    "hechos": {
-      "_comment": "Hechos estructurados. Formatos válidos:",
-      "_comment_formatos": [
-        "Booleano: true/false",
-        "Objeto: {\"tiene\": true/false/null, \"nota\": \"...\", \"valor\": \"...\", \"lista\": [...], ...}",
-        "Lista: [\"item 1\", \"item 2\"] (equivale a presente=true + lista)",
-        "String/number: \"texto\" (equivale a presente=true + valor)"
-      ],
-
-      "motivo": {
-        "_comment": "MC_04 - Otros motivos de consulta (si existen).",
-        "otros_motivos": null
-      },
-
-      "hea": {
-        "_comment": "HEA/SOCRATES (SOCR_01..SOCR_11). Puedes rellenar lo que aplique.",
-        "localizacion": null,
-        "inicio": null,
-        "caracteristicas": null,
-        "irradiacion": null,
-        "intensidad_0_10": null,
-        "agravantes": null,
-        "atenuantes": null,
-        "evolucion": null,
-        "duracion_episodios": null,
-        "asociados": null,
-        "frecuencia": null
-      },
-
-      "antecedentes": {
-        "_comment": "Antecedentes personales (AP_*).",
-        "cronicas": null,
-        "cirugias": null,
-        "hospitalizaciones": null,
-        "transfusiones": null,
-        "vacunas": null,
-        "gineco_obstetrica": null,
-        "traumatismos": null,
-        "discapacidad_protesis": null,
-        "psiquiatria": null
-      },
-
-      "familiares": {
-        "_comment": "Antecedentes familiares (AF_*).",
-        "patologias_primer_grado": null,
-        "causas_fallecimiento": null,
-        "eventos_cv_precoces": null,
-        "cancer_hereditario": null
-      },
-
-      "medicacion_actual": null,
-
-      "alergias": {
-        "_comment": "Alergias (AP_04/AP_05).",
-        "medicamentos": null,
-        "no_medicamentos": null,
-        "nota": null
-      },
-
-      "habitos": {
-        "_comment": "Hábitos (HAB_*).",
-        "tabaco": null,
-        "alcohol": null,
-        "drogas": null,
-        "dieta": null,
-        "actividad_fisica": null,
-        "sueno": null,
-        "sexualidad": null,
-        "animales_exposiciones": null
-      },
-
-      "psicosocial": {
-        "_comment": "Psicosocial (PS_*).",
-        "convivencia": null,
-        "estado_civil_soporte": null,
-        "vivienda": null,
-        "laboral": null,
-        "educacion": null,
-        "creencias": null,
-        "estres": null,
-        "cuidador": null,
-        "violencia_abuso": null
-      },
-
-      "generales": {
-        "_comment": "Generales (GEN_*).",
-        "fiebre": null,
-        "perdida_peso": null,
-        "sudoracion_nocturna": null,
-        "astenia": null,
-        "anorexia": null
-      },
-
-      "ros": {
-        "_comment": "ROS por sistemas (items_por_sistemas). Rellena lo que aplique al caso.",
-
-        "respiratorio": {
-          "tos": null,
-          "caracteristicas_tos": null,
-          "disnea": null,
-          "ortopnea": null,
-          "disnea_paroxistica_nocturna": null,
-          "dolor_pleuritico": null,
-          "hemoptisis": null,
-          "sibilancias": null,
-          "exposicion_laboral": null,
-          "tuberculosis": null
+  "sintomas_principales": ["sintoma principal"],
+  "diagnostico_principal": "Diagnostico principal",
+  "diagnosticos_diferenciales": ["Diferencial 1", "Diferencial 2"],
+  "pruebas_esperadas": ["Prueba 1", "Prueba 2"],
+  "antecedentes": {
+    "personales": ["Antecedente personal"],
+    "familiares": ["Antecedente familiar"]
+  },
+  "preguntas_reflexion": [
+    {
+      "id": 1,
+      "question": "Pregunta de desarrollo 1",
+      "field_name": "resumen_caso",
+      "max_score": 100,
+      "min_words": 8,
+      "rubric": [
+        {
+          "key": "criterio_1",
+          "label": "Criterio 1",
+          "weight": 50,
+          "terms": ["termino clave 1", "termino clave 2"]
         },
-
-        "cardiovascular": {
-          "dolor_toracico": null,
-          "relacion_esfuerzo": null,
-          "sintomas_vegetativos": null,
-          "palpitaciones": null,
-          "sincope": null,
-          "edemas": null,
-          "claudicacion": null
-        },
-
-        "digestivo": {
-          "dolor_abdominal": null,
-          "nauseas_vomitos": null,
-          "ritmo_intestinal": null,
-          "sangrado_digestivo": null,
-          "disfagia": null,
-          "pirosis_reflujo": null,
-          "distension_abdominal": null,
-          "ictericia": null
-        },
-
-        "genitourinario": {
-          "disuria": null,
-          "polaquiuria_nicturia": null,
-          "hematuria": null,
-          "incontinencia": null,
-          "urgencia": null,
-          "dolor_flancos": null,
-          "secrecion_genital": null,
-          "sintomas_prostaticos": null
-        },
-
-        "neurologico": {
-          "cefalea": null,
-          "patron_cefalea": null,
-          "focalidad": null,
-          "mareo_vertigo": null,
-          "conciencia": null,
-          "meningeos": null,
-          "lenguaje": null,
-          "convulsiones": null,
-          "memoria": null,
-          "vision": null
-        },
-
-        "osteomuscular": {
-          "dolor_articular": null,
-          "rigidez_matutina": null,
-          "tumefaccion": null,
-          "debilidad_muscular": null,
-          "limitacion_movilidad": null,
-          "traumatismos": null
+        {
+          "key": "criterio_2",
+          "label": "Criterio 2",
+          "weight": 50,
+          "terms": ["termino clave 3"]
         }
-      }
+      ]
     },
-
-    "checklist_overrides": {
-      "_comment": "Opcional: forzar un hecho por ID (RESP_07) o por clave (hemoptisis) si no está en hechos.",
-      "_example": {
-        "RESP_07": false,
-        "hemoptisis": false
-      }
+    {
+      "id": 2,
+      "question": "Pregunta de desarrollo 2",
+      "field_name": "diagnostico_principal",
+      "max_score": 100,
+      "min_words": 4,
+      "rubric": [
+        {
+          "key": "dx",
+          "label": "Diagnostico correcto",
+          "weight": 70,
+          "terms": ["diagnostico esperado"]
+        },
+        {
+          "key": "justificacion",
+          "label": "Justificacion clinica",
+          "weight": 30,
+          "terms": ["dato clinico 1", "dato clinico 2"]
+        }
+      ]
     }
-  },
-
-  "contexto_generado": "",
-  "multimedia": [],
-  "instrucciones": "",
-  "version": "4.0"
+  ]
 }

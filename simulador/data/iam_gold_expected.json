@@ -1,0 +1,247 @@
+{
+  "case_id": "IAM_SCRIPT_30Q",
+  "expected_items_total": 49,
+  "expected_anamnesis_percent": 27.22,
+  "expected_development_percent": 100,
+  "expected_total_score_percent": 49.05,
+  "lines": [
+    {
+      "line": "1",
+      "block": "B0",
+      "student_text": "Hola, soy Ana, estudiante de medicina. Como te llamas?",
+      "patient_text": "Soy Juan Perez.",
+      "expected_item_ids": ["B0_001", "B0_002", "B0_003", "B0_004"]
+    },
+    {
+      "line": "2",
+      "block": "B0",
+      "student_text": "Te parece bien que te haga unas preguntas para entender lo que te pasa?",
+      "patient_text": "Si, claro.",
+      "expected_item_ids": ["B0_006"]
+    },
+    {
+      "line": "3",
+      "block": "B1",
+      "student_text": "Que motivo principal te trae hoy?",
+      "patient_text": "Me duele el pecho.",
+      "expected_item_ids": ["B1_001"]
+    },
+    {
+      "line": "4",
+      "block": "B1",
+      "student_text": "Entonces el motivo principal es dolor en el pecho, correcto?",
+      "patient_text": "Si, eso.",
+      "expected_item_ids": ["B1_007", "B1_008"]
+    },
+    {
+      "line": "5",
+      "block": "B2",
+      "student_text": "Desde cuando empezo?",
+      "patient_text": "Desde hace unas dos horas.",
+      "expected_item_ids": ["B2_001"]
+    },
+    {
+      "line": "6",
+      "block": "B2",
+      "student_text": "Empezo de repente o fue poco a poco?",
+      "patient_text": "Fue de repente.",
+      "expected_item_ids": ["B2_002"]
+    },
+    {
+      "line": "7",
+      "block": "B2",
+      "student_text": "Donde exactamente te duele?",
+      "patient_text": "En el centro del pecho.",
+      "expected_item_ids": ["B2_004"]
+    },
+    {
+      "line": "8",
+      "block": "B2",
+      "student_text": "Como describirias el dolor?",
+      "patient_text": "Es opresivo, como si me apretaran.",
+      "expected_item_ids": ["B2_005"]
+    },
+    {
+      "line": "9",
+      "block": "B2",
+      "student_text": "Se irradia a alguna parte?",
+      "patient_text": "Si, al brazo izquierdo y a la mandibula.",
+      "expected_item_ids": ["B2_006"]
+    },
+    {
+      "line": "10",
+      "block": "B2",
+      "student_text": "Del 0 al 10, que intensidad tiene?",
+      "patient_text": "Un 8 sobre 10.",
+      "expected_item_ids": ["B2_007"]
+    },
+    {
+      "line": "11",
+      "block": "B2",
+      "student_text": "Es continuo o intermitente?",
+      "patient_text": "Es continuo.",
+      "expected_item_ids": ["B2_009"]
+    },
+    {
+      "line": "12",
+      "block": "B2",
+      "student_text": "Que lo empeora?",
+      "patient_text": "No noto nada claro que lo empeore.",
+      "expected_item_ids": ["B2_010"]
+    },
+    {
+      "line": "13",
+      "block": "B2",
+      "student_text": "Que lo alivia?",
+      "patient_text": "No mejora con reposo.",
+      "expected_item_ids": ["B2_011"]
+    },
+    {
+      "line": "14",
+      "block": "B2",
+      "student_text": "Se acompana de otros sintomas?",
+      "patient_text": "Tengo sudoracion, nauseas y un poco de falta de aire.",
+      "expected_item_ids": ["B2_012"]
+    },
+    {
+      "line": "15",
+      "block": "B2",
+      "student_text": "Has tomado algo para el dolor?",
+      "patient_text": "No, no he tomado nada.",
+      "expected_item_ids": ["B2_013"]
+    },
+    {
+      "line": "16",
+      "block": "B2",
+      "student_text": "Te habia pasado antes algo parecido?",
+      "patient_text": "No, nunca.",
+      "expected_item_ids": ["B2_014"]
+    },
+    {
+      "line": "17",
+      "block": "B3",
+      "student_text": "Tienes enfermedades cronicas como hipertension o colesterol alto?",
+      "patient_text": "Si, tengo hipertension y colesterol alto.",
+      "expected_item_ids": ["B3_001", "B3_002", "B3_003", "B3_005"]
+    },
+    {
+      "line": "18",
+      "block": "B3",
+      "student_text": "Te han operado o has estado ingresado alguna vez?",
+      "patient_text": "No, nunca.",
+      "expected_item_ids": ["B3_008", "B3_009"]
+    },
+    {
+      "line": "19",
+      "block": "B4",
+      "student_text": "Que medicacion tomas habitualmente?",
+      "patient_text": "Tomo enalapril y atorvastatina.",
+      "expected_item_ids": ["B4_001"]
+    },
+    {
+      "line": "20",
+      "block": "B4",
+      "student_text": "Recuerdas el nombre de esos medicamentos?",
+      "patient_text": "Si, esos son.",
+      "expected_item_ids": ["B4_002"]
+    },
+    {
+      "line": "21",
+      "block": "B4",
+      "student_text": "Tienes alergias a medicamentos?",
+      "patient_text": "No, no tengo alergias.",
+      "expected_item_ids": ["B4_008"]
+    },
+    {
+      "line": "22",
+      "block": "B5",
+      "student_text": "Fumas tabaco?",
+      "patient_text": "Si, fumo.",
+      "expected_item_ids": ["B5_006"]
+    },
+    {
+      "line": "23",
+      "block": "B5",
+      "student_text": "Cuantos cigarrillos al dia?",
+      "patient_text": "Un paquete al dia, unos 20 cigarrillos.",
+      "expected_item_ids": ["B5_007"]
+    },
+    {
+      "line": "24",
+      "block": "B5",
+      "student_text": "Bebes alcohol?",
+      "patient_text": "No, alcohol no.",
+      "expected_item_ids": ["B5_008"]
+    },
+    {
+      "line": "25",
+      "block": "B5",
+      "student_text": "Consumes alguna droga?",
+      "patient_text": "No, ninguna droga.",
+      "expected_item_ids": ["B5_010"]
+    },
+    {
+      "line": "26",
+      "block": "B6",
+      "student_text": "Hay antecedentes familiares de infarto o muerte subita?",
+      "patient_text": "Mi padre tuvo un infarto a los 58 anos.",
+      "expected_item_ids": ["B6_002"]
+    },
+    {
+      "line": "27a",
+      "block": "B7",
+      "student_text": "Has tenido falta de aire, palpitaciones o desmayos?",
+      "patient_text": "Falta de aire leve, pero no palpitaciones ni desmayos.",
+      "expected_item_ids": ["B7_023", "B7_015", "B7_020"]
+    },
+    {
+      "line": "27b",
+      "block": "B7",
+      "student_text": "Tos o fiebre?",
+      "patient_text": "No, sin tos ni fiebre.",
+      "expected_item_ids": ["B7_024", "B7_001"]
+    },
+    {
+      "line": "27c",
+      "block": "B7",
+      "student_text": "Hinchazon en las piernas?",
+      "patient_text": "No, no hay hinchazon.",
+      "expected_item_ids": ["B7_019"]
+    },
+    {
+      "line": "27d",
+      "block": "B7",
+      "student_text": "Dolor abdominal o vomitos?",
+      "patient_text": "No hay dolor abdominal ni vomitos.",
+      "expected_item_ids": ["B7_035", "B7_032"]
+    },
+    {
+      "line": "27e",
+      "block": "B7",
+      "student_text": "Dolor de cabeza?",
+      "patient_text": "No, sin dolor de cabeza.",
+      "expected_item_ids": ["B7_057"]
+    },
+    {
+      "line": "28",
+      "block": "B9",
+      "student_text": "Entiendo que esto asusta; vamos a estudiarlo bien y a actuar rapido.",
+      "patient_text": "Estoy preocupado pero confio en ti.",
+      "expected_item_ids": ["B9_005", "B9_006"]
+    },
+    {
+      "line": "29",
+      "block": "B8",
+      "student_text": "Te resumo: dolor opresivo en el centro del pecho desde hace 2 horas, irradiado al brazo y mandibula. Vamos a hacer pruebas urgentes. Tienes alguna duda?",
+      "patient_text": "No, todo claro. Gracias.",
+      "expected_item_ids": ["B8_001", "B8_004", "B8_005"]
+    },
+    {
+      "line": "30",
+      "block": "B8",
+      "student_text": "Gracias por tu colaboracion. Ahora continuamos con las pruebas.",
+      "patient_text": "De acuerdo, doctor.",
+      "expected_item_ids": ["B8_006"]
+    }
+  ]
+}

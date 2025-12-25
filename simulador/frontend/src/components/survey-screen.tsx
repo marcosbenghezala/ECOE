@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Send, CheckCircle2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -43,6 +43,11 @@ export function SurveyScreen({ sessionId, onComplete, onSkip }: SurveyScreenProp
   const [openAnswers, setOpenAnswers] = useState<Record<number, string>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+
+  // Scroll to top cuando se monta el componente
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   const allLikertAnswered = likertQuestions.every((_, idx) => likertAnswers[idx])
   const canSubmit = allLikertAnswered
@@ -111,8 +116,7 @@ export function SurveyScreen({ sessionId, onComplete, onSkip }: SurveyScreenProp
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-3">Encuesta de satisfacción</h1>
           <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Este formulario forma parte de un Trabajo Fin de Grado de Medicina. Tus respuestas son{" "}
-            <strong>completamente anónimas</strong> y se utilizarán únicamente con fines docentes y de investigación.
+            Tus respuestas son <strong>completamente anónimas</strong> y se utilizarán únicamente con fines docentes y de investigación.
             Agradecemos tu colaboración.
           </p>
         </div>

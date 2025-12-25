@@ -7,18 +7,10 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 from text_utils import normalize_text
 
 
-DEFAULT_CHECKLIST_PATH = Path(__file__).parent.parent / "data" / "master-checklist-v2.json"
+DEFAULT_CHECKLIST_PATH = Path(__file__).parent / "data" / "master-checklist-v2.json"
 WEIGHT_ANAMNESIS = 0.7
 WEIGHT_DESARROLLO = 0.3
 PATIENT_RESPONSE_WINDOW = 3
-
-MIN_WORDS_BY_FIELD = {
-    "resumen_caso": 6,
-    "diagnostico_principal": 2,
-    "diagnosticos_diferenciales": 3,
-    "pruebas_diagnosticas": 3,
-    "plan_manejo": 3,
-}
 
 INVALID_ANSWERS = {
     "",
@@ -55,13 +47,7 @@ STOPWORDS = {
     "sus",
 }
 
-QUESTION_FIELDS = [
-    ("resumen_caso", "Resumen del caso"),
-    ("diagnostico_principal", "Diagnostico principal"),
-    ("diagnosticos_diferenciales", "Diagnosticos diferenciales"),
-    ("pruebas_diagnosticas", "Pruebas diagnosticas"),
-    ("plan_manejo", "Plan de manejo"),
-]
+MIN_WORDS_DEFAULT = 3
 
 
 @dataclass
@@ -153,7 +139,11 @@ class EvaluatorProduction:
         self.checklist = _load_checklist(self.checklist_path)
         self.items = self.checklist.get("items", [])
         self.blocks = self.checklist.get("blocks", [])
-        self.block_by_id = {block.get("id"): block for block in self.blocks if block.get("id")}
+        self.block_by_id = {
+            (block.get("id") or block.get("block_id")): block
+            for block in self.blocks
+            if (block.get("id") or block.get("block_id"))
+        }
         self.rules = self._compile_rules(self.items)
 
     def evaluate(
@@ -163,10 +153,11 @@ class EvaluatorProduction:
         case_metadata: Optional[Dict[str, Any]] = None,
         reflection_answers: Optional[Dict[str, Any]] = None,
         survey: Optional[Dict[str, Any]] = None,
+        items_asked_by_ai: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         turns = _parse_turns(transcription)
         items = checklist or self.items
-        item_results, matched_count = self._evaluate_items(turns, items)
+        item_results, matched_count = self._evaluate_items(turns, items, items_asked_by_ai or [])
         total_items = len(items)
 
         anamnesis_pct = (matched_count / total_items * 100) if total_items else 0.0
@@ -186,6 +177,7 @@ class EvaluatorProduction:
 
         return {
             "schema_version": "evaluation.production.v1",
+            "checklist_meta": self.checklist.get("metadata", {}),
             "scores": {
                 "global": {"score": score_total, "max": 100, "percentage": score_total},
                 "anamnesis": {
@@ -235,7 +227,7 @@ class EvaluatorProduction:
         return compiled
 
     def _evaluate_items(
-        self, turns: List[Dict[str, str]], items: List[Dict[str, Any]]
+        self, turns: List[Dict[str, str]], items: List[Dict[str, Any]], items_asked_by_ai: List[str]
     ) -> Tuple[List[Dict[str, Any]], int]:
         student_turns = [
             (idx, _normalize_asr(turn["text"]))
@@ -245,21 +237,36 @@ class EvaluatorProduction:
         item_results: List[Dict[str, Any]] = []
         matched_count = 0
 
+        # Convertir items_asked_by_ai a set para búsqueda rápida
+        ai_detected_set = set(items_asked_by_ai)
+
         for item in items:
             item_id = item.get("id")
             if not item_id:
                 continue
-            rule = self.rules.get(item_id) or ItemRule((), ())
-            matched = self._match_item(item, rule, turns, student_turns)
+
+            # Detectar por AI (prioridad) o por keywords (fallback)
+            matched_by_ai = item_id in ai_detected_set
+            matched_by_keywords = False
+
+            if not matched_by_ai:
+                rule = self.rules.get(item_id) or ItemRule((), ())
+                matched_by_keywords = self._match_item(item, rule, turns, student_turns)
+
+            matched = matched_by_ai or matched_by_keywords
+
             if matched:
                 matched_count += 1
+
             points = int(item.get("points") or 1)
             item_results.append(
                 {
                     "id": item_id,
                     "bloque": item.get("block_id"),
                     "descripcion": item.get("label") or item.get("text") or item_id,
+                    "critical": bool(item.get("critical")),
                     "done": matched,
+                    "detected_by": "ai" if matched_by_ai else ("keywords" if matched_by_keywords else "none"),
                     "score": points if matched else 0,
                     "max_score": points,
                 }
@@ -323,14 +330,14 @@ class EvaluatorProduction:
 
         blocks_out: List[Dict[str, Any]] = []
         for block in self.blocks:
-            block_id = block.get("id")
+            block_id = block.get("id") or block.get("block_id")
             block_items = items_by_block.get(block_id, [])
             block_score = sum(i.get("score", 0) for i in block_items)
             block_max = sum(i.get("max_score", 0) for i in block_items)
             blocks_out.append(
                 {
                     "id": block_id,
-                    "name": block.get("label") or block_id,
+                    "name": block.get("title") or block.get("label") or block_id,
                     "score": block_score,
                     "max": block_max,
                     "percentage": round((block_score / block_max) * 100, 1) if block_max else 0.0,
@@ -360,68 +367,92 @@ class EvaluatorProduction:
     ) -> Dict[str, Any]:
         questions: List[Dict[str, Any]] = []
         scores: List[int] = []
+        max_scores: List[int] = []
 
-        for field, label in QUESTION_FIELDS:
+        case_questions = case_metadata.get("preguntas_reflexion") or []
+        if not isinstance(case_questions, list):
+            case_questions = []
+
+        for idx, question in enumerate(case_questions, 1):
+            if not isinstance(question, dict):
+                continue
+            field = str(question.get("field_name") or "").strip()
+            if not field:
+                continue
+            label = str(question.get("question") or question.get("pregunta") or f"Pregunta {idx}").strip()
             answer = str(reflection.get(field) or "").strip()
-            score, feedback = self._score_reflection_field(field, answer, case_metadata)
+            score, feedback = self._score_reflection_field(field, answer, question)
+            max_score = int(question.get("max_score") or 100)
             questions.append(
-                {"question": label, "answer": answer, "score": score, "feedback": feedback}
+                {"question": label, "answer": answer, "score": score, "max_score": max_score, "feedback": feedback}
             )
             scores.append(score)
+            max_scores.append(max_score)
 
-        avg = round(sum(scores) / len(scores), 1) if scores else 0.0
-        return {"questions": questions, "percentage": avg}
+        total_score = sum(scores)
+        total_max = sum(max_scores)
+        percentage = round((total_score / total_max) * 100, 1) if total_max else 0.0
+        return {"questions": questions, "percentage": percentage}
 
     def _score_reflection_field(
-        self, field: str, answer: str, case_metadata: Dict[str, Any]
+        self, field: str, answer: str, question_meta: Dict[str, Any]
     ) -> Tuple[int, str]:
         normalized = _normalize_asr(answer)
         word_count = len(normalized.split()) if normalized else 0
-        min_words = MIN_WORDS_BY_FIELD.get(field, 3)
+        min_words = int(question_meta.get("min_words") or MIN_WORDS_DEFAULT)
+        max_score = int(question_meta.get("max_score") or 100)
 
         if not normalized or normalized in INVALID_ANSWERS or word_count < min_words:
             return 0, "Respuesta demasiado breve o no valida."
 
-        if field == "diagnostico_principal":
-            expected = str(case_metadata.get("diagnostico_principal") or "")
-            if expected:
-                expected_norm = _normalize_asr(expected)
-                if expected_norm and expected_norm in normalized:
-                    return 90, "Diagnostico principal correcto."
-                if self._token_overlap(normalized, expected_norm) >= 1:
-                    return 70, "Diagnostico parcialmente correcto."
-                return 40, "Diagnostico poco preciso."
-            return 60, "Diagnostico aportado."
+        rubric = question_meta.get("rubric") or []
+        if isinstance(rubric, list) and rubric:
+            total_weight = 0
+            matched_weight = 0
+            matched_labels = []
+            missing_labels = []
+            for item in rubric:
+                if not isinstance(item, dict):
+                    continue
+                weight = int(item.get("weight") or 0)
+                if weight <= 0:
+                    continue
+                total_weight += weight
+                terms = item.get("terms") or []
+                if isinstance(terms, str):
+                    terms = [terms]
+                hit = self._list_hits(normalized, terms) if terms else 0
+                label = str(item.get("label") or item.get("key") or "").strip()
+                if hit > 0:
+                    matched_weight += weight
+                    if label:
+                        matched_labels.append(label)
+                else:
+                    if label:
+                        missing_labels.append(label)
+            if total_weight > 0:
+                score = int(round((matched_weight / total_weight) * max_score))
+                feedback_parts = []
+                if matched_labels:
+                    feedback_parts.append("Cumple: " + ", ".join(matched_labels))
+                if missing_labels:
+                    feedback_parts.append("Falta: " + ", ".join(missing_labels))
+                feedback = ". ".join(feedback_parts) if feedback_parts else "Respuesta evaluada."
+                return score, feedback
 
-        if field == "diagnosticos_diferenciales":
-            expected = case_metadata.get("diagnosticos_diferenciales") or []
-            return self._score_list_field(normalized, expected, "diferenciales")
+        expected = question_meta.get("expected_terms") or question_meta.get("expected_keywords") or []
+        if isinstance(expected, str):
+            expected = [expected]
 
-        if field == "pruebas_diagnosticas":
-            expected = case_metadata.get("pruebas_esperadas") or []
-            return self._score_list_field(normalized, expected, "pruebas")
+        if expected:
+            hits = self._list_hits(normalized, expected)
+            if hits >= max(2, len(expected)):
+                return max_score, "Respuesta completa."
+            if hits >= 1:
+                return int(round(max_score * 0.7)), "Respuesta parcial."
+            return int(round(max_score * 0.4)), "Respuesta poco precisa."
 
-        if field == "resumen_caso":
-            expected_terms = []
-            for item in case_metadata.get("sintomas_principales") or []:
-                expected_terms.append(str(item))
-            motivo = case_metadata.get("motivo_consulta")
-            if motivo:
-                expected_terms.append(str(motivo))
-            if expected_terms:
-                hits = self._list_hits(normalized, expected_terms)
-                if hits >= 2:
-                    return 90, "Resumen completo."
-                if hits == 1:
-                    return 70, "Resumen correcto pero incompleto."
-            return 50, "Resumen poco detallado."
-
-        if field == "plan_manejo":
-            if word_count >= 10:
-                return 70, "Plan de manejo suficiente."
-            return 50, "Plan de manejo muy breve."
-
-        return 60, "Respuesta registrada."
+        return max_score, "Respuesta registrada."
 
     def _score_list_field(self, normalized: str, expected: List[str], label: str) -> Tuple[int, str]:
         if not expected:

@@ -1,0 +1,192 @@
+{
+  "id": "iam_001",
+  "autor_profesor": "demo@umh.es",
+  "titulo": "Dolor torácico en varón de 55 años",
+  "especialidad": "Cardiología",
+  "dificultad": "Intermedio",
+  "duracion_estimada": 12,
+  "motivo_consulta": "Paciente que acude por dolor torácico opresivo de inicio brusco.",
+  "informacion_paciente": {
+    "nombre": "Juan Pérez",
+    "edad": 55,
+    "genero": "male",
+    "ocupacion": "Profesor"
+  },
+  "sintomas_principales": ["dolor torácico", "sudoración", "náuseas"],
+  "diagnostico_principal": "Infarto agudo de miocardio",
+  "diagnosticos_diferenciales": ["Angina inestable", "Disección aórtica", "Tromboembolismo pulmonar"],
+  "pruebas_esperadas": ["ECG urgente", "Troponinas seriadas"],
+  "antecedentes": {
+    "personales": ["HTA", "Dislipidemia", "Tabaquismo"],
+    "familiares": ["Padre IAM a los 58 años"]
+  },
+  "datos_paciente": {
+    "frases": {
+      "motivo_consulta": "Me duele el pecho, doctor.",
+      "relato_libre": "Pues verá, estaba en casa viendo la tele cuando de repente me empezó a doler el pecho. Es un dolor muy fuerte, como si me apretaran."
+    },
+    "personalidad": {
+      "rasgos": ["preocupado", "colaborador"],
+      "verbosidad": "baja",
+      "registro": "coloquial"
+    },
+    "hechos": {
+      "hea": {
+        "localizacion": "Centro del pecho, región retroesternal",
+        "inicio": "Hace unas 2 horas, de forma brusca",
+        "caracteristicas": "Dolor opresivo, como un peso o aprieto",
+        "irradiacion": "Se me irradia al brazo izquierdo y a la mandíbula",
+        "intensidad_0_10": "8-9 de 10",
+        "agravantes": "No mejora con nada",
+        "atenuantes": "No he encontrado nada que lo alivie",
+        "evolucion": "Continuo desde que empezó",
+        "duracion_episodios": "Continuo, no se va",
+        "asociados": "Sudoración fría, náuseas"
+      },
+      "antecedentes": {
+        "cronicas": ["Hipertensión arterial", "Dislipidemia"],
+        "cirugias": [],
+        "hospitalizaciones": []
+      },
+      "medicacion_actual": ["Enalapril 10mg", "Atorvastatina 20mg"],
+      "alergias": {
+        "medicamentos": [],
+        "no_medicamentos": []
+      },
+      "familiares": {
+        "patologias_primer_grado": "Mi padre tuvo un infarto a los 58 años",
+        "eventos_cv_precoces": true
+      },
+      "habitos": {
+        "tabaco": {
+          "tiene": true,
+          "cantidad": "1 paquete al día",
+          "duracion": "30 años"
+        },
+        "alcohol": {
+          "tiene": false
+        },
+        "drogas": {
+          "tiene": false
+        }
+      },
+      "ros": {
+        "cardiovascular": {
+          "dolor_toracico": true,
+          "sintomas_vegetativos": "Sudoración profusa, náuseas",
+          "palpitaciones": false,
+          "sincope": false,
+          "edemas": false
+        },
+        "respiratorio": {
+          "disnea": "Leve, acompaña al dolor",
+          "tos": false
+        }
+      }
+    }
+  },
+  "preguntas_reflexion": [
+    {
+      "id": 1,
+      "question": "Resume el motivo de consulta y los síntomas más importantes del paciente.",
+      "field_name": "resumen_caso",
+      "max_score": 100,
+      "min_words": 8,
+      "rubric": [
+        {
+          "key": "sintoma_principal",
+          "label": "Menciona dolor torácico",
+          "weight": 30,
+          "terms": ["dolor torácico", "dolor en el pecho", "dolor opresivo"]
+        },
+        {
+          "key": "inicio",
+          "label": "Menciona inicio o duración",
+          "weight": 20,
+          "terms": ["desde", "hace", "horas", "inicio brusco", "de repente"]
+        },
+        {
+          "key": "irradiacion",
+          "label": "Menciona irradiación",
+          "weight": 25,
+          "terms": ["brazo izquierdo", "mandíbula", "irradiado", "se irradia"]
+        },
+        {
+          "key": "vegetativos",
+          "label": "Menciona síntomas vegetativos",
+          "weight": 25,
+          "terms": ["sudoración", "náuseas", "disnea", "falta de aire"]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Cuál es tu diagnóstico más probable? Justifícalo con datos clínicos.",
+      "field_name": "diagnostico_principal",
+      "max_score": 100,
+      "min_words": 4,
+      "rubric": [
+        {
+          "key": "dx",
+          "label": "Diagnóstico principal compatible con IAM",
+          "weight": 60,
+          "terms": ["infarto agudo de miocardio", "iam", "síndrome coronario agudo"]
+        },
+        {
+          "key": "justificacion",
+          "label": "Justifica con datos de la anamnesis",
+          "weight": 40,
+          "terms": ["dolor opresivo", "irradiación", "sudoración", "náuseas", "factores de riesgo"]
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "question": "Indica dos diagnósticos diferenciales razonables y explica brevemente por qué.",
+      "field_name": "diagnosticos_diferenciales",
+      "max_score": 100,
+      "min_words": 6,
+      "rubric": [
+        {
+          "key": "teps",
+          "label": "Incluye TEP",
+          "weight": 35,
+          "terms": ["tromboembolismo pulmonar", "tep", "embolismo pulmonar"]
+        },
+        {
+          "key": "diseccion",
+          "label": "Incluye disección aórtica",
+          "weight": 35,
+          "terms": ["disección aórtica", "aorta"]
+        },
+        {
+          "key": "otra",
+          "label": "Aporta otro diferencial razonable",
+          "weight": 30,
+          "terms": ["angina inestable", "pericarditis", "neumotórax"]
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "question": "¿Qué pruebas complementarias solicitarías para confirmar tu diagnóstico? Justifica tu elección.",
+      "field_name": "pruebas_complementarias",
+      "max_score": 100,
+      "min_words": 5,
+      "rubric": [
+        {
+          "key": "ecg",
+          "label": "Solicita ECG urgente",
+          "weight": 50,
+          "terms": ["ecg", "electrocardiograma"]
+        },
+        {
+          "key": "troponinas",
+          "label": "Solicita troponinas",
+          "weight": 50,
+          "terms": ["troponina", "troponinas", "marcadores de necrosis"]
+        }
+      ]
+    }
+  ]
+}

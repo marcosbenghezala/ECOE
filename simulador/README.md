@@ -30,10 +30,10 @@ Sistema de simulación de entrevistas clínicas con pacientes virtuales con voz,
 - **Dashboard Interactivo**: Selección de casos clínicos con información detallada
 - **Simulación con Audio en Tiempo Real**: Conversación por voz con paciente virtual usando OpenAI Realtime API
 - **Captura de Audio**: MediaRecorder API para grabar voz del estudiante
-- **Reflexión Clínica**: 4 preguntas de razonamiento clínico después de la simulación
+- **Reflexión Clínica**: preguntas de razonamiento clínico definidas por cada caso
 - **Evaluación Automatizada**:
-  - Análisis de la entrevista con embeddings + keywords
-  - Evaluación de reflexión clínica con GPT-4o-mini en modo JSON
+  - Análisis de la entrevista con checklist determinista (regex + keywords)
+  - Evaluación de reflexión clínica con reglas clínicas básicas
   - Puntuación detallada por ítems
 - **Pantalla de Resultados**: Visualización completa de la evaluación con:
   - Puntuación general y por categorías
@@ -61,7 +61,7 @@ Sistema de simulación de entrevistas clínicas con pacientes virtuales con voz,
 ├─────────────────┤         ├──────────────────┤         ├─────────────────┤
 │ • Dashboard     │         │ • REST API       │         │ • Realtime API  │
 │ • Simulation    │         │ • WebSocket      │         │ • GPT-4o-mini   │
-│ • Reflection    │         │ • Evaluation     │         │ • Embeddings    │
+│ • Reflection    │         │ • Evaluation     │         │                 │
 │ • Results       │         │ • Google Sheets  │         └─────────────────┘
 └─────────────────┘         └──────────────────┘
      :5173                       :5001
@@ -93,12 +93,10 @@ Sistema de simulación de entrevistas clínicas con pacientes virtuales con voz,
 - **Flask-Sock** - WebSocket support
 - **OpenAI SDK 2.8.1** - APIs de IA
 - **gspread** - Google Sheets integration
-- **numpy** - Cálculos científicos
 
 ### APIs Externas
 - **OpenAI Realtime API** - Conversación de voz en tiempo real
-- **OpenAI GPT-4o-mini** - Evaluación de reflexión clínica
-- **OpenAI Embeddings** - Análisis semántico de transcripciones
+- **OpenAI GPT-4o-mini** - (opcional) Evaluación de reflexión clínica
 - **Google Sheets API** - Persistencia de datos
 
 ---
@@ -237,11 +235,7 @@ Abrir http://localhost:8080 en el navegador
 - El paciente responderá con voz sintética en tiempo real
 
 ### 4. Completar Reflexión Clínica
-Después de la simulación, responder las 4 preguntas de desarrollo:
-1. **Resumen del caso:** Síntomas y motivo de consulta
-2. **Diagnóstico principal:** Tu diagnóstico más probable
-3. **Diagnósticos diferenciales:** Otros diagnósticos posibles
-4. **Pruebas complementarias:** Pruebas que solicitarías
+Después de la simulación, responde las preguntas definidas en el caso.
 
 ### 5. Ver Resultados
 La pantalla de resultados muestra:
@@ -255,7 +249,7 @@ La pantalla de resultados muestra:
 
 Los casos se pueden crear en formato **JSON** (recomendado) o **pickle** (legacy).
 
-**Formato JSON recomendado** (`casos_procesados/mi_caso.json`):
+**Formato JSON recomendado** (`../casos_procesados/mi_caso.json`):
 
 ```json
 {
@@ -283,20 +277,43 @@ Los casos se pueden crear en formato **JSON** (recomendado) o **pickle** (legacy
   "preguntas_reflexion": [
     {
       "id": 1,
-      "pregunta": "Resume el motivo de consulta...",
-      "criterio": "Debe mencionar...",
-      "max_score": 2
+      "question": "Resume el motivo de consulta y los síntomas más importantes.",
+      "field_name": "resumen_caso",
+      "max_score": 100,
+      "min_words": 6,
+      "rubric": [
+        { "key": "sintoma_principal", "label": "Menciona dolor torácico", "weight": 30, "terms": ["dolor torácico", "dolor en el pecho"] },
+        { "key": "irradiacion", "label": "Menciona irradiación", "weight": 25, "terms": ["irradiado", "brazo izquierdo", "mandíbula"] },
+        { "key": "tiempo", "label": "Menciona inicio o duración", "weight": 25, "terms": ["hace", "desde", "horas", "inicio brusco"] },
+        { "key": "vegetativos", "label": "Síntomas vegetativos", "weight": 20, "terms": ["sudoración", "náuseas", "disnea"] }
+      ]
+    },
+    {
+      "id": 2,
+      "question": "¿Cuál es tu diagnóstico más probable? Justifica con datos clínicos.",
+      "field_name": "diagnostico_principal",
+      "max_score": 100,
+      "min_words": 3,
+      "rubric": [
+        { "key": "dx", "label": "Diagnóstico principal", "weight": 60, "terms": ["infarto agudo de miocardio", "iam", "síndrome coronario agudo"] },
+        { "key": "datos", "label": "Justifica con datos clínicos", "weight": 40, "terms": ["dolor opresivo", "irradiación", "sudoración", "náuseas"] }
+      ]
     }
-  ]
+  ],
+
 }
 ```
 
-Actualmente no hay casos precargados.
+Ejemplo completo listo para usar: `../casos_procesados/iam_001.json`.
+
+Actualmente no hay más casos precargados.
 
 Para crear un nuevo caso:
-- Copia `casos_procesados/_TEMPLATE_CASO.json`
+- Copia `../casos_procesados/_TEMPLATE_CASO.json`
 - Renómbralo a `caso_<nombre>_001.json`
 - Rellena los campos según `TO_GITHUB/COMO_CREAR_CASOS.md`
+  
+El template se ignora en `/api/cases` (no aparece en el dashboard).
 
 ---
 
@@ -323,21 +340,18 @@ simulador/
 │   ├── dist/                     # Build compilado (servido por Flask)
 │   ├── package.json
 │   └── vite.config.ts
-├── casos_procesados/             # Casos clínicos (JSON + pickle)
+├── ../casos_procesados/          # Casos clínicos (JSON + pickle)
 │   ├── _TEMPLATE_CASO.json       # Template (NO se lista en /api/cases)
 │   └── *.bin                     # Casos legacy (pickle)
-├── data/                         # Checklist master y embeddings
+├── data/                         # Checklist master y utilidades
 │   ├── master-checklist-v2.json  # Checklist 180 ítems
-│   ├── master_items.json
-│   └── master_items_embeddings.npz
+│   ├── iam_gold_expected.json    # Verdades de oro para pruebas
+│   └── iam_gold_expected.csv
 ├── sessions/                     # Sesiones de simulación (runtime)
 │   └── *.json
 ├── colab_server.py               # Backend Flask principal
-├── evaluator_v3.py               # Sistema evaluación V3
-├── checklist_loader_v2.py        # Cargador de checklist
-├── case_adapter_v2.py            # Adaptador de casos
+├── evaluator_production.py       # Evaluador único (checklist v2)
 ├── realtime_voice.py             # WebSocket OpenAI Realtime API
-├── google_sheets_integration.py  # Integración Google Sheets
 ├── requirements.txt              # Dependencias Python
 ├── .env                          # Variables entorno (NO commitear)
 └── README.md                     # Este archivo
@@ -391,17 +405,28 @@ Evaluar simulación completada
 }
 ```
 
-**Response:**
+**Response (schema `evaluation.production.v1`):**
 ```json
 {
-  "overall_score": 75,
-  "clinical_reasoning_score": 70,
-  "communication_score": 80,
-  "completed_items": ["Preguntó por síntomas principales", ...],
-  "missed_items": ["No exploró antecedentes familiares", ...],
-  "strengths": ["Buena comunicación empática", ...],
-  "areas_for_improvement": ["Profundizar en la cronología", ...],
-  "feedback": "Buen trabajo general. Continúa practicando..."
+  "schema_version": "evaluation.production.v1",
+  "scores": {
+    "global": { "score": 62.5, "max": 100, "percentage": 62.5 },
+    "checklist": { "score": 88, "max": 180, "percentage": 48.9, "weighted": 34.2 },
+    "development": { "percentage": 95.0, "weighted": 28.5 }
+  },
+  "items": [
+    { "id": "B2_001", "bloque": "B2_HEA", "descripcion": "Inicio del dolor", "done": true, "score": 1, "max_score": 1 }
+  ],
+  "blocks": [
+    { "id": "B2_HEA", "name": "HEA", "score": 10, "max": 20, "percentage": 50.0, "items": [] }
+  ],
+  "development": {
+    "percentage": 95.0,
+    "questions": [
+      { "question": "Resumen del caso", "answer": "...", "score": 90, "max_score": 100, "feedback": "Cumple: ..." }
+    ]
+  },
+  "survey": {}
 }
 ```
 

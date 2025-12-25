@@ -634,15 +634,21 @@
       "critical": false,
       "no_applicable": false,
       "keywords": [
+        "irradia",
         "se irradia",
         "se extiende",
+        "extiende",
+        "va a algun lado",
+        "va hacia",
         "corre hacia",
         "baja a",
         "sube a",
-        "hacia donde"
+        "hacia donde",
+        "brazo",
+        "mandibula"
       ],
       "regex": [
-        "\\b(se\\s+irradia|se\\s+extiende|hacia\\s+donde\\s+se\\s+irradia|hacia\\s+donde\\s+se\\s+extiende|corre\\s+hacia|baja\\s+a|sube\\s+a)\\b"
+        "\\b(irradia|extiende|va\\s+(a\\s+algun\\s+lado|hacia)|corre\\s+hacia|baja\\s+a|sube\\s+a|hacia\\s+donde|brazo|mandibula)\\b"
       ]
     },
     {
@@ -654,14 +660,17 @@
       "critical": false,
       "no_applicable": false,
       "keywords": [
+        "del 1 al 10",
         "del 0 al 10",
-        "en una escala de 0 a 10",
+        "en una escala",
+        "escala de 0 a 10",
         "cuanto le duele",
         "cuanto te duele",
-        "intensidad"
+        "intensidad",
+        "cuanto duele"
       ],
       "regex": [
-        "\\b(del\\s+0\\s+al\\s+10|escala\\s+de\\s+0\\s+a\\s+10|en\\s+una\\s+escala\\s+de\\s+0\\s+a\\s+10)\\b"
+        "\\b(del\\s+[01]\\s+al\\s+10|escala|intensidad|cuanto\\s+(te\\s+|le\\s+)?duele)\\b"
       ]
     },
     {
@@ -1450,6 +1459,12 @@
       "critical": false,
       "no_applicable": false,
       "keywords": [
+        "fuma",
+        "fumas",
+        "fumador",
+        "fumadora",
+        "tabaco",
+        "cigarrillos",
         "fuma tabaco",
         "fumas tabaco",
         "consume tabaco",
@@ -1458,7 +1473,7 @@
         "es fumadora"
       ],
       "regex": [
-        "\\b(fuma\\s+tabaco|fumas\\s+tabaco|consum(e|es)\\s+tabaco|es\\s+fumador|es\\s+fumadora|toma(s)?\\s+tabaco)\\b"
+        "\\b(fuma(s|dor|dora)?|tabaco|cigarrillos?)\\b"
       ]
     },
     {
@@ -1488,14 +1503,21 @@
       "critical": false,
       "no_applicable": false,
       "keywords": [
+        "bebe",
+        "bebes",
+        "alcohol",
+        "toma alcohol",
+        "tomas alcohol",
         "bebe alcohol",
         "bebes alcohol",
         "consume alcohol",
         "consumes alcohol",
-        "suele beber alcohol"
+        "suele beber alcohol",
+        "vino",
+        "cerveza"
       ],
       "regex": [
-        "\\b(bebe\\s+alcohol|bebes\\s+alcohol|consum(e|es)\\s+alcohol|suele\\s+beber\\s+alcohol|sueles\\s+beber\\s+alcohol)\\b"
+        "\\b(bebe(s)?|alcohol|vino|cerveza|toma(s)?\\s+alcohol)\\b"
       ]
     },
     {
@@ -1525,15 +1547,18 @@
       "critical": false,
       "no_applicable": false,
       "keywords": [
+        "drogas",
+        "droga",
         "consume drogas",
         "consumes drogas",
         "drogas recreativas",
         "cannabis",
         "marihuana",
-        "cocaina"
+        "cocaina",
+        "te drogas"
       ],
       "regex": [
-        "\\b(consum(e|es)\\s+alguna\\s+droga|usa(s)?\\s+alguna\\s+droga|drogas\\s+recreativas|cannabis|marihuana|hachis|cocaina|anfetaminas|mdma|heroina)\\b"
+        "\\b(drogas?|te\\s+drogas|consum(e|es)\\s+(alguna\\s+)?droga|usa(s)?\\s+(alguna\\s+)?droga|cannabis|marihuana|cocaina)\\b"
       ]
     },
     {

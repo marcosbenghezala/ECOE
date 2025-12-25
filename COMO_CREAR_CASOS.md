@@ -15,7 +15,7 @@ No es necesario rellenar `respuesta_corta`/`respuesta_detalle` por cada ítem: e
 
 ## Estado actual
 
-Hay un caso de ejemplo ya creado: `TO_GITHUB/casos_procesados/caso_dolor_toracico_iam_001.json`.
+Hay un caso de ejemplo ya creado: `TO_GITHUB/casos_procesados/iam_001.json`.
 
 El endpoint `/api/cases`:
 - Ignora ficheros que empiezan por `_` (por eso el template no se lista).
@@ -156,6 +156,8 @@ Se escribe en `datos_paciente.frases.ice` (texto libre, 1 frase cada uno):
 ### Ejemplos de mapeo (orientativo)
 
 El template `TO_GITHUB/casos_procesados/_TEMPLATE_CASO.json` ya tiene la estructura esperada. Algunos ejemplos:
+
+Nota: `preguntas_reflexion` es obligatorio. Si falta, la UI no permitirá enviar la reflexión.
 
 - `SOCR_01` (localización) → `datos_paciente.hechos.hea.localizacion`
 - `SOCR_04` (irradiación) → `datos_paciente.hechos.hea.irradiacion`
